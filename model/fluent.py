@@ -3,7 +3,9 @@ from typing import List, Union
 
 from interval import Interval
 from ftype import Type, BoolType, IntType, EnumType, StructType
-from fvalue import Variable
+from fvalue import Variable, ArithmeticExpr
+
+from literal import *
 
 @dataclass(frozen=True)
 class Fluent():
@@ -37,6 +39,8 @@ class Fluent():
             try:
                 if isinstance(arg, int) and t.min <= arg and t.max >= arg:
                     return
+                if isinstance(arg, ArithmeticExpr):
+                    return
                 elif arg.type.contained_in(t):
                     return
                 else:
@@ -47,9 +51,9 @@ class Fluent():
         if t.is_enum_type():
 
             try:
-                if isinstance(arg, str) and arg in self.type.enum_values:
+                if isinstance(arg, str) and arg in t.enum_values:
                     return
-                elif arg.type == t:
+                elif arg.type.is_enum_type():
                     return
                 else:
                     raise Exception(se)
@@ -61,7 +65,7 @@ class Fluent():
             try:
                 if isinstance(arg, bool):
                     return
-                elif arg.type == t:
+                elif arg.type.is_bool_type():
                     return
                 else:
                     raise Exception(se)
@@ -77,30 +81,19 @@ class Fluent():
         if len(self.type) == 1:
 
             self._check_type(args[0], self.type, 0)
-
-        return Literal(self, args)
+            return FLiteral(self, args)
 
         c : int = 0
+
         for arg, t in zip(args, self.type):
-                                
-            self._check_type(args[0], self.type, c)
+
+            self._check_type(arg, t, c)
             c += 1
-            
-        return Literal(self, args)
+
+        return FLiteral(self, list(args))
 
 
-@dataclass
-class Literal():
-
-    fluent : Fluent = None
-    args : List[Union[int, str, Variable]] = None
-    negated : bool = False
-
-    def __neg__(self):
-        self.negated = not self.negated
-        return self
     
-                                
 def main():
 
     pos_type = IntType(1,4)

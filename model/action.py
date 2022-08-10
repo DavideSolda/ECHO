@@ -1,17 +1,20 @@
 from typing import List
 from dataclasses import dataclass
-from boolean import Expression, Symbol, NOT
+from fluent import *
+from literal import *
+from fvalue import *
+from ftype import *
 
 #TODO: introduction of templates
 #      needs of a fluent definition wich can be or boolean or of a particular type
 #      you should also be able to define new types
 #TODO: definition of a fixed set of actions that have a direct encoding into moveit
 
-@dataclass
+@dataclass(frozen=True)
 class I_Action():
     name : str
-    precondition : List[Expression]
-    effects : List[Expression]
+    precondition : List[Literal]
+    effects : List[FLiteral]
 
 @dataclass
 class inst_I_Action():
@@ -19,14 +22,7 @@ class inst_I_Action():
     ID : int
 
 def main():
-    p = Symbol("p")
-    q = Symbol("q")
-    a = I_Action(name = "a_1",\
-                 precondition = [p,q],\
-                 effects = [NOT(p)])
-    print(a)
-    i_a = inst_I_Action(a, 2)
-    print(i_a)
+    pass
 
 if __name__ == "__main__":
     main()

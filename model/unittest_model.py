@@ -66,6 +66,9 @@ class TestFTypeModule(unittest.TestCase):
 
             
 from fluent import *
+from literal import *
+from fvalue import *
+
 class TestFluentModule(unittest.TestCase):
 
 
@@ -79,11 +82,64 @@ class TestFluentModule(unittest.TestCase):
         self.f2 = Fluent("f1", self.s)
         self.f3 = Fluent("f3", self.e)
 
+        self.x = Variable("x", self.integer)
+        self.color_var = Variable("c", self.e)
+
     def test_fluent_equality(self):
 
         self.assertTrue(self.f1 == self.f2)
         self.assertFalse(self.f1 == self.f3)
 
+    def test_FLiteral(self):
+
+        self.f1('red', 2)
+
+        with self.assertRaises(Exception):
+            self.f1("red")
+        with self.assertRaises(Exception):
+            self.f1("blue", 1)
+        with self.assertRaises(Exception):
+            self.f1(1, "red")
+
+        self.f1('red', self.x)
+        self.f1('red', self.x + 1)
+        self.f1('red', 1 + self.x + 1)
+        self.f1('red', 1- self.x)
+
+        with self.assertRaises(Exception):
+            self.f1('red', 'red' - self.x)
+
+        self.f3(self.color_var)
+
+    def test_BELiteral(self):
+
+        eq(3, 3)
+        with self.assertRaises(Exception):    
+            neq(3, "red")
+
+
+from action import *
+
+class TestAction(unittest.TestCase):
+
+    def setUp(self):
+        self.integer = IntType(1, 3)
+        self.enum_values = ["red", "orange", "yellow"]
+        self.e = EnumType(self.enum_values)
+        self.s = StructType([self.e, self.integer])
+        self.f1 = Fluent("f1", self.s)
+        self.f2 = Fluent("f1", self.s)
+        self.f3 = Fluent("f3", self.e)
+
+        self.x = Variable("x", self.integer)
+        self.color_var = Variable("c", self.e)
+        
+    
+    def test_action(self):
+        
+        l_pre = self.f1('red', self.x)
+        l_effect = self.f1('yellow', self.x)
+        I_Action(name = "from_red_to_yellow", precondition = [l_pre], effects = [l_effect])
+        
 if __name__ == "__main__":
     unittest.main()
-        
