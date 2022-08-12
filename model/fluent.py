@@ -11,9 +11,9 @@ from literal import *
 class Fluent():
 
     name : str
-    type : Type
+    _type : Type
     
-    def __init__(self, name : str, ftype : Type = BoolType()):
+    def __init__(self, name : str, ftype : Type = BoolType("bool")):
 
         if(not isinstance(name, str)):
             raise Exception("The fluent name must be a string")
@@ -22,7 +22,11 @@ class Fluent():
             raise Exception("The fluent type must be an instance of fType.Type")
 
         object.__setattr__(self, "name", name)
-        object.__setattr__(self, "type", ftype)
+        object.__setattr__(self, "_type", ftype)
+
+    @property
+    def type(self):
+        return self._type
 
     def __eq__(self, other):
         return self.name == other.name and self.type == other.type

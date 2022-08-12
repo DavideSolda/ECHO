@@ -7,9 +7,12 @@ from interval import Interval
 
 @dataclass(frozen=True)
 class Type:
+
+    _name : str
+    def __init__(self, name : str):
+        object.__setattr__(self, "_name", name)
     def is_bool_type(self) -> bool:
-        return False
-    
+        return False    
     def is_enum_type(self) -> bool:
         return False
     def is_int_type(self) -> bool:
@@ -20,26 +23,33 @@ class Type:
         return self is _type
     def __len__(self):
         return 1
+    @property
+    def name(self) -> str:
+        return self._name
 
 @dataclass(frozen=True)
 class BoolType(Type):
 
-    def __init__(self):
-        super().__init__()
+
+    def __init__(self, name : str):
+        super().__init__(name)
         
     def is_bool_type(self) -> bool:
         return True
     def __repr__(self) -> str:
-        return "bool"
+        return f"{self.name} bool"
 
 @dataclass(frozen=True)
 class IntType(Type):
-
+    
     _max : int
     _min : int
-    def __init__(self, _min : int, _max : int):
+    _name : str
 
-        super().__init__()
+    def __init__(self, name : str, _min : int, _max : int):
+
+
+        super().__init__(name)
 
         if (_max < _min):
             raise Exception(f"max : {_max} > min : {_min}")
@@ -48,11 +58,11 @@ class IntType(Type):
 
             object.__setattr__(self, "_max", _max)
             object.__setattr__(self, "_min", _min)
+            object.__setattr__(self, "_name", name)
             return
         else:
 
             raise Exception(f"integer type ill-defined: IntType({_min}, {_max})")
-            
 
     @property
     def min(self) -> int:
@@ -66,7 +76,7 @@ class IntType(Type):
         return i >= self.min and i <= self.max
     
     def __repr__(self) -> str:
-        return f"int : [{self.min}, {self.max}]"
+        return f"{self.name} : [{self.min}, {self.max}]"
 
     def is_int_type(self) -> bool:
         return True
@@ -81,9 +91,9 @@ class IntType(Type):
 @dataclass(frozen=True)
 class EnumType(Type):
 
-    def __init__(self, domain : List[str]):
+    def __init__(self, name : str, domain : List[str]):
 
-        super().__init__()
+        super().__init__(name)
 
         try:
             for enum_val in domain:
@@ -95,7 +105,7 @@ class EnumType(Type):
         object.__setattr__(self, "domain", domain)
 
     def __repr__(self) -> str:
-        return f"enum : {self.domain}"
+        return f"{self.name} : {self.domain}"
 
     def is_enum_type(self) -> bool:
         return True
@@ -110,9 +120,9 @@ class EnumType(Type):
 @dataclass(frozen=True)
 class StructType(Type):
 
-    def __init__(self, types : List[Type]):
+    def __init__(self, name : str, types : List[Type]):
 
-        super().__init__()
+        super().__init__(name)
 
         try:
 
@@ -130,7 +140,7 @@ class StructType(Type):
 
     def __repr__(self):
 
-        return f"struct : {self.domain}"
+        return f"{self.name} : {self.domain}"
         
     def is_struct_type(self) -> bool:
 
@@ -150,16 +160,19 @@ class StructType(Type):
         return self.domain
 
 def main():
-    
-    i1 = IntType(Interval(2,3))
+
+    b = BoolType("b")
+    print(b)
+
+    i1 = IntType("i1", 2, 3)
     print(i1)
-    i2 = IntType(Interval(2,3))
-    print(i2)
-    st = StructType([i1, i2])
-    print(st)
-    i3 = IntType(Interval(2,5))
-    print()
-    #i2 = IntType()
+
+    e = EnumType("colors", ["red", "white"])
+    print(e)
+    """
+    print(i1.name())
+    print(i1)
+    """
 
 if __name__ == "__main__":
     main()

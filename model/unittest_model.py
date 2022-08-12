@@ -21,11 +21,11 @@ class TestFTypeModule(unittest.TestCase):
 
     def setUp(self):
 
-        self.integer = IntType(1, 3)
-        self.b = BoolType()
+        self.integer = IntType("integer", 1, 3)
+        self.b = BoolType("b")
         self.enum_values = ["red", "orange", "yellow"]
-        self.e = EnumType(self.enum_values)
-        self.s = StructType([self.e, self.integer])
+        self.e = EnumType("color", self.enum_values)
+        self.s = StructType("s", [self.e, self.integer])
 
     
     def test_is_bool_type(self):
@@ -74,10 +74,10 @@ class TestFluentModule(unittest.TestCase):
 
     def setUp(self):
 
-        self.integer = IntType(1, 3)
+        self.integer = IntType("integer", 1, 3)
         self.enum_values = ["red", "orange", "yellow"]
-        self.e = EnumType(self.enum_values)
-        self.s = StructType([self.e, self.integer])
+        self.e = EnumType("colors", self.enum_values)
+        self.s = StructType("s", [self.e, self.integer])
         self.f1 = Fluent("f1", self.s)
         self.f2 = Fluent("f1", self.s)
         self.f3 = Fluent("f3", self.e)
@@ -123,10 +123,10 @@ from action import *
 class TestAction(unittest.TestCase):
 
     def setUp(self):
-        self.integer = IntType(1, 3)
+        self.integer = IntType("integer", 1, 3)
         self.enum_values = ["red", "orange", "yellow"]
-        self.e = EnumType(self.enum_values)
-        self.s = StructType([self.e, self.integer])
+        self.e = EnumType("color", self.enum_values)
+        self.s = StructType("s", [self.e, self.integer])
         self.f1 = Fluent("f1", self.s)
         self.f2 = Fluent("f1", self.s)
         self.f3 = Fluent("f3", self.e)

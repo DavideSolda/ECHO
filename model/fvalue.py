@@ -72,7 +72,17 @@ class ArithmeticExpr():
     def __init__(self, op : ArithmeticOperator, values : List[Union["ArithmenticExpr", int, Variable]]):
 
         self.values = values
-        self.op    = op       
+        self.op    = op
+        self.types = []
+        for v in values:
+            try:
+                self.types.append(v.types)
+            except:
+                pass
+
+    @property
+    def types(self):
+        return self.types
 
     def _op_int(self, other, op):
 
