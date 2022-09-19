@@ -51,8 +51,9 @@ class BELiteral(Literal):
 
     def __init__(self, op : "BooleanOperator", \
                  args : List[Union["ArithmenticExpr", int, "Variable"]]):
-        self.op = op
-        self.args = args
+        assert len(args) == 2
+        self._op = op
+        self._args = args
         self._types = []
         for arg in args:
             try:
@@ -65,4 +66,13 @@ class BELiteral(Literal):
                 self.variables.append(arg.variables)
             except:
                 pass
-        
+    @property
+    def operator(self) -> "BooleanOperator":
+        return self._op
+
+    @property
+    def args(self) -> List[Union["ArithmenticExpr", int, "Variable"]]:
+        return self._args
+
+    def __repr__(self) -> str:
+        return f"{self.operator.value} {self._args}"

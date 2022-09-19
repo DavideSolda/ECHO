@@ -13,6 +13,7 @@ from ftype import *
 @dataclass(frozen=True)
 class I_Action():
     name : str
+    params : List[Union[int, str, "Variable", "ArithmenticExpr"]]
     precondition : List[Literal]
     effects : List[FLiteral]
 
@@ -20,9 +21,3 @@ class I_Action():
 class inst_I_Action():
     action : I_Action
     ID : int
-
-def main():
-    pass
-
-if __name__ == "__main__":
-    main()

@@ -146,7 +146,7 @@ class TestAction(unittest.TestCase):
         
         l_pre = self.f1('red', self.x)
         l_effect = self.f1('yellow', self.x)
-        I_Action(name = "from_red_to_yellow", precondition = [l_pre], effects = [l_effect])
+        I_Action(name = "from_red_to_yellow", params =[self.x], precondition = [l_pre], effects = [l_effect])
         
 
 from problem import *
@@ -154,46 +154,6 @@ from problem import *
 class TestProblem(unittest.TestCase):
 
     def setUp(self):
-        self.integer = IntType("integer", 1, 3)
-        self.integer2 = IntType("integer", 2, 3)
-        self.enum_values = ["red", "orange", "yellow"]
-        self.e = EnumType("color", self.enum_values)
-        self.s = StructType("s", [self.e, self.integer])
-        self.f1 = Fluent("f1", self.s)
-        self.f2 = Fluent("f1", self.s)
-        self.f3 = Fluent("f3", self.e)
-
-        self.x = Variable("x", self.integer)
-        self.color_var = Variable("c", self.e)
-
-        l_pre = [self.f1('red', self.x), self.f3("orange")]
-        l_effect = self.f1('yellow', self.x)
-        self.action = I_Action(name = "from_red_to_yellow", precondition = l_pre, effects = [l_effect])
-
-    def test_illed_problem(self):
-        p = Problem()
-
-        with self.assertRaises(Exception):
-            p.add_variable(self.x)
-
-
-        with self.assertRaises(Exception):
-            p.add_fluent(self.f1)
-
-
-        with self.assertRaises(Exception):
-            p.add_type(self.integer)
-            p.add_type(self.integer2)
-
-        with self.assertRaises(Exception):
-            p.add_action(self.action)
-
-    def test_problem(self):
-        p = Problem()
-        #add types:
-        p.add_type(self.integer)
-        p.add_type(self.e)
-        p.add_type(self.s)
         #add fluents:
         p.add_fluent(self.f1)
         p.add_fluent(self.f3)

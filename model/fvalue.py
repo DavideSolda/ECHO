@@ -71,8 +71,9 @@ class ArithmeticExpr():
     
     def __init__(self, op : ArithmeticOperator, values : List[Union["ArithmenticExpr", int, Variable]]):
 
-        self.values = values
-        self.op    = op
+        assert len(values) == 2
+        self._values = values
+        self._op    = op
         self._types = []
         for v in values:
             try:
@@ -88,6 +89,14 @@ class ArithmeticExpr():
             else: #ArithmeticExpr
                 self._variables += v.variables
                 
+
+    @property
+    def values(self) -> List[Union["ArithmenticExpr", int, Variable]]:
+        return self._values
+
+    @property
+    def operator(self):
+        return self._op
 
     @property
     def variables(self):
@@ -120,7 +129,7 @@ class ArithmeticExpr():
         return self._op_int(other, ArithmenticOperator.Sub)
 
     def __repr__(self):
-        return f"{self.values[0]} {self.op} {self.values[1]}"
+        return f"{self.values[0]} {self.operator} {self.values[1]}"
 
 def is_int_fvalue(x):
     return isinstance(x, int) \

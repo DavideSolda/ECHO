@@ -17,62 +17,75 @@ class Solving_Algorithm(Enum):
 class Problem():
 
     def __init__(self):
-        self.inits     : List[FLiteral] = []
-        self.goals     : List[FLiteral] = []
-        self.types     : List[Type]     = []
-        self.variables : List[Variable] = []
-        self.fluents   : List[Fluent]   = []
-        self.domain    : List[I_Action] = []
+        self._inits     : List[FLiteral] = []
+        self._goals     : List[FLiteral] = []
+        self._types     : List[Type]     = []
+        self._variables : List[Variable] = []
+        self._fluents   : List[Fluent]   = []
+        self._domain    : List[I_Action] = []
+
+    @property
+    def types(self): return self._types
+
+    @property
+    def init_values(self): return self._inits
+
+    @property
+    def fluents(self): return self._fluents
+
+    @property
+    def actions(self): return self._domain
 
     def add_type(self, t : Type) -> None:
 
-        for _t in self.types:
+        for _t in self._types:
             if t == _t:
                 logging.info(f"{t} already inserted")
             elif _t.name == t.name:
                 raise Exception(f"{_t} has name {_t.name} as {t}")
 
-        self.types.append(t)
+        self._types.append(t)
 
     def add_variable(self, v : Variable) -> None:
 
-        if not v.type in self.types:
+        if not v.type in self._types:
 
             raise Exception(f"{v.type} not added")
 
-        self.variables.append(v)
+        self._variables.append(v)
 
     def add_fluent(self, fluent : Fluent):
 
-        if not fluent.type in self.types:
+        if not fluent.type in self._types and not fluent.type.is_bool_type():
 
             raise Exception(f"{fluent.type} not added")
 
-        self.fluents.append(fluent)
+        self._fluents.append(fluent)
 
     def add_action(self, action : I_Action):
 
+
         for pre in action.precondition:
             for t in pre.types:
-                if not t in self.types:
+                if not t in self._types:
                     raise Exception(f"{t} not added, from {pre} in preconditions")
 
         for eff in action.effects:
             for t in eff.types:
-                if not t in self.types:
+                if not t in self._types:
                     raise Exception(f"{t} not added, from {eff} in effects")
 
-        self.domain.append(action)
+        self._domain.append(action)
 
     def add_initial_values(self, *args):
 
         for arg in args:
-            self.inits.append(arg)
+            self._inits.append(arg)
 
     def add_goals(self, *args):
 
         for arg in args:
-            self.gaols.append(arg)
+            self._gaols.append(arg)
 
     def __repr__(self):
 
@@ -80,24 +93,24 @@ class Problem():
         s = "Problem domain:"
         s += sep
         s += "Types\n"
-        s += "\n".join(map(lambda x: str(x), self.types))
+        s += "\n".join(map(lambda x: str(x), self._types))
         s += sep
         s += "Variables\n"
-        s += "\n".join(self.variables)
+        s += "\n".join(self._variables)
         s += sep
         s += "Fluents\n"
-        s += "\n".join(self.fluents)
+        s += "\n".join(self._fluents)
         s += sep
         s += "Actions\n"
-        s += "\n".join(self.domain)
+        s += "\n".join(self._domain)
         s += sep + sep
         s += "Problem instance:"
         s += sep
         s += "Initial values\n"
-        s += "\n".join(self.inits)
+        s += "\n".join(self._inits)
         s += sep
         s += "Goals\n"
-        s += "\n".join(self.goals)
+        s += "\n".join(self._goals)
 
         return s
     def solve(self, solving_algorithm : Solving_Algorithm = Solving_Algorithm.PARTIAL_ORDER_PLANNING):
