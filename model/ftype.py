@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from random import randint
 
 from typing import Tuple
-from interval import Interval
 
 @dataclass(frozen=True)
 class Type:

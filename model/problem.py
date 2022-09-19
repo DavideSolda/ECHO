@@ -1,6 +1,7 @@
 from typing import List, Dict
 from dataclasses import dataclass
 from enum import Enum
+import logging
 
 from action import I_Action
 from fluent import *
@@ -45,7 +46,7 @@ class Problem():
 
         if not fluent.type in self.types:
 
-            raise Exception(f"{v.type} not added")
+            raise Exception(f"{fluent.type} not added")
 
         self.fluents.append(fluent)
 

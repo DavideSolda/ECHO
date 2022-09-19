@@ -94,6 +94,7 @@ class Fluent():
             self._check_type(arg, t, c)
             c += 1
 
+
         return FLiteral(self, list(args))
 
 

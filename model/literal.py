@@ -5,6 +5,7 @@ class Literal():
 
     negated : bool
     _types : List[Union[int, str, "Variable"]]
+    _variables : List["Variable"]
 
     def __init__(self):
         negated = False
@@ -17,13 +18,14 @@ class Literal():
     def types(self):
         return self._types
 
-@dataclass
+    @property
+    def variables(self):
+        return self._variables
+
 class FLiteral(Literal):
 
     fluent : "Fluent"
-    negated : bool
     args : List[Union[int, str, "Variable"]] = field(default_factory = (lambda : []))
-    _types : field(default_factory = (lambda : []))
 
     def __init__(self, fluent : "Fluent", args):
 
@@ -31,14 +33,21 @@ class FLiteral(Literal):
         self.fluent = fluent
         self.args = args
         self.negated = False
-        self._types.append(self.fluent.type)
+        self._types = [self.fluent.type]
+        self._variables = []
+        for arg in args:
+            try:
+                self.variables.append(arg.variables)
+            except:
+                pass
 
-@dataclass
+    def __repr__(self) -> str:
+        return f"{self.fluent.name}({self.args})"
+
 class BELiteral(Literal):
 
     op : "BooleanOperator"
     args : List[Union["ArithmenticExpr", int, "Variable"]]
-    #_types : field(default_factory = (lambda : []))
 
     def __init__(self, op : "BooleanOperator", \
                  args : List[Union["ArithmenticExpr", int, "Variable"]]):
@@ -48,6 +57,12 @@ class BELiteral(Literal):
         for arg in args:
             try:
                 self._types.append(arg.type)
+            except:
+                pass
+        self._variables = []
+        for arg in args:
+            try:
+                self.variables.append(arg.variables)
             except:
                 pass
         

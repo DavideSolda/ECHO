@@ -73,16 +73,29 @@ class ArithmeticExpr():
 
         self.values = values
         self.op    = op
-        self.types = []
+        self._types = []
         for v in values:
             try:
-                self.types.append(v.types)
+                self._types.append(v.types)
             except:
                 pass
+        self._variables = []
+        for v in values:
+            if isinstance(v, Variable):
+                self._variables.append(v)
+            elif isinstance(v, int):
+                pass
+            else: #ArithmeticExpr
+                self._variables += v.variables
+                
+
+    @property
+    def variables(self):
+        return self._variables
 
     @property
     def types(self):
-        return self.types
+        return self._types
 
     def _op_int(self, other, op):
 
