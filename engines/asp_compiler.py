@@ -39,7 +39,7 @@ def literal(lit : Literal) -> str:
         f_name = f"{lit.fluent.name}"
         lit_str = f_name + '(' + ','.join(map(param_val_2_asp, lit.args)) + ')'
         if neg :
-            return "not " + lit_str
+            return "neg " + lit_str
 
         return lit_str
     elif isinstance(lit, BELiteral):
@@ -53,10 +53,7 @@ def param_val_2_asp(param_val : Union[ArithmeticExpr, int, Variable, str]):
 
     if isinstance(param_val, str): return param_val
     elif isinstance(param_val, int): return str(param_val)
-    elif isinstance(param_val, Variable):
-        name = param_val.name
-        t = param_val.type.name
-        return f"{t}({name.upper()})"#TODO check uniqueness
+    elif isinstance(param_val, Variable): return param_val.name.upper()
     elif isinstance(param_val, ArithmeticExpr):
         left_val  = param_val_2_asp(param_val.values[0])
         right_val = param_val_2_asp(param_val.values[1])
@@ -68,6 +65,7 @@ def param_val_2_asp(param_val : Union[ArithmeticExpr, int, Variable, str]):
         assert False
 
 def to_asp_lines(lines : List[str]) -> str:
+    if len(lines) == 0 : return "" 
     SEP = '.\n'
     return  SEP.join(lines)+SEP
 
@@ -90,18 +88,60 @@ def fluent_2_asp(f : Fluent) -> str:
             l.append((var, sub_t))
             var = next_alpha(var)
         vars = ", ".join([var for var, var_type in l])
-        s += vars + "):-"
+        s += vars + ")):-"
         s += ",".join([f"{var_type.name}({var})" for var, var_type in l])
         return s
-            
 
+def action_to_asp(action : I_Action) -> str:
+    name = action.name
+    variables = action.params_var
+    s = ''
+    if len(action.params) > 1:
+        s = f'action({name})'
+        return s
+    else:
+        parameters = ','.join(map(param_val_2_asp, action.params))
+        s = f'action({name}({parameters}))'
+    if len(variables) > 0:
+        s += f':-{vars_to_asp(variables)}'
+    return s
+
+def vars_to_asp(variables : List[Variable]) -> str:
+
+    return ",".join([f"{var.type.name}({var.name.upper()})" for var in variables])
+
+def independent_rules() -> List[str]:
+
+    return [
+        #TIME:
+        "time(1..l)",
+        #GOALS:
+        "not_goal(T) :- time(T), goal(F), holds(F,T)",
+        "goal(T) :- time(T), not holds(F, T)",
+        ":- not goal(l)",
+        #OPPOSITE:
+        "opposite(F, neg(F))",
+        "opposite(neg(f), F)",
+        #EXECUTABILITY:
+        "not_executable(A,T) :- exec(A,F), not holds(F,T)",
+        "executable(A,T) :- T < l, not not_executable(A,T)",
+        "holds(F, T+1) :- T < l, executalbe(A,T), occurs(A,T), causes(A,F)",
+        #INERTIA:
+        "holds(F,T+1) :- opposite(F,G), T < l, holds(F,T), not holds(G, T+1)",
+        #OCCURS:
+        "occurs(A,T) :- action(A), time(T), not goal(T), not not_occurs(A,T)",
+        "not_occurs(A,T) :- action(A), action(B), time(T), occurs(B,T), A!=B",
+        ":- action(A), time(T), occurs(A,T), not executable(A,T)"
+    ]
 def compile_into_asp(problem : Problem) -> str:
 
 
     s =  "%Answer set planning.\n\n"
     s += "%Answer set planning: A Survey. E. Pontelli et al. For a survey.\n"
-    s += "%Epistemic Multiagent Reasoning with Collaborative Robots: D. Solda' el al. For a practical use-case."
+    s += "%Epistemic Multiagent Reasoning with Collaborative Robots: D. Solda' el al. For a practical use-case.\n\n"
 
+    s += title("[[\tPROBLEM DEPENDENT RULES\t]]")
+    
     s += title('TYPES')
     type_asp_convertion = []
     for t in problem.types:
@@ -132,6 +172,14 @@ def compile_into_asp(problem : Problem) -> str:
 
     s += to_asp_lines(init_values)
 
+    s += title('ACTIONS')
+
+    actions = []
+    for action in problem.actions:
+        actions.append(action_to_asp(action))
+
+    s += to_asp_lines(actions)
+
     s += title('EXECUTABLE')
 
     executabilities = []
@@ -139,9 +187,33 @@ def compile_into_asp(problem : Problem) -> str:
     for action in problem.actions:
         action_name = action.name
         params = ','.join(map(param_val_2_asp, action.params))
-        precond = ','.join(map(literal, action.precondition))
-        executabilities.append(action_name + '(' + params + ') :- ' + precond)
+        for precond in action.precondition:
+            precond = literal(precond)
+            executabilities.append('exec(' + action_name + '(' + params + '),' + precond + ')')
 
     s += to_asp_lines(executabilities)
-    print(s)
+
+    s += title('CAUSES')
+
+    causes = []
+    for action in problem.actions:
+        action_name = action.name
+        params = ','.join(map(param_val_2_asp, action.params))
+        for effect in action.effects:
+            effect = literal(effect)
+            causes.append('causes(' + action_name + '(' + params + '),' + effect + ')')
+
+    s += to_asp_lines(causes)
+
+    s += title('GOALS')
+    goals = []
+    for goal in problem.goals:
+        goals.append('goal(' + literal(goal) + ')')
+
+    s += to_asp_lines(goals)
+    
+    s += title("[[\tPROBLEM INDEPENDENT RULES\t]]")
+
+    s += to_asp_lines(independent_rules())
+
     return s

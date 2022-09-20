@@ -46,6 +46,14 @@ class TestProblem2ASP(unittest.TestCase):
         p.add_action(self.action)
         #add initial values:
         p.add_initial_values(self.f1('red', 1))
-        p.add_initial_values(self.f1('orange', self.x + 1))
+        p.add_initial_values(self.f3('orange'))
+        p.add_initial_values(self.f1('orange', 1 + 1))
+        #add goals:
+        p.add_goals(self.f1('yellow', 1))
 
-        compile_into_asp(p)
+        s = compile_into_asp(p)
+
+        print(s)
+        with open("model.asp", "w") as f:
+            f.write(s)
+        

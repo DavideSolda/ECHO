@@ -36,6 +36,9 @@ class Problem():
     @property
     def actions(self): return self._domain
 
+    @property
+    def goals(self): return self._goals
+
     def add_type(self, t : Type) -> None:
 
         for _t in self._types:
@@ -80,12 +83,14 @@ class Problem():
     def add_initial_values(self, *args):
 
         for arg in args:
+            if len(arg.variables) > 0: assert False
+            #TODO: add check on the types
             self._inits.append(arg)
 
     def add_goals(self, *args):
 
         for arg in args:
-            self._gaols.append(arg)
+            self._goals.append(arg)
 
     def __repr__(self):
 
