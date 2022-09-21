@@ -106,6 +106,26 @@ def action_to_asp(action : I_Action) -> str:
         s += f':-{vars_to_asp(variables)}'
     return s
 
+def action_exec(action : I_Action, exec_lit : Literal) -> str:
+
+    variables = action.params_var + exec_lit.variables
+    body = "" if len(variables) == 0 else ':-' + vars_to_asp(variables)
+    if len(action.params) == 0:
+        return f'exec({action.name},{literal(exec_lit)})' + body
+    else:
+        parameters = ','.join(map(param_val_2_asp, action.params))
+        return f'exec({action.name}({parameters}),{literal(exec_lit)})' + body 
+
+def action_causes(action : I_Action, effect_lit : Literal) -> str:
+
+    variables = action.params_var + effect_lit.variables
+    body = "" if len(variables) == 0 else ':-' + vars_to_asp(variables)
+    if len(action.params) == 0:
+        return f'causes({action.name},{literal(effect_lit)})' + body
+    else:
+        parameters = ','.join(map(param_val_2_asp, action.params))
+        return f'causes({action.name}({parameters}),{literal(effect_lit)})' + body 
+
 def vars_to_asp(variables : List[Variable]) -> str:
 
     return ",".join([f"{var.type.name}({var.name.upper()})" for var in variables])
@@ -114,25 +134,32 @@ def independent_rules() -> List[str]:
 
     return [
         #TIME:
-        "time(1..l)",
-        #GOALS:
-        "not_goal(T) :- time(T), goal(F), holds(F,T)",
-        "goal(T) :- time(T), not holds(F, T)",
-        ":- not goal(l)",
+        "time(0..l)",
         #OPPOSITE:
-        "opposite(F, neg(F))",
-        "opposite(neg(f), F)",
-        #EXECUTABILITY:
-        "not_executable(A,T) :- exec(A,F), not holds(F,T)",
-        "executable(A,T) :- T < l, not not_executable(A,T)",
-        "holds(F, T+1) :- T < l, executalbe(A,T), occurs(A,T), causes(A,F)",
+        "opposite(F, neg(F)) :- fluent(F)",
+        "opposite(neg(f), F) :- fluent(F)",
         #INERTIA:
         "holds(F,T+1) :- opposite(F,G), T < l, holds(F,T), not holds(G, T+1)",
+        #GOALS:
+        "not_goal_at(T) :- time(T), not holds(F, T), goal(F), fluent(F)",
+        ":- not_goal_at(l)",
+        #EXECUTABILITY:
+        "not_executable(A,T) :- exec(A,F), not holds(F,T), time(T)",
+        "executable(A,T) :- T < l, not not_executable(A,T), time(T), action(A)",
+        "holds(F, T+1) :- T < l, executable(A,T), occurs(A,T), causes(A,F)",
+        "#show executable/2",
+        #OCCURS
+        "{occurs(A,T) : action(A)}1 :- time(T)",
+        ":- action(A), time(T), occurs(A,T), not executable(A,T)"]
+    """
         #OCCURS:
         "occurs(A,T) :- action(A), time(T), not goal(T), not not_occurs(A,T)",
         "not_occurs(A,T) :- action(A), action(B), time(T), occurs(B,T), A!=B",
-        ":- action(A), time(T), occurs(A,T), not executable(A,T)"
+        ":- action(A), time(T), occurs(A,T), not executable(A,T)",
+        "#show holds/2",
+        "#show goal/1"
     ]
+    """
 def compile_into_asp(problem : Problem) -> str:
 
 
@@ -188,8 +215,7 @@ def compile_into_asp(problem : Problem) -> str:
         action_name = action.name
         params = ','.join(map(param_val_2_asp, action.params))
         for precond in action.precondition:
-            precond = literal(precond)
-            executabilities.append('exec(' + action_name + '(' + params + '),' + precond + ')')
+            executabilities.append(action_exec(action, precond))
 
     s += to_asp_lines(executabilities)
 
@@ -200,8 +226,7 @@ def compile_into_asp(problem : Problem) -> str:
         action_name = action.name
         params = ','.join(map(param_val_2_asp, action.params))
         for effect in action.effects:
-            effect = literal(effect)
-            causes.append('causes(' + action_name + '(' + params + '),' + effect + ')')
+            causes.append(action_causes(action, effect))
 
     s += to_asp_lines(causes)
 

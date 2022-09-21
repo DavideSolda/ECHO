@@ -26,6 +26,7 @@ fluent(f_b).
 %%%%%%%%%% INITIALLY %%%%%%%%%%
 
 holds(f1(red,1), 0).
+holds(f3(orange), 0).
 holds(f1(orange,2), 0).
 
 
@@ -36,32 +37,31 @@ action(from_red_to_yellow(X)):-integer(X).
 
 %%%%%%%%%% EXECUTABLE %%%%%%%%%%
 
-exec(from_red_to_yellow(X),f1(red,X)).
-exec(from_red_to_yellow(X),f3(orange)).
+exec(from_red_to_yellow(X),f1(red,X)):-integer(X).
+exec(from_red_to_yellow(X),f3(orange)):-integer(X).
 
 
 %%%%%%%%%% CAUSES %%%%%%%%%%
 
-causes(from_red_to_yellow(X),f1(yellow,X)).
+causes(from_red_to_yellow(X),f1(yellow,X)):-integer(X).
 
 
 %%%%%%%%%% GOALS %%%%%%%%%%
 
-goal(f1(orange,2)).
+goal(f1(yellow,1)).
 
 
 %%%%%%%%%% [[	PROBLEM INDEPENDENT RULES	]] %%%%%%%%%%
 
-time(1..l).
-not_goal(T) :- time(T), goal(F), holds(F,T).
-goal(T) :- time(T), not holds(F, T).
-:- not goal(l).
-opposite(F, neg(F)).
-opposite(neg(f), F).
-not_executable(A,T) :- exec(A,F), not holds(F,T).
-executable(A,T) :- T < l, not not_executable(A,T).
-holds(F, T+1) :- T < l, executalbe(A,T), occurs(A,T), causes(A,F).
+time(0..l).
+opposite(F, neg(F)) :- fluent(F).
+opposite(neg(f), F) :- fluent(F).
 holds(F,T+1) :- opposite(F,G), T < l, holds(F,T), not holds(G, T+1).
-occurs(A,T) :- action(A), time(T), not goal(T), not not_occurs(A,T).
-not_occurs(A,T) :- action(A), action(B), time(T), occurs(B,T), A!=B.
+not_goal_at(T) :- time(T), not holds(F, T), goal(F), fluent(F).
+:- not_goal_at(l).
+not_executable(A,T) :- exec(A,F), not holds(F,T), time(T).
+executable(A,T) :- T < l, not not_executable(A,T), time(T), action(A).
+holds(F, T+1) :- T < l, executable(A,T), occurs(A,T), causes(A,F).
+#show executable/2.
+{occurs(A,T) : action(A)}1 :- time(T).
 :- action(A), time(T), occurs(A,T), not executable(A,T).
