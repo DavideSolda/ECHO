@@ -10,11 +10,11 @@ from shortcuts import *
 #occ(A,T)
 #possible(A,T)
 
-def enum_values(t : EnumType) -> str:
+def enum_values(t: EnumType) -> str:
     assert t.is_enum_type()
     return ';'.join(t)
 
-def int_values(t : IntType) -> str:
+def int_values(t: IntType) -> str:
     assert t.is_int_type()
     return f"{t.min}..{t.max}"
 
@@ -27,19 +27,19 @@ def struct_values(t : StructType) -> str:
         else: assert False
     return ','.join(sub_domains)
 
-def title(title : str) -> str:
+def title(title: str) -> str:
     new_lines = '\n\n'
     comments  = '%'*10
     return new_lines + comments + ' ' + title + ' ' + comments + new_lines
 
-def literal(lit : Literal) -> str:
+def literal(lit: Literal) -> str:
     neg = lit.negated
     lit_str = ""
     if isinstance(lit, FLiteral):
         f_name = f"{lit.fluent.name}"
         lit_str = f_name + '(' + ','.join(map(param_val_2_asp, lit.args)) + ')'
         if neg :
-            return "neg " + lit_str
+            return "neg(" + lit_str + ")"
 
         return lit_str
     elif isinstance(lit, BELiteral):
@@ -47,9 +47,8 @@ def literal(lit : Literal) -> str:
         left_val = param_val_2_asp(lit._args[0])
         right_val = param_val_2_asp(lit._args[1])
         return left_val + operator + right_val
-        
 
-def param_val_2_asp(param_val : Union[ArithmeticExpr, int, Variable, str]):
+def param_val_2_asp(param_val: Union[ArithmeticExpr, int, Variable, str]):
 
     if isinstance(param_val, str): return param_val
     elif isinstance(param_val, int): return str(param_val)
@@ -64,15 +63,15 @@ def param_val_2_asp(param_val : Union[ArithmeticExpr, int, Variable, str]):
     else:
         assert False
 
-def to_asp_lines(lines : List[str]) -> str:
-    if len(lines) == 0 : return "" 
+def to_asp_lines(lines: List[str]) -> str:
+    if len(lines) == 0: return ""
     SEP = '.\n'
-    return  SEP.join(lines)+SEP
+    return SEP.join(lines)+SEP
 
 def next_alpha(s):
     return chr((ord(s.upper())+1 - 65) % 26 + 65)
 
-def fluent_2_asp(f : Fluent) -> str:
+def fluent_2_asp(f: Fluent) -> str:
 
     fluent_name = f.name
     if f.type.is_bool_type():
@@ -92,9 +91,9 @@ def fluent_2_asp(f : Fluent) -> str:
         s += ",".join([f"{var_type.name}({var})" for var, var_type in l])
         return s
 
-def action_to_asp(action : I_Action) -> str:
+def action_to_asp(action: I_Action) -> str:
     name = action.name
-    variables = action.params_var
+    variables = action.params
     s = ''
     if len(action.params) > 1:
         s = f'action({name})'
@@ -106,27 +105,27 @@ def action_to_asp(action : I_Action) -> str:
         s += f':-{vars_to_asp(variables)}'
     return s
 
-def action_exec(action : I_Action, exec_lit : Literal) -> str:
+def action_exec(action: I_Action, exec_lit: Literal) -> str:
 
-    variables = action.params_var + exec_lit.variables
+    variables = action.params + exec_lit.variables
     body = "" if len(variables) == 0 else ':-' + vars_to_asp(variables)
     if len(action.params) == 0:
         return f'exec({action.name},{literal(exec_lit)})' + body
     else:
         parameters = ','.join(map(param_val_2_asp, action.params))
-        return f'exec({action.name}({parameters}),{literal(exec_lit)})' + body 
+        return f'exec({action.name}({parameters}),{literal(exec_lit)})' + body
 
-def action_causes(action : I_Action, effect_lit : Literal) -> str:
+def action_causes(action: I_Action, cause_lit: Literal) -> str:
 
-    variables = action.params_var + effect_lit.variables
+    variables = action.params + cause_lit.variables
     body = "" if len(variables) == 0 else ':-' + vars_to_asp(variables)
     if len(action.params) == 0:
-        return f'causes({action.name},{literal(effect_lit)})' + body
+        return f'causes({action.name},{literal(cause_lit)})' + body
     else:
         parameters = ','.join(map(param_val_2_asp, action.params))
-        return f'causes({action.name}({parameters}),{literal(effect_lit)})' + body 
+        return f'causes({action.name}({parameters}),{literal(cause_lit)})' + body
 
-def vars_to_asp(variables : List[Variable]) -> str:
+def vars_to_asp(variables: List[Variable]) -> str:
 
     return ",".join([f"{var.type.name}({var.name.upper()})" for var in variables])
 
@@ -137,29 +136,22 @@ def independent_rules() -> List[str]:
         "time(0..l)",
         #OPPOSITE:
         "opposite(F, neg(F)) :- fluent(F)",
-        "opposite(neg(f), F) :- fluent(F)",
+        "opposite(neg(F), F) :- fluent(F)",
         #INERTIA:
         "holds(F,T+1) :- opposite(F,G), T < l, holds(F,T), not holds(G, T+1)",
         #GOALS:
-        "not_goal_at(T) :- time(T), not holds(F, T), goal(F), fluent(F)",
+        "not_goal_at(T) :- time(T), not holds(F, T), goal(F)",
         ":- not_goal_at(l)",
         #EXECUTABILITY:
         "not_executable(A,T) :- exec(A,F), not holds(F,T), time(T)",
         "executable(A,T) :- T < l, not not_executable(A,T), time(T), action(A)",
         "holds(F, T+1) :- T < l, executable(A,T), occurs(A,T), causes(A,F)",
-        "#show executable/2",
         #OCCURS
         "{occurs(A,T) : action(A)}1 :- time(T)",
-        ":- action(A), time(T), occurs(A,T), not executable(A,T)"]
-    """
-        #OCCURS:
-        "occurs(A,T) :- action(A), time(T), not goal(T), not not_occurs(A,T)",
-        "not_occurs(A,T) :- action(A), action(B), time(T), occurs(B,T), A!=B",
         ":- action(A), time(T), occurs(A,T), not executable(A,T)",
-        "#show holds/2",
-        "#show goal/1"
+        "finally(F):- holds(F,l)"
     ]
-    """
+
 def compile_into_asp(problem : Problem) -> str:
 
 

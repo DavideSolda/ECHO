@@ -30,40 +30,31 @@ class Variable():
         self._vtype = vtype
 
     @property
-    def name(self):
-        return self._name
+    def name(self): return self._name
 
     @property
-    def type(self):
-        return self._vtype
+    def type(self): return self._vtype
 
-    def __eq__(self, var):
-        return var.name == self.name and var.type == self.type
+    def __hash__(self): return hash((self.name, self.type))
 
-    def __repr__(self):
-        return f"var {self.name} of type {self.type}"
+    def __eq__(self, var): return var.name == self.name and var.type == self.type
+
+    def __repr__(self): return f"var {self.name} of type {self.type}"
 
     def _op_int(self, other, op):
-        
+
         if self.type.is_int_type():
             if is_int_fvalue(other):
                 return ArithmeticExpr(op = op, values = [self, other])
         raise Exception("only integer varialbes can be used as sum term")
 
-    def __add__(self, other):
+    def __add__(self, other): return self._op_int(other, ArithmeticOperator.Plus)
 
-        return self._op_int(other, ArithmeticOperator.Plus)
+    def __radd__(self, other): return self._op_int(other, ArithmeticOperator.Plus)
 
-    def __radd__(self, other):
+    def __sub__(self, other): return self._op_int(other, ArithmeticOperator.Sub)
 
-        return self._op_int(other, ArithmeticOperator.Plus)
-    
-    def __sub__(self, other):
-        
-        return self._op_int(other, ArithmeticOperator.Sub)
-    
-    def __rsub__(self, other):                                                                                                                                                               
-        return self._op_int(other, ArithmeticOperator.Sub)
+    def __rsub__(self, other): return self._op_int(other, ArithmeticOperator.Sub)
 
 
 class ArithmeticExpr():

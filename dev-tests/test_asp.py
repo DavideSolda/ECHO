@@ -7,8 +7,8 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(1, os.path.join(current_dir, "..", "model"))
 from shortcuts import *
 
-sys.path.insert(1, os.path.join(current_dir, "..", "engines"))
-from asp_compiler import compile_into_asp 
+sys.path.insert(1, os.path.join(current_dir, "..", "engines", 'classical_answer_set_planning'))
+from asp_engine import *
 
 class TestProblem2ASP(unittest.TestCase):
 
@@ -27,8 +27,9 @@ class TestProblem2ASP(unittest.TestCase):
         self.color_var = Variable("c", self.e)
 
         l_pre = [self.f1('red', self.x), self.f3("orange")]
-        l_effect = self.f1('yellow', self.x)
-        self.action = I_Action(name = "from_red_to_yellow", params = [self.x], precondition = l_pre, effects = [l_effect])
+        l_effect = [self.f1('yellow', self.x), - self.f1('red', self.x)]
+        self.action_1 = I_Action(name = "action_1", params = [self.x], precondition = l_pre, effects = l_effect)
+        self.action_2 = I_Action(name = "action_2", params = [], precondition = [], effects = [- self.f3("orange")])
 
     def test_problem_2_asp(self):
         p = Problem()
@@ -43,18 +44,18 @@ class TestProblem2ASP(unittest.TestCase):
         #add variables:
         p.add_variable(self.x)
         #add action:
-        p.add_action(self.action)
+        p.add_action(self.action_1)
+        p.add_action(self.action_2)
         #add initial values:
         p.add_initial_values(self.f1('red', 1))
         p.add_initial_values(self.f3('orange'))
         p.add_initial_values(self.f1('orange', 1 + 1))
-        #p.add_initial_values(self.f1('yellow', 1))
         #add goals:
         p.add_goals(self.f1('yellow', 1))
+        p.add_goals(- self.f3("orange"))
 
-        s = compile_into_asp(p)
-
-        print(s)
-        with open("model.asp", "w") as f:
-            f.write(s)
-        os.system("clingo model.asp -c l=2")
+        #solve:
+        finally_holds, plan = solve(p)
+        print(f'plan:\n{plan}')
+        print("\n\n")
+        print(f'finally the following fluents hold:\n{finally_holds}')

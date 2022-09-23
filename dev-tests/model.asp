@@ -44,6 +44,7 @@ exec(from_red_to_yellow(X),f3(orange)):-integer(X).
 %%%%%%%%%% CAUSES %%%%%%%%%%
 
 causes(from_red_to_yellow(X),f1(yellow,X)):-integer(X).
+causes(from_red_to_yellow(X),neg(f1(red,X))):-integer(X).
 
 
 %%%%%%%%%% GOALS %%%%%%%%%%
@@ -62,6 +63,7 @@ not_goal_at(T) :- time(T), not holds(F, T), goal(F), fluent(F).
 not_executable(A,T) :- exec(A,F), not holds(F,T), time(T).
 executable(A,T) :- T < l, not not_executable(A,T), time(T), action(A).
 holds(F, T+1) :- T < l, executable(A,T), occurs(A,T), causes(A,F).
-#show executable/2.
 {occurs(A,T) : action(A)}1 :- time(T).
 :- action(A), time(T), occurs(A,T), not executable(A,T).
+#show holds/2.
+#show occurs/2.

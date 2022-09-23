@@ -1,4 +1,4 @@
-from action import I_Action, inst_I_Action
+from action import I_Action, Instantiated_I_Action
 from fluent import Fluent
 from fvalue import Variable, ArithmeticExpr
 from problem import Problem
