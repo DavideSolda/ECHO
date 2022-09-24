@@ -1,6 +1,7 @@
-from action import I_Action, Instantiated_I_Action
+from action import IAction, InstantiatedIAction, MEAction
 from fluent import Fluent
-from fvalue import Variable, ArithmeticExpr
-from problem import Problem
+from variable import Variable
+from arithmetic_expression import ArithmeticExpr
+from problem import ClassicalPlanningProblem
 from ftype import Type, BoolType, IntType, EnumType, StructType
-from literal import Literal, FLiteral, BELiteral
+from predicate import Predicate, Literal, EqualityPredicate, BeliefLiteral

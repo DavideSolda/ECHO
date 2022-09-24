@@ -32,17 +32,17 @@ def title(title: str) -> str:
     comments  = '%'*10
     return new_lines + comments + ' ' + title + ' ' + comments + new_lines
 
-def literal(lit: Literal) -> str:
+def literal(lit: Predicate) -> str:
     neg = lit.negated
     lit_str = ""
-    if isinstance(lit, FLiteral):
+    if isinstance(lit, Literal):
         f_name = f"{lit.fluent.name}"
         lit_str = f_name + '(' + ','.join(map(param_val_2_asp, lit.args)) + ')'
         if neg :
             return "neg(" + lit_str + ")"
 
         return lit_str
-    elif isinstance(lit, BELiteral):
+    elif isinstance(lit, EqualityPredicate):
         operator = lit.operator.value
         left_val = param_val_2_asp(lit._args[0])
         right_val = param_val_2_asp(lit._args[1])
@@ -91,7 +91,7 @@ def fluent_2_asp(f: Fluent) -> str:
         s += ",".join([f"{var_type.name}({var})" for var, var_type in l])
         return s
 
-def action_to_asp(action: I_Action) -> str:
+def action_to_asp(action: IAction) -> str:
     name = action.name
     variables = action.params
     s = ''
@@ -105,7 +105,7 @@ def action_to_asp(action: I_Action) -> str:
         s += f':-{vars_to_asp(variables)}'
     return s
 
-def action_exec(action: I_Action, exec_lit: Literal) -> str:
+def action_exec(action: IAction, exec_lit: Predicate) -> str:
 
     variables = action.params + exec_lit.variables
     body = "" if len(variables) == 0 else ':-' + vars_to_asp(variables)
@@ -115,7 +115,7 @@ def action_exec(action: I_Action, exec_lit: Literal) -> str:
         parameters = ','.join(map(param_val_2_asp, action.params))
         return f'exec({action.name}({parameters}),{literal(exec_lit)})' + body
 
-def action_causes(action: I_Action, cause_lit: Literal) -> str:
+def action_causes(action: IAction, cause_lit: Literal) -> str:
 
     variables = action.params + cause_lit.variables
     body = "" if len(variables) == 0 else ':-' + vars_to_asp(variables)
@@ -152,7 +152,7 @@ def independent_rules() -> List[str]:
         "finally(F):- holds(F,l)"
     ]
 
-def compile_into_asp(problem : Problem) -> str:
+def compile_into_asp(problem: ClassicalPlanningProblem) -> str:
 
 
     s =  "%Answer set planning.\n\n"

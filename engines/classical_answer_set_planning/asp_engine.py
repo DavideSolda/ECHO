@@ -10,7 +10,7 @@ sys.path.insert(1, os.path.join(current_dir, '..', '..', 'model'))
 from shortcuts import *
 
 
-def action_2_instantiated_action(problem: Problem, symbol_action: clingo.Symbol)-> Instantiated_I_Action:
+def action_2_instantiated_action(problem: ClassicalPlanningProblem, symbol_action: clingo.Symbol)-> InstantiatedIAction:
 
     action = next(act for act in problem.actions if act.name == symbol_action.name)
     symbol_parameters = symbol_action.arguments
@@ -18,7 +18,7 @@ def action_2_instantiated_action(problem: Problem, symbol_action: clingo.Symbol)
     var_val = {}
     for var, value in zip(action.params, symbol_parameters):
         var_val[var] = int(str(value)) if var.type.is_int_type() else str(value)
-    return Instantiated_I_Action(action, var_val)
+    return InstantiatedIAction(action, var_val)
 
 
 class Context:
@@ -27,7 +27,7 @@ class Context:
 def on_model(m):
     return m
 
-def solve(problem: Problem) -> Tuple[List[Literal], List[Instantiated_I_Action]]:
+def solve(problem: ClassicalPlanningProblem) -> Tuple[List[Predicate], List[InstantiatedIAction]]:
 
     asp_encoding = compile_into_asp(problem)
     ctl = clingo.Control(["-c", "l=10"])

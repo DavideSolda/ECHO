@@ -28,11 +28,11 @@ class TestProblem2ASP(unittest.TestCase):
 
         l_pre = [self.f1('red', self.x), self.f3("orange")]
         l_effect = [self.f1('yellow', self.x), - self.f1('red', self.x)]
-        self.action_1 = I_Action(name = "action_1", params = [self.x], precondition = l_pre, effects = l_effect)
-        self.action_2 = I_Action(name = "action_2", params = [], precondition = [], effects = [- self.f3("orange")])
+        self.action_1 = IAction(name = "action_1", params = [self.x], precondition = l_pre, effects = l_effect)
+        self.action_2 = IAction(name = "action_2", params = [], precondition = [], effects = [- self.f3("orange")])
 
     def test_problem_2_asp(self):
-        p = Problem()
+        p = ClassicalPlanningProblem()
         #add types:
         p.add_type(self.integer)
         p.add_type(self.e)
