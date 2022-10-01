@@ -5,18 +5,24 @@ which are the possible arguments of a predicate
 from dataclasses import dataclass
 
 from ftype import Type, BoolType
-from arithmetic_expression import ArithmeticExpr, is_int_fvalue, ArithmeticOperator
+from arithmetic_expression import ArithmeticExpr, is_int_fvalue, \
+    ArithmeticOperator
 
 
 @dataclass
 class Variable():
     """Variable of a given ftype.Type"""
-    def __init__(self, name: str, vtype: Type):
+    def __init__(self, name: str, vtype: Type, agent=False):
         if isinstance(vtype, BoolType):
             raise Exception("""do not define a varible boolean,
             define instead a boolean fluent""")
         self._name = name
         self._vtype = vtype
+        self._agent = agent
+
+    def is_agent(self) -> bool:
+        """Returns True iff the variable represents an agent"""
+        return self._agent
 
     @property
     def name(self):
@@ -36,6 +42,9 @@ class Variable():
 
     def __repr__(self):
         return f"var {self.name} of type {self.type}"
+
+    def __str__(self):
+        return self.name
 
     def _op_int(self, other, operator):
         """Return an arithmetic expression"""

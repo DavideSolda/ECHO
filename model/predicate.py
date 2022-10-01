@@ -51,17 +51,17 @@ class Literal(Predicate):
         return f"{self.fluent.name}({self.args})"
 
 
-class BooleanOperator(Enum):
-    Eq = "=="
-    Neq = "!="
+class EqualityOperator(Enum):
+    eq = "=="
+    neq = "!="
 
 
 class EqualityPredicate(Predicate):
 
-    op: BooleanOperator
+    op: EqualityOperator
     args: List[Union[ArithmeticExpr, int, Variable]]
 
-    def __init__(self, op: BooleanOperator,
+    def __init__(self, op: EqualityOperator,
                  args: List[Union[ArithmeticExpr, int, Variable]]):
         assert len(args) == 2
         self._op = op
@@ -75,7 +75,7 @@ class EqualityPredicate(Predicate):
                             if isinstance(arg, Variable)]
 
     @property
-    def operator(self) -> BooleanOperator:
+    def operator(self) -> EqualityOperator:
         return self._op
 
     @property
@@ -90,10 +90,10 @@ def eq(l: Union[ArithmeticExpr, int, Variable, str],
        r: Union[ArithmeticExpr, int, Variable, str]):
 
     if is_int_fvalue(l) and is_int_fvalue(r):
-        return EqualityPredicate(BooleanOperator.Eq, [l, r])
+        return EqualityPredicate(EqualityOperator.eq, [l, r])
 
     if is_enum_fvalue(l) and is_enum_fvalue(r):
-        return EqualityPredicate(BooleanOperator.Eq, [l, r])
+        return EqualityPredicate(EqualityOperator.eq, [l, r])
 
     raise Exception(f"{l} and {r} are not compatible")
 
@@ -101,26 +101,83 @@ def eq(l: Union[ArithmeticExpr, int, Variable, str],
 def neq(l: Union[ArithmeticExpr, int, Variable, str],
         r: Union[ArithmeticExpr, int, Variable, str]):
 
+    if isinstance(l, int) and isinstance(l, int):
+        raise Exception(f'{l} and {r} are both integer')
+
+    if isinstance(l, str) and isinstance(l, str):
+        raise Exception(f'{l} and {r} are both strings')
+
     if is_int_fvalue(l) and is_int_fvalue(r):
-        return EqualityPredicate(BooleanOperator.Eq, [l, r])
+        return EqualityPredicate(EqualityOperator.neq, [l, r])
 
     if is_enum_fvalue(l) and is_enum_fvalue(r):
-        return EqualityPredicate(BooleanOperator.Eq, [l, r])
+        return EqualityPredicate(EqualityOperator.neq, [l, r])
 
     raise Exception(f"{l} and {r} are not compatible")
 
 
 class BeliefLiteral(Predicate):
     """B_ag(current_position(4))"""
-    agent: Union[EnumType, str]
+    agent: Union[Variable, str]
     belief_proposition: Predicate
 
-    def __init__(self, agent: Union[EnumType, str], proposition: Predicate):
+    def __init__(self, agent: Union[Variable, str], proposition: Predicate):
 
+        super().__init__()
         #  typing checks
-        assert isinstance(agent, EnumType) or isinstance(agent, str)
-        assert isinstance(proposition, Predicate)
-        assert not isinstance(proposition, EqualityPredicate)
+        assert isinstance(agent, Variable) and agent.is_agent() or \
+            isinstance(agent, str)
+        assert isinstance(proposition, Literal) \
+            or type(proposition) == type(self)
 
         self.agent = agent
         self.belief_proposition = proposition
+
+        self._variables = proposition.variables
+        if isinstance(agent, Variable):
+            self._variables.append(agent)
+
+    def __repr__(self) -> str:
+        s = f'B_{self.agent} ({self.belief_proposition})'
+        return f'not {s}' if self.negated else s
+
+class ObservablePredicate(Predicate):
+    """Predicate to express observability"""
+
+    forall: Union[Variable, EqualityPredicate]
+    when: List[Literal]
+    who: Union[str, Variable]
+
+    def __init__(self, who, forall=None, when=None):
+        if not self.is_an_agent(who):
+            raise ValueError(f'''{who} is neither the name of an agent,
+            nor an agent variable''')
+        if isinstance(forall, EqualityPredicate):
+            if not all(map(self.is_an_agent, forall.args)):
+                raise ValueError(f'''forall should talk about agents only''')
+            if forall.operator == EqualityOperator.eq or who not in forall.args:
+                raise ValueError(f'''forall {forall.args[0]} == 
+                {forall.args[1]} {who} does not make sense)''')
+        if when is not None and \
+           not all(map(lambda x: isinstance(x, Literal), when)):
+            raise ValueError(f'when should get a list of literals')
+        self.forall = forall
+        self.who = who
+        self.when = when
+
+    @staticmethod
+    def is_an_agent(agent: Union[str, Variable]) -> bool:
+        return isinstance(agent, str) or \
+           isinstance(agent, Variable) and agent.is_agent()
+
+    def negated(self) -> bool:
+        return False
+
+    def __repr__(self) -> str:
+        s = str(self.who)
+        if self.when is not None:
+            s += f'when {" & ".join(map(str,self.when))}'
+        if self.forall is not None:
+            return f'''forall({self.forall.args[0]} != {self.forall.args[1]})
+            {s}'''
+        return s
