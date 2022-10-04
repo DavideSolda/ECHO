@@ -19,6 +19,9 @@ class Test_epistemicPlanningProblem(unittest.TestCase):
         self.vagent2 = p.Variable('agent2', self.agent_names, agent=True)
         self.obs1 = p.ObservablePredicate(self.vagent)
         self.b_pos = p.BeliefLiteral(self.vagent, self.cpos(self.vpos))
+        self.move_action = p.MEAction(name='move', params=[self.vagent],
+                                      precond=[self.b_pos],
+                                      effects=[- self.b_pos])
 
     def test_obs(self):
         obs1 = p.ObservablePredicate(self.vagent)
@@ -41,6 +44,7 @@ class Test_epistemicPlanningProblem(unittest.TestCase):
         print(obs4)
 
     def test_beliefPredicate(self):
+
         b = p.BeliefLiteral(self.vagent, self.cpos(self.vpos))
         print(b)
 
@@ -50,20 +54,25 @@ class Test_epistemicPlanningProblem(unittest.TestCase):
                                  precond=[self.b_pos],
                                  effects=[- self.b_pos])
 
-        print(move_action)
         move_action2 = p.MEAction(name='move', params=[self.vagent],
                                   precond=[self.b_pos],
                                   effects=[- self.b_pos],
                                   full_obs=[self.obs1],
                                   part_obs=[])
 
-        print(move_action2)
-"""
-    name: str
-    type: MEActionType
-    params: List[Variable]
-    preconditions: List[Union[Literal, BeliefLiteral]]
-    effects: List[Literal]
-    full_observers: List[Union[str, ObservablePredicate]]
-    partial_observers: List[Union[str, ObservablePredicate]]
-"""
+    def test_meproblem(self):
+
+        meproblem = p.MEPlanningProblem()
+        #  add types:
+        meproblem.add_type(self.position)
+        meproblem.add_type(self.agent_names)
+        #  add variables:
+        meproblem.add_variable(self.vpos)
+        meproblem.add_variable(self.vagent)
+        meproblem.add_variable(self.vagent2)
+        #  add fluents:
+        meproblem.add_fluent(self.cpos)
+        #  add actions:
+        meproblem.add_action(self.move_action)
+
+        print(meproblem)

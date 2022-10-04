@@ -1,5 +1,5 @@
 """class for the definition of a planning problem"""
-from typing import List, Union
+from typing import List, Union, Any
 from dataclasses import dataclass
 from enum import Enum
 import logging
@@ -33,6 +33,16 @@ class PlanningProblem():
         self._types: List[Type] = []
         self._variables: List[Variable] = []
         self._fluents: List[Fluent] = []
+        self._name = 'no_name'
+
+    @property
+    def name(self) -> str:
+        """domain name"""
+        return self._name
+
+    @name.setter
+    def name(self, value: str) -> None:
+        self._name = value
 
     @property
     def types(self) -> List[Type]:
@@ -97,30 +107,34 @@ class PlanningProblem():
         for arg in args:
             self._goals.append(arg)
 
+    @staticmethod
+    def _stringy(objs: List[Any]) -> List[str]:
+        return map(lambda obj: str(obj), objs)
+
     def __repr__(self):
 
         sep = "\n\n-----------------------\n\n"
         prob_repr = "Problem domain:"
         prob_repr += sep
         prob_repr += "Types\n"
-        prob_repr += "\n".join(map(lambda x: str(x), self._types))
+        prob_repr += "\n".join(self._stringy(self._types))
         prob_repr += sep
         prob_repr += "Variables\n"
-        prob_repr += "\n".join(self._variables)
+        prob_repr += "\n".join(self._stringy(self._variables))
         prob_repr += sep
         prob_repr += "Fluents\n"
-        prob_repr += "\n".join(self._fluents)
+        prob_repr += "\n".join(self._stringy(self._fluents))
         prob_repr += sep
         prob_repr += "Actions\n"
-        prob_repr += "\n".join(self.actions)
+        prob_repr += "\n".join(self._stringy(self.actions))
         prob_repr += sep + sep
         prob_repr += "Problem instance:"
         prob_repr += sep
         prob_repr += "Initial values\n"
-        prob_repr += "\n".join(self._inits)
+        prob_repr += "\n".join(self._stringy(self._inits))
         prob_repr += sep
         prob_repr += "Goals\n"
-        prob_repr += "\n".join(self._goals)
+        prob_repr += "\n".join(self._stringy(self._goals))
         return prob_repr
 
 
@@ -156,7 +170,7 @@ class ClassicalPlanningProblem(PlanningProblem):
         self._domain.append(action)
 
 
-@dataclass
+@dataclass(repr=False)
 class MEPlanningProblem(PlanningProblem):
     """definition of an epistemic multiagent planning problem"""
     _domain: List[MEAction]
@@ -172,7 +186,7 @@ class MEPlanningProblem(PlanningProblem):
 
     def add_action(self, action: MEAction):
         """Add action to the problem"""
-        for pre in action.precondition:
+        for pre in action.preconditions:
             for sub_type in pre.types:
                 if sub_type not in self._types:
                     raise Exception(f"""{sub_type} not added,

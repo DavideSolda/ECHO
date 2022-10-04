@@ -82,7 +82,7 @@ class MEAction():
         return isinstance(observer, (str, ObservablePredicate))
 
     def __repr__(self) -> str:
-        return f'''action {self.name}({", ".join(map(str, self.params))}) 
+        return f'''action {self.name}({", ".join(map(str, self.params))})
         of type {self.type}
         preconditions: {self.preconditions}
         effects: {self.effects}

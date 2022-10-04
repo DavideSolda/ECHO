@@ -137,9 +137,12 @@ class BeliefLiteral(Predicate):
         if isinstance(agent, Variable):
             self._variables.append(agent)
 
+        self._types = proposition.types
+
     def __repr__(self) -> str:
         s = f'B_{self.agent} ({self.belief_proposition})'
         return f'not {s}' if self.negated else s
+
 
 class ObservablePredicate(Predicate):
     """Predicate to express observability"""
