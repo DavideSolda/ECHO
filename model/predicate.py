@@ -34,8 +34,9 @@ class Literal(Predicate):
     fluent: 'Fluent'
     args: List[Union[ArithmeticExpr, int, str, Variable]] = field(
         default_factory=(lambda: []))
+    when: Predicate
 
-    def __init__(self, fluent: 'Fluent', args):
+    def __init__(self, fluent: 'Fluent', args, when=None):
 
         super().__init__()
         self.fluent = fluent
@@ -46,6 +47,7 @@ class Literal(Predicate):
                            if isinstance(arg, ArithmeticExpr)]
         self._variables += [arg for arg in args
                             if isinstance(arg, Variable)]
+        self.when = None
 
     def __repr__(self) -> str:
         return f"{self.fluent.name}({self.args})"
@@ -118,29 +120,40 @@ def neq(l: Union[ArithmeticExpr, int, Variable, str],
 
 class BeliefLiteral(Predicate):
     """B_ag(current_position(4))"""
-    agent: Union[Variable, str]
+    agents: List[Union[Variable, str]]
     belief_proposition: Predicate
+    when: Predicate
 
-    def __init__(self, agent: Union[Variable, str], proposition: Predicate):
+    def __init__(self, agents: List[Union[Variable, str]],
+                 proposition: Predicate, when=None):
 
         super().__init__()
         #  typing checks
-        assert isinstance(agent, Variable) and agent.is_agent() or \
-            isinstance(agent, str)
+        for agent in agents:
+            assert isinstance(agent, Variable) and agent.is_agent() or \
+                isinstance(agent, str)
         assert isinstance(proposition, Literal) \
             or type(proposition) == type(self)
 
-        self.agent = agent
+        self.agents = agents
         self.belief_proposition = proposition
+        self.when = when
 
+        #  deal with variables
         self._variables = proposition.variables
-        if isinstance(agent, Variable):
-            self._variables.append(agent)
+        for agent in self.agents:
+            if isinstance(agent, Variable):
+                self._variables.append(agent)
+        if when is not None:
+            self._variables += when.variables
 
+        #  deal with types
         self._types = proposition.types
+        if when is not None:
+            self._types += when.types
 
-    def __repr__(self) -> str:
-        s = f'B_{self.agent} ({self.belief_proposition})'
+    def __repr__(self) -> str:  # TODO WHEN
+        s = f'B_{self.agents} ({self.belief_proposition})'
         return f'not {s}' if self.negated else s
 
 
@@ -148,7 +161,7 @@ class ObservablePredicate(Predicate):
     """Predicate to express observability"""
 
     forall: Union[Variable, EqualityPredicate]
-    when: List[Literal]
+    when: Predicate
     who: Union[str, Variable]
 
     def __init__(self, who, forall=None, when=None):
@@ -161,12 +174,23 @@ class ObservablePredicate(Predicate):
             if forall.operator == EqualityOperator.eq or who not in forall.args:
                 raise ValueError(f'''forall {forall.args[0]} == 
                 {forall.args[1]} {who} does not make sense)''')
-        if when is not None and \
-           not all(map(lambda x: isinstance(x, Literal), when)):
-            raise ValueError(f'when should get a list of literals')
+        if when is not None and not isinstance(when, Predicate):
+            raise ValueError(f'when should be a predicate: {when}')
         self.forall = forall
         self.who = who
         self.when = when
+        self.collect_variables()
+
+    def collect_variables(self):
+        self._variables = []
+        if isinstance(self.who, Variable):
+            self._variables.append(self.who)
+        #  TODO:check forall
+        """
+        if self.when is not None:  # TODO remove?
+            self._variables
+            self._variables += [lit.variables for lit in self.when]
+        """
 
     @staticmethod
     def is_an_agent(agent: Union[str, Variable]) -> bool:
@@ -179,7 +203,7 @@ class ObservablePredicate(Predicate):
     def __repr__(self) -> str:
         s = str(self.who)
         if self.when is not None:
-            s += f'when {" & ".join(map(str,self.when))}'
+            s += f'when {self.when}'
         if self.forall is not None:
             return f'''forall({self.forall.args[0]} != {self.forall.args[1]})
             {s}'''

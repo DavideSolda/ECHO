@@ -1,0 +1,11 @@
+(define (problem problem_1)
+	(:domain problem_1)
+	(:agents agent_1 agent_2)
+	(:types
+		one two three - object
+	)
+	(:depth 2)
+	(:dynck false)
+	(:init (current_position one) (- (([?agent]) ((current_position one)))))
+	(:goal (current_position two))
+)

@@ -1,7 +1,7 @@
 """module for the definiton of Types of parameters in the planning problem"""
 from typing import List, Tuple
 from dataclasses import dataclass
-
+from abc import abstractmethod
 
 @dataclass(frozen=True)
 class Type:
@@ -34,6 +34,10 @@ class Type:
     def __len__(self):
         return 1
 
+    @abstractmethod
+    def __hash__(self) -> int:
+        pass
+
     @property
     def name(self) -> str:
         """Get name of the type"""
@@ -48,6 +52,9 @@ class BoolType(Type):
 
     def __repr__(self) -> str:
         return f"{self.name} bool"
+
+    def __hash__(self) -> int:
+        return 100
 
 
 @dataclass(frozen=True)
@@ -100,12 +107,17 @@ class IntType(Type):
         """Returns the interval"""
         return (self.min, self.max)
 
+    def __hash__(self) -> int:
+        h_name = hash(self.name)
+        return 31**self.min**self.max+h_name % 256
+
 
 @dataclass(frozen=True)
 class EnumType(Type):
     """Definition of enumerate type"""
     domain: List[str]
-    def __init__(self, name: str, domain: List[str]):
+    agent: False
+    def __init__(self, name: str, domain: List[str], agent=False):
 
         super().__init__(name)
 
@@ -116,6 +128,9 @@ class EnumType(Type):
                 raise Exception(f"{enum_val} is not a string")
 
         object.__setattr__(self, "domain", domain)
+        if agent:
+            assert name == 'agents'
+        object.__setattr__(self, "agent", agent)
 
     def __repr__(self) -> str:
         return f"{self.name} : {self.domain}"
@@ -131,6 +146,14 @@ class EnumType(Type):
     def enum_values(self) -> List[str]:
         """Return the domain"""
         return self.domain
+
+    def __hash__(self) -> int:
+        return 1
+        h = 1
+        prime = 31
+        for val in self.domain[1:]:
+            h = prime*h+hash(val)
+        return hash(self.name) % 256 + h
 
 
 @dataclass(frozen=True)
@@ -168,3 +191,8 @@ fType.StructType""")
 
     def __len__(self):
         return len(self.domain)
+
+    def __hash__(self) -> int:
+        h = 1
+        
+        return h

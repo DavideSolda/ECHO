@@ -57,25 +57,35 @@ class MEAction():
     """MEAction class introduced to represent Mulit-Agent Epistemic Actions"""
     name: str
     type: MEActionType
-    params: List[Variable]
     preconditions: List[Union[Literal, BeliefLiteral]]
     effects: List[Literal]
     full_observers: List[Union[str, ObservablePredicate]]
     partial_observers: List[Union[str, ObservablePredicate]]
+    params: List[Variable]
 
-    def __init__(self, name, params, precond, effects,
+    def __init__(self, name, precond, effects,
                  full_obs=None, part_obs=None, _type=MEActionType.ontic):
         object.__setattr__(self, 'name', name)
         object.__setattr__(self, 'type', _type)
-        object.__setattr__(self, 'params', params)
         object.__setattr__(self, 'preconditions', precond)
         object.__setattr__(self, 'effects', effects)
         if full_obs is not None:
             assert all(map(self._observer_ok, full_obs))
+        else:
+            full_obs = []
         object.__setattr__(self, 'full_observers', full_obs)
         if part_obs is not None:
             assert all(map(self._observer_ok, part_obs))
+        else:
+            part_obs = []
         object.__setattr__(self, 'partial_observers', part_obs)
+        params = [var for pred in precond for var in pred.variables]
+        params += [var for eff in effects for var in eff.variables]
+        params += [var for obs in full_obs for var in obs.variables
+                   if isinstance(obs, Predicate)]
+        params += [var for obs in part_obs for var in obs.variables
+                   if isinstance(obs, Predicate)]
+        object.__setattr__(self, 'params', params)
 
     @staticmethod
     def _observer_ok(observer: Union[str, Predicate]) -> bool:

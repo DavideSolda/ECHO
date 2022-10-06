@@ -1,0 +1,3 @@
+[submodule "engines/mae_epddl_planning/MetacognitiveEpistemicPlanning"]
+	path = engines/mae_epddl_planning/MetacognitiveEpistemicPlanning
+	url = https://github.com/FrancescoFabiano/MetacognitiveEpistemicPlanning.git

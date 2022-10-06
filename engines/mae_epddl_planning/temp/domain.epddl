@@ -1,0 +1,10 @@
+(define (domain problem_1)
+	(:requirements :strips :negative-preconditions :mep :no-duplicates)
+	(:predicates (current_position  ?object_wlcdr - object) (safe) (pos_in_plain  ?object_hswen - object))
+	(:action move
+		:act_type ontic
+		:parameters (?agent - agent ?p - object)
+		:precondition (and (- (([?agent]) ((current_position one)))) (current_position ?p))
+		:effect ((- (([?agent]) ((current_position one)))))
+		:observers (and (?agent))	)
+)

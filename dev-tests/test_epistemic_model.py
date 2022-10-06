@@ -14,12 +14,12 @@ class Test_epistemicPlanningProblem(unittest.TestCase):
         self.vpos = p.Variable('P', self.position)
         self.cpos = p.Fluent('current_position', self.position)
 
-        self.agent_names = p.EnumType('agent_variable', ['agent_1', 'agent_2'])
+        self.agent_names = p.EnumType('agents', ['agent_1', 'agent_2'], agent=True)
         self.vagent = p.Variable('agent', self.agent_names, agent=True)
         self.vagent2 = p.Variable('agent2', self.agent_names, agent=True)
         self.obs1 = p.ObservablePredicate(self.vagent)
-        self.b_pos = p.BeliefLiteral(self.vagent, self.cpos(self.vpos))
-        self.move_action = p.MEAction(name='move', params=[self.vagent],
+        self.b_pos = p.BeliefLiteral([self.vagent], self.cpos(self.vpos))
+        self.move_action = p.MEAction(name='move',
                                       precond=[self.b_pos],
                                       effects=[- self.b_pos])
 
@@ -40,21 +40,21 @@ class Test_epistemicPlanningProblem(unittest.TestCase):
 
         obs4 = p.ObservablePredicate(who=self.vagent,
                                      forall=p.neq(self.vagent, 'agent_1'),
-                                     when=[self.cpos(self.vpos)])
+                                     when=self.cpos(self.vpos))
         print(obs4)
 
     def test_beliefPredicate(self):
 
-        b = p.BeliefLiteral(self.vagent, self.cpos(self.vpos))
+        b = p.BeliefLiteral([self.vagent], self.cpos(self.vpos))
         print(b)
 
     def test_MEAction(self):
 
-        move_action = p.MEAction(name='move', params=[self.vagent],
+        move_action = p.MEAction(name='move',
                                  precond=[self.b_pos],
                                  effects=[- self.b_pos])
 
-        move_action2 = p.MEAction(name='move', params=[self.vagent],
+        move_action2 = p.MEAction(name='move',
                                   precond=[self.b_pos],
                                   effects=[- self.b_pos],
                                   full_obs=[self.obs1],

@@ -7,7 +7,7 @@ from abc import abstractmethod
 
 from action import IAction, MEAction
 from fluent import Fluent
-from predicate import Literal, Predicate
+from predicate import Literal, Predicate, BeliefLiteral
 from variable import Variable
 from ftype import Type
 
@@ -97,8 +97,11 @@ class PlanningProblem():
     def add_initial_values(self, *args):
         """Add initial literal to the problem"""
         for arg in args:
-            if len(arg.variables) > 0:
-                assert False
+            no_vars = arg.variables
+            if isinstance(arg, BeliefLiteral):
+                no_vars = [v for v in arg.variables if not v.is_agent]
+            if len(no_vars) > 0:
+                raise Exception(f"variables not accepted as initial values {arg}")
                 #  TODO: add check on the types
             self._inits.append(arg)
 
