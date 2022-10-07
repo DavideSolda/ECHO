@@ -97,12 +97,9 @@ class PlanningProblem():
     def add_initial_values(self, *args):
         """Add initial literal to the problem"""
         for arg in args:
-            no_vars = arg.variables
-            if isinstance(arg, BeliefLiteral):
-                no_vars = [v for v in arg.variables if not v.is_agent]
-            if len(no_vars) > 0:
-                raise Exception(f"variables not accepted as initial values {arg}")
-                #  TODO: add check on the types
+            if isinstance(arg, Fluent):
+                self._inits.append(Literal(fluent=arg, args=[]))
+                continue
             self._inits.append(arg)
 
     def add_goals(self, *args):
@@ -191,13 +188,13 @@ class MEPlanningProblem(PlanningProblem):
         """Add action to the problem"""
         for pre in action.preconditions:
             for sub_type in pre.types:
-                if sub_type not in self._types:
+                if sub_type not in self._types and not sub_type.is_bool_type():
                     raise Exception(f"""{sub_type} not added,
                     from {pre} in preconditions""")
 
         for eff in action.effects:
             for sub_type in eff.types:
-                if sub_type not in self._types:
+                if sub_type not in self._types and not sub_type.is_bool_type():
                     raise Exception(f"""{sub_type} not added,
                     from {eff} in effects""")
 

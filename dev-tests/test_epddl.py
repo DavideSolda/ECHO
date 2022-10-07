@@ -31,27 +31,118 @@ class TestProblem2EPDDL(unittest.TestCase):
                                       effects=[- self.b_pos],
                                       full_obs=[self.obs1])
 
-    def test_problem_1(self):
+    def test_coin_in_the_box(self):
 
-        meproblem = p.MEPlanningProblem()
-        #  set domain name
-        meproblem.name = 'problem_1'
-        #  add types:
-        meproblem.add_type(self.position)
-        meproblem.add_type(self.agent_names)
-        #  add variables:
-        meproblem.add_variable(self.vpos)
-        meproblem.add_variable(self.vagent)
-        meproblem.add_variable(self.vagent2)
-        #  add fluents:
-        meproblem.add_fluent(self.cpos)
-        meproblem.add_fluent(self.safe)
-        meproblem.add_fluent(self.position_in_plain)
-        #  add actions:
-        meproblem.add_action(self.move_action)
-        #  add inits:
-        meproblem.add_initial_values(self.cpos('one'))
-        meproblem.add_initial_values(self.b_pos)
-        #  add goals:
-        meproblem.add_goals(self.cpos('two'))
-        solve(meproblem)
+        #  problem
+        coinintheboxmep = p.MEPlanningProblem()
+        #  types:
+        agents = p.EnumType('agents', ['a', 'b', 'c'], agent=True)
+        #  variables:
+        ag = p.Variable('ag', agents, agent=True)
+        ag2 = p.Variable('ag2', agents, agent=True)
+        ag3 = p.Variable('ag2', agents, agent=True)
+        #  fluents:
+        opened = p.Fluent(name='opened')
+        has_key = p.Fluent(name='has_key', ftype=agents)
+        looking = p.Fluent(name='looking', ftype=agents)
+        tail = p.Fluent(name='tail')
+        in_room_box = p.Fluent(name='in_room_box', ftype=agents)
+        in_room_empty = p.Fluent(name='in_room_empty', ftype=agents)
+        #  predicates:
+        in_room_empty__ag = in_room_empty(ag)
+        in_room_box__ag = in_room_box(ag)
+        #  actions:
+        move_to_box = p.MEAction('move_to_box',
+                                 precond=[p.B([ag], in_room_empty__ag),
+                                          in_room_empty__ag],
+                                 effects=[-in_room_empty__ag,
+                                          in_room_box(ag)],
+                                 full_obs=[p.ObservablePredicate(forall=ag2,
+                                                                 who=ag2)])
+
+        move_to_empty = p.MEAction('move_to_empty',
+                                   precond=[p.B([ag], in_room_box__ag),
+                                            in_room_box__ag],
+                                   effects=[in_room_empty__ag,
+                                            -in_room_box(ag)],
+                                   full_obs=[p.ObservablePredicate(forall=ag2,
+                                                                   who=ag2)])
+
+        _open = p.MEAction('open',
+                           precond=[has_key(ag), p.B([ag], has_key(ag)), in_room_box(ag)],
+                           effects=[opened],
+                           full_obs=[p.ObservablePredicate(forall=p.neq(ag2, ag),
+                                                           who=ag2)])
+
+        peek = p.MEAction('peek',
+                          precond=[p.B([ag], opened),
+                                   p.B([ag], looking(ag)),
+                                   looking(ag),
+                                   opened,
+                                   in_room_box(ag)],
+                          effects=[p.Literal(fluent=tail, args=[], when=looking(ag))],
+                          full_obs=[ag],
+                          part_obs=[p.ObservablePredicate(forall=p.neq(ag2, ag),
+                                                          when=looking(ag2) and in_room_box(ag2),
+                                                          who=ag2)],
+                          _type=p.MEActionType.sensing)
+
+        signal = p.MEAction('signal',
+                            precond=[p.B([ag], opened),
+                                     p.B([ag], looking(ag)),
+                                     looking(ag),
+                                     opened,
+                                     in_room_box(ag)],
+                            effects=[p.Literal(fluent=tail, args=[], when=looking(ag))],
+                            full_obs=[ag],
+                            _type=p.MEActionType.sensing)
+
+        distract = p.MEAction('distract',
+                              precond=[p.B([ag], looking(ag)),
+                                       p.B([ag2], looking(ag2))],
+                              effects=[-looking(ag2)],
+                              full_obs=[p.ObservablePredicate(forall=p.neq(ag2, ag3),
+                                                              when=looking(ag3),
+                                                              who=ag3),
+                                        ag2],
+                              _type=p.MEActionType.announcement)
+        coinintheboxmep.name = 'coininthebox'
+        coinintheboxmep.add_type(agents)
+        coinintheboxmep.add_variable(ag)
+        coinintheboxmep.add_variable(ag2)
+        coinintheboxmep.add_variable(ag3)
+        coinintheboxmep.add_fluent(opened)
+        coinintheboxmep.add_fluent(has_key)
+        coinintheboxmep.add_fluent(looking)
+        coinintheboxmep.add_fluent(tail)
+        coinintheboxmep.add_action(move_to_box)
+        coinintheboxmep.add_action(move_to_empty)
+        coinintheboxmep.add_action(_open)
+        coinintheboxmep.add_action(peek)
+        coinintheboxmep.add_action(signal)
+        coinintheboxmep.add_action(distract)
+
+        coinintheboxmep.add_initial_values(in_room_empty('a'),
+                                           in_room_empty('b'),
+                                           in_room_empty('c'),
+                                           tail,
+                                           has_key('a'),
+                                           looking('a'),
+                                           p.B(['a', 'b', 'c'], has_key('a')),
+                                           p.B(['a', 'b', 'c'], has_key('a')),
+                                           p.B(['a', 'b', 'c'], -has_key('b')),
+                                           p.B(['a', 'b', 'c'], -has_key('c')),
+                                           p.B(['a', 'b', 'c'], -opened),
+                                           p.B(['a', 'b', 'c'], looking('a')),
+                                           p.B(['a', 'b', 'c'], -looking('b')),
+                                           p.B(['a', 'b', 'c'], -looking('c')),
+                                           p.B(['a', 'b', 'c'], in_room_empty('a')),
+                                           p.B(['a', 'b', 'c'], in_room_empty('b')),
+                                           p.B(['a', 'b', 'c'], in_room_empty('c')),
+                                           p.B(['a', 'b', 'c'], -in_room_box('a')),
+                                           p.B(['a', 'b', 'c'], -in_room_box('b')),
+                                           p.B(['a', 'b', 'c'], -in_room_box('c')))
+        coinintheboxmep.add_goals(p.B(['a'], opened))
+        res = solve(coinintheboxmep)
+        for action, var_inst in res:
+            print(action.name, f'{var_inst}')

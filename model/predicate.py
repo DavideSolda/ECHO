@@ -1,10 +1,10 @@
 from enum import Enum
 from dataclasses import field
 from typing import List, Union
+import copy
 
 from arithmetic_expression import is_int_fvalue, is_enum_fvalue, ArithmeticExpr
 from variable import Variable
-from ftype import EnumType
 
 
 class Predicate():
@@ -17,8 +17,9 @@ class Predicate():
         self.negated = False
 
     def __neg__(self):
-        self.negated = not self.negated
-        return self
+        negated_p = copy.deepcopy(self)
+        negated_p.negated = not self.negated
+        return negated_p
 
     @property
     def types(self):
@@ -27,6 +28,41 @@ class Predicate():
     @property
     def variables(self):
         return self._variables
+
+    def __and__(self, pl: 'Predicate', pr: 'Predicate') -> 'BooleanOperator':
+        return BooleanOperator(BooleanOperator.AND, pl, pr)
+
+    def __or__(self, pl: 'Predicate', pr: 'Predicate') -> 'BooleanOperator':
+        return BooleanOperator(BooleanOperator.OR, pl, pr)
+
+
+class BooleanOperator(Enum):
+
+    AND = 'and'
+    OR = 'or'
+
+
+class BooleanPredicate(Predicate):
+
+    pl: Predicate
+    pr: Predicate
+
+    def __init__(self, op: BooleanOperator, pl: Predicate, pr: Predicate):
+        self.pl = pl
+        self.pr = pr
+        self.op = op
+
+        self._variables = pl.variables + pr.variables
+        self._types = pl.types + pr.types
+
+    def left_predicate(self) -> Predicate:
+        return self.pl
+
+    def right_predicate(self) -> Predicate:
+        return self.pr
+
+    def op(self) -> BooleanOperator:
+        return self.op
 
 
 class Literal(Predicate):
@@ -132,6 +168,7 @@ class BeliefLiteral(Predicate):
         for agent in agents:
             assert isinstance(agent, Variable) and agent.is_agent() or \
                 isinstance(agent, str)
+
         assert isinstance(proposition, Literal) \
             or type(proposition) == type(self)
 
@@ -157,12 +194,19 @@ class BeliefLiteral(Predicate):
         return f'not {s}' if self.negated else s
 
 
+def B(agents, proposition) -> BeliefLiteral:
+    if type(proposition).__name__ == 'Fluent':
+        proposition = Literal(fluent=proposition, args=[])
+    return BeliefLiteral(agents=agents, proposition=proposition)
+
+
 class ObservablePredicate(Predicate):
     """Predicate to express observability"""
 
     forall: Union[Variable, EqualityPredicate]
     when: Predicate
     who: Union[str, Variable]
+    free_variables: List[Variable]  # ??????
 
     def __init__(self, who, forall=None, when=None):
         if not self.is_an_agent(who):

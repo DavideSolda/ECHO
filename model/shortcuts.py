@@ -6,4 +6,5 @@ from arithmetic_expression import ArithmeticExpr
 from problem import ClassicalPlanningProblem, MEPlanningProblem
 from ftype import Type, BoolType, IntType, EnumType, StructType
 from predicate import Predicate, Literal, EqualityPredicate,\
-    BeliefLiteral, ObservablePredicate, eq, neq
+    BeliefLiteral, ObservablePredicate, eq, neq, B,\
+    BooleanPredicate, BooleanOperator, EqualityOperator

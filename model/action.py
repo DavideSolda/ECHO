@@ -4,7 +4,7 @@ from typing import List, Union
 from dataclasses import dataclass
 from enum import Enum
 from collections import namedtuple
-
+from fluent import Fluent
 from predicate import Literal, Predicate, BeliefLiteral, \
     ObservablePredicate
 from variable import Variable
@@ -17,6 +17,20 @@ from variable import Variable
 #      have a direct encoding into moveit
 
 
+def fluent_to_literal(fluent: Fluent) -> Literal:
+    """from fluent to literal. Added for easy to use from a user perspective"""
+    return Literal(fluent=fluent, args=[])
+
+
+def correct_predicates(l: List[Union[Fluent, Predicate]]) -> List[Predicate]:
+    """If there is any fluent, it is converted into a Literal"""
+    already_predicates = [predicate for predicate in l
+                          if isinstance(predicate, Predicate)]
+    new_predicates = [fluent_to_literal(fluent) for fluent in l
+                      if isinstance(fluent, Fluent)]
+    return already_predicates + new_predicates
+
+
 @dataclass(frozen=True)
 class IAction():
     """IAction class introduced to represent classical planning actions"""
@@ -26,6 +40,9 @@ class IAction():
     effects: List[Literal]
 
     def __init__(self, name, params, precondition, effects):
+
+        precond = correct_predicates(precondition)
+        effects = correct_predicates(effects)
 
         for param in params:
             assert isinstance(param, Variable)
@@ -65,6 +82,10 @@ class MEAction():
 
     def __init__(self, name, precond, effects,
                  full_obs=None, part_obs=None, _type=MEActionType.ontic):
+
+        precond = correct_predicates(precond)
+        effects = correct_predicates(effects)
+
         object.__setattr__(self, 'name', name)
         object.__setattr__(self, 'type', _type)
         object.__setattr__(self, 'preconditions', precond)
@@ -81,15 +102,15 @@ class MEAction():
         object.__setattr__(self, 'partial_observers', part_obs)
         params = [var for pred in precond for var in pred.variables]
         params += [var for eff in effects for var in eff.variables]
-        params += [var for obs in full_obs for var in obs.variables
-                   if isinstance(obs, Predicate)]
-        params += [var for obs in part_obs for var in obs.variables
-                   if isinstance(obs, Predicate)]
+        #  params += [var for obs in full_obs for var in obs.variables
+        #           if isinstance(obs, Predicate)]
+        #  params += [var for obs in part_obs for var in obs.variables
+        #           if isinstance(obs, Predicate)]
         object.__setattr__(self, 'params', params)
 
     @staticmethod
     def _observer_ok(observer: Union[str, Predicate]) -> bool:
-        return isinstance(observer, (str, ObservablePredicate))
+        return isinstance(observer, (str, ObservablePredicate, Variable))
 
     def __repr__(self) -> str:
         return f'''action {self.name}({", ".join(map(str, self.params))})

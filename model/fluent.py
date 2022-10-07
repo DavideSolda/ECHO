@@ -35,6 +35,10 @@ class Fluent():
     def __repr__(self):
         return f"fluent {self.name} of type {self.type}"
 
+    def __neg__(self):
+        literal = Literal(fluent=self, args=[])
+        return -literal
+
     @staticmethod
     def _check_type(arg, _type: Type, pos: int) -> bool:
         """check if the argument at {pos}

@@ -20,6 +20,8 @@ def predicate_argument(fluent_type: Union[pd.IntType,
                                           pd.EnumType,
                                           pd.StructType]) -> str:
     """from pd.FType to epddl argument of predicates"""
+    if isinstance(fluent_type, pd.EnumType) and fluent_type.agent:
+        return f'?ag_{get_random_string(5)} - ' + 'agent'
     type_name = fluent_type.name
     if isinstance(fluent_type, (pd.IntType, pd.EnumType)):
         return f'?{type_name}_{get_random_string(5)} - ' + type_name
@@ -51,58 +53,77 @@ def parameters(variables: List[pd.Variable]) -> str:
 
 
 def param_val_to_epddl(param_val: Union[pd.ArithmeticExpr,
-                                        int, pd.Variable, str]) -> str:
+                                        int, pd.Variable, str],
+                       prob) -> str:
     """from pd.ArithmeticExpr, int, pd.Variable, str to epddl parameters"""
     if isinstance(param_val, str):
         return param_val
     if isinstance(param_val, int):
         return str(param_val)
     if isinstance(param_val, pd.Variable):
+        if prob:
+            return f'{param_val.name.lower()}'
         return f'?{param_val.name.lower()}'
     if isinstance(param_val, pd.ArithmeticExpr):
-        left_val = param_val_to_epddl(param_val.values[0])
-        right_val = param_val_to_epddl(param_val.values[1])
+        left_val = param_val_to_epddl(param_val.values[0], prob)
+        right_val = param_val_to_epddl(param_val.values[1], prob)
         op = param_val.operator.value
         return '(' + left_val + op + right_val + ')'
     assert False
 
 
-def literal(lit: pd.Literal) -> str:
+def literal(lit: pd.Literal, prob: bool) -> str:
     """from pd.Literal to epddl literal"""
     f_name = f"{lit.fluent.name}"
-    return f_name + ' ' + ','.join(map(param_val_to_epddl, lit.args))
+    return f_name + ' ' + ','.join(map(lambda x: param_val_to_epddl(x, prob)
+                                       , lit.args))
 
 
-def agent(ag: Union[str, pd.Variable]) -> str:
+def agent(ag: Union[str, pd.Variable], prob=False) -> str:
     """from agento to EPDDL agent"""
     if isinstance(ag, str):
+        if prob:
+            return ag
         return '?'+ag
     if isinstance(ag, pd.Variable):
+        if prob:
+            return ag.name.lower()
         return '?'+ag.name.lower()
     assert False
 
 
-def negate(p: str) -> str:
-    return '(- ' + p + ')'
+def negate(p: str, prob: bool) -> str:
+    """neagte a predicate.If prob for the domain enc., else for problem enc."""
+    if prob:
+        return 'not (' + p + ')'
+    return '-' + p
 
 
-def pred(_predicate: pd.Predicate) -> str:
+def pred(_predicate: pd.Predicate, prob=False) -> str:
     """from pd.Predicate to epddl's action predicate"""
     neg = _predicate.negated
     when = _predicate.when
     epddl_pred = ''
     if isinstance(_predicate, pd.Literal):
-        epddl_pred = f'({literal(_predicate)})'
+        epddl_pred = f'{literal(_predicate, prob)}'
     elif isinstance(_predicate, pd.BeliefLiteral):
-        agents = '[' + ', '.join(map(agent, _predicate.agents)) + ']'
-        prop = pred(_predicate.belief_proposition)
-        epddl_pred = f'(({agents}) ({prop}))'
+        def to_agent(ag: Union[str, pd.Variable]):
+            return agent(ag, prob)
+        
+        agents = '[' + ' '.join(map(to_agent, _predicate.agents)) + ']'
+        prop = pred(_predicate.belief_proposition, prob)
+        epddl_pred = f'{agents}({prop})'
+    elif isinstance(_predicate, pd.BooleanPredicate):
+        op = _predicate.op.value
+        l_pred = pred(_predicate.left_predicate())
+        r_pred = pred(_predicate.right_predicate())
+        return op + ' (' + l_pred + ') (' + r_pred + ')'
     else:
         assert False
     if when is not None:
-        epddl_pred = f'(when ({pred(_predicate.when)}) {epddl_pred})'
+        epddl_pred = f'when ({pred(_predicate.when)}) ({epddl_pred})'
     if neg:
-        return negate(epddl_pred)
+        epddl_pred = negate(epddl_pred, prob=prob)
     return epddl_pred
 
 
@@ -111,7 +132,8 @@ def preds(predicates: List[pd.Predicate]) -> str:
     assert len(predicates) > 0
     if len(predicates) == 1:
         return f'{pred(predicates[0])}'
-    return 'and ' + ' '.join(map(pred, predicates))
+    return 'and ' + ' '.join(map(lambda x: '(' + x + ')',
+                                 map(pred, predicates)))
 
 
 def obss(full_observers: List[Union[pd.ObservablePredicate,
@@ -122,22 +144,23 @@ def obss(full_observers: List[Union[pd.ObservablePredicate,
 
 def forall(forall_obj: Union[pd.Variable, pd.EqualityPredicate]):
     if isinstance(forall_obj, pd.Variable):
-        return f'({agent(forall_obj)})'
+        return f'{agent(forall_obj)}'
     if isinstance(forall_obj, pd.EqualityPredicate):
-        assert forall_obj.op == pd.EqualityOperator.neq
+
+        assert forall_obj.operator == pd.EqualityOperator.neq
         vars = forall_obj.args
         for var in vars:
             assert isinstance(var, pd.Variable)
         assert len(vars) == 2
-        return f'(diff({agent(vars[0])})({agent(vars[1])}))'
+        return f'diff({agent(vars[0])})({agent(vars[1])})'
 
 
 def obs(full_observer: Union[pd.ObservablePredicate,
                              str, pd.Variable]) -> str:
     if isinstance(full_observer, str):
-        return f'({full_observer})'
+        return f'({agent(full_observer)})'
     if isinstance(full_observer, pd.Variable):
-        return f'({full_observer.name.lower()})'
+        return f'({agent(full_observer.name.lower())})'
     if isinstance(full_observer, pd.ObservablePredicate):
         who = f'({agent(full_observer.who)})'
         s = who
@@ -145,7 +168,7 @@ def obs(full_observer: Union[pd.ObservablePredicate,
             when = f'({pred(full_observer.when)})'
             s = who + ' ' + when
         if full_observer.forall is not None:
-            s = '(forall ({forall(full_observer.forall)}) {s})'
+            s = f'(forall ({forall(full_observer.forall)}) {s})'
     return s
 
 
@@ -160,10 +183,10 @@ def action(mep_action: pd.MEAction) -> str:
     if len(mep_action.effects) > 0:
         action_enc += f'\t\t:effect ({preds(mep_action.effects)})\n'
     if len(mep_action.full_observers) > 0:
-        action_enc += f'\t\t:observers (and {obss(mep_action.full_observers)})'
+        action_enc += f'\t\t:observers (and {obss(mep_action.full_observers)})\n'
     if len(mep_action.partial_observers) > 0:
         action_enc += f'\t\t:p_observers (and {obss(mep_action.partial_observers)})'
-    return action_enc + '\t)'
+    return action_enc + '\n\t)'
 
 
 def agent_names(problem: pd.MEPlanningProblem) -> str:
@@ -173,14 +196,25 @@ def agent_names(problem: pd.MEPlanningProblem) -> str:
     return ' '.join(agent_type.domain)
 
 
+def enclose_into_brackets(p: str) -> str:
+    return '(' + p + ')'
+
+
+def problem_predicate_encoding(p: pd.Predicate) -> str:
+    return pred(p, prob=True)
+
+
 def init(problem: pd.MEPlanningProblem) -> str:
     """obtain sequence of epddl initial predicates"""
-    return ' '.join(map(pred, problem.init_values))
-
+    return ' '.join(map(enclose_into_brackets,
+                        map(problem_predicate_encoding,
+                            problem.init_values)))
 
 def goal(problem: pd.MEPlanningProblem) -> str:
-    """obtain sequence of epddl initial predicates"""
-    return ' '.join(map(pred, problem.goals))
+    """obtain sequence of epddl goal predicates"""
+    return ' '.join(map(enclose_into_brackets,
+                        map(problem_predicate_encoding,
+                            problem.goals)))
 
 #  TODO till now only enums are supported
 def process_type(t: pd.Type) -> str:

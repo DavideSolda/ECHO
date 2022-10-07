@@ -1,10 +1,52 @@
-(define (domain problem_1)
+(define (domain coininthebox)
 	(:requirements :strips :negative-preconditions :mep :no-duplicates)
-	(:predicates (current_position  ?object_wlcdr - object) (safe) (pos_in_plain  ?object_hswen - object))
-	(:action move
+	(:predicates (opened) (has_key  ?ag_mfxlw - agent) (looking  ?ag_ffmln - agent) (tail))
+	(:action move_to_box
 		:act_type ontic
-		:parameters (?agent - agent ?p - object)
-		:precondition (and (- (([?agent]) ((current_position one)))) (current_position ?p))
-		:effect ((- (([?agent]) ((current_position one)))))
-		:observers (and (?agent))	)
+		:parameters (?ag - agent)
+		:precondition (and ([?ag](in_room_empty ?ag)) (in_room_empty ?ag))
+		:effect (and (-in_room_empty ?ag) (in_room_box ?ag))
+		:observers (and (forall (?ag2) (?ag2)))
+
+	)
+	(:action move_to_empty
+		:act_type ontic
+		:parameters (?ag - agent)
+		:precondition (and ([?ag](in_room_box ?ag)) (in_room_box ?ag))
+		:effect (and (in_room_empty ?ag) (-in_room_box ?ag))
+		:observers (and (forall (?ag2) (?ag2)))
+
+	)
+	(:action open
+		:act_type ontic
+		:parameters (?ag - agent)
+		:precondition (and (has_key ?ag) ([?ag](has_key ?ag)) (in_room_box ?ag))
+		:effect (opened )
+		:observers (and (forall (diff(?ag2)(?ag)) (?ag2)))
+
+	)
+	(:action peek
+		:act_type sensing
+		:parameters (?ag - agent)
+		:precondition (and ([?ag](opened )) ([?ag](looking ?ag)) (looking ?ag) (in_room_box ?ag) (opened ))
+		:effect (tail )
+		:observers (and (?ag))
+		:p_observers (and (forall (diff(?ag2)(?ag)) (?ag2) (in_room_box ?ag2)))
+	)
+	(:action signal
+		:act_type sensing
+		:parameters (?ag - agent)
+		:precondition (and ([?ag](opened )) ([?ag](looking ?ag)) (looking ?ag) (in_room_box ?ag) (opened ))
+		:effect (tail )
+		:observers (and (?ag))
+
+	)
+	(:action distract
+		:act_type announcement
+		:parameters (?ag2 - agent ?ag - agent)
+		:precondition (and ([?ag](looking ?ag)) ([?ag2](looking ?ag2)))
+		:effect (-looking ?ag2)
+		:observers (and (forall (diff(?ag2)(?ag2)) (?ag2) (looking ?ag2)) (?ag2))
+
+	)
 )

@@ -1,4 +1,5 @@
-from typing import List, Union
+from typing import List, Union, TypeVar, Iterator
+import re
 import os
 import sys
 from compiler_to_epddl import compile_into_epddl
@@ -18,7 +19,10 @@ EX_PROBLEM_F = os.path.join(CURRENT_DIR, TEMP,
                             'coin_in_the_box', 'pb01_01.epddl')
 
 
-def solve(mepproblem: pd.MEPlanningProblem) -> List[str]:
+IstantiatedMEAction = TypeVar("Istantiated_MEAction")
+
+
+def solve(mepproblem: pd.MEPlanningProblem) -> Iterator[IstantiatedMEAction]:
 
     domain_s, problem_s = compile_into_epddl(mepproblem)
     print('>'*30)
@@ -44,5 +48,16 @@ def solve(mepproblem: pd.MEPlanningProblem) -> List[str]:
             if 'Executed actions: ' in line:
                 s = line[len('Executed actions: '):-1]
                 mAp_plan = s.split(', ')
-    print(mAp_plan)
-    return []
+
+    action_name_plan = [re.split('_PARAMS_', act)[0] for act in mAp_plan]
+    instantiated = [re.split('PARAMS_', act)[1].split('_') for act in mAp_plan]
+
+    def find_in_domain(action_name: str) -> pd.MEAction:
+        dom = mepproblem.actions
+        for act in dom:
+            if act.name == action_name:
+                return act
+    maection_plan = [find_in_domain(action_name)
+                     for action_name in action_name_plan]
+
+    return zip(maection_plan, instantiated)
