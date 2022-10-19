@@ -1,6 +1,6 @@
 (define (domain coininthebox)
 	(:requirements :strips :negative-preconditions :mep :no-duplicates)
-	(:predicates (opened) (has_key  ?ag_mfxlw - agent) (looking  ?ag_ffmln - agent) (tail))
+	(:predicates (opened) (has_key  ?ag_mnafr - agent) (looking  ?ag_rcqub - agent) (tail))
 	(:action move_to_box
 		:act_type ontic
 		:parameters (?ag - agent)

@@ -23,29 +23,29 @@ class TestFTypeModule(unittest.TestCase):
         self.s = StructType("s", [self.e, self.integer])
 
     def test_is_bool_type(self):
-
+        """test is_bool_type method"""
         self.assertTrue(self.b.is_bool_type())
         self.assertFalse(self.integer.is_bool_type())
 
     def test_is_int_type(self):
-
+        """test is_int_type method"""
         self.assertTrue(self.integer.is_int_type())
         self.assertFalse(self.e.is_int_type())
 
     def test_is_enum_type(self):
-
+        """test is_enum_type method"""
         self.assertTrue(self.e.is_enum_type())
 
     def test_is_struct_type(self):
-
+        """test is_struct_type method"""
         self.assertTrue(self.s.is_struct_type())
 
     def test_int_interval(self):
-
+        """test equal operator intervals"""
         self.assertTrue(self.integer.interval == (1, 3))
 
     def test_enum_iter(self):
-
+        """test iterate over values"""
         for val in self.e:
             self.assertTrue(val in self.enum_values)
 

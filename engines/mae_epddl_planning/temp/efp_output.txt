@@ -18,18 +18,18 @@ Adding to Goal...
 
 Building initial Kripke structure...
 
-Initial Built in 0.00031253 seconds
+Initial Built in 0.000336038 seconds
 
-Heuristic Built in 9.31e-06 seconds
+Heuristic Built in 1.3464e-05 seconds
 
 
 
-Well Done, Goal found in 0.00224928 :)
+Well Done, Goal found in 0.00245102 :)
 
 Plan Length: 2
 
 Executed actions: move_to_box_PARAMS_a, open_PARAMS_a
-completed the search in 0.00224928
+completed the search in 0.00245102
 
 
 

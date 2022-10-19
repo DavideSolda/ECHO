@@ -259,7 +259,7 @@ c observes distract_PARAMS_c_b;
 %%%True fluents
 initially in_room_empty_a, in_room_empty_b, in_room_empty_c, tail, has_key_a, looking_a;
 %%%False fluents
-initially -looking_b, -in_room_box_b, -in_room_box_c, -looking_c, -has_key_c, -in_room_box_a, -opened, -has_key_b;
+initially -in_room_box_b, -in_room_box_a, -has_key_c, -opened, -looking_b, -has_key_b, -looking_c, -in_room_box_c;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -267,19 +267,19 @@ initially -looking_b, -in_room_box_b, -in_room_box_c, -looking_c, -has_key_c, -i
 %%%%%%%%%%%%%%%%%%    INITIAL BELIEFS TRUTH   %%%%%%%%%%%%%%%%%%
 %Extracted from the :init field
 
-initially C([a,b,c],-in_room_box_b);
-initially C([a,b,c],-opened);
-initially C([a,b,c],-in_room_box_a);
-initially C([a,b,c],-looking_b);
-initially C([a,b,c],in_room_empty_b);
-initially C([a,b,c],-has_key_b);
-initially C([a,b,c],in_room_empty_a);
-initially C([a,b,c],has_key_a);
-initially C([a,b,c],looking_a);
-initially C([a,b,c],-has_key_c);
-initially C([a,b,c],-looking_c);
-initially C([a,b,c],in_room_empty_c);
 initially C([a,b,c],-in_room_box_c);
+initially C([a,b,c],in_room_empty_b);
+initially C([a,b,c],in_room_empty_c);
+initially C([a,b,c],-opened);
+initially C([a,b,c],has_key_a);
+initially C([a,b,c],-has_key_c);
+initially C([a,b,c],looking_a);
+initially C([a,b,c],-looking_b);
+initially C([a,b,c],in_room_empty_a);
+initially C([a,b,c],-in_room_box_b);
+initially C([a,b,c],-in_room_box_a);
+initially C([a,b,c],-looking_c);
+initially C([a,b,c],-has_key_b);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
