@@ -167,9 +167,8 @@ def independent_rules() -> List[str]:
         ":- action(A), occurs(A,t), not executable(A,t)",
         #LAST STEP
         "#program check(t)",
-        ":- goal(F), not holds(F,t), query(t)",
-        ":- goal(neg(F)), holds(F,t), query(t)",
-        #"finally(F):- holds(F,t), query(t)",
+        ":- goal(F), not holds(F,t+1), query(t)",
+        ":- goal(neg(F)), holds(F,t+1), query(t)",
         "#program base"
     ]
 

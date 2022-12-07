@@ -23,8 +23,6 @@ def action_2_instantiated_action(problem: ClassicalPlanningProblem, symbol_actio
     return InstantiatedIAction(action, var_val)
 
 
-
-
 class Context:
     pass
 

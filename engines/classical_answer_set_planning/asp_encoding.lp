@@ -11,49 +11,75 @@
 
 %%%%%%%%%% TYPES %%%%%%%%%%
 
-integer(1..3).
-color(red;orange;yellow).
-s(red;orange;yellow,1..3).
+stak(1..3).
+color(red;orange;yellow;black).
+colorxcolor(red;orange;yellow;black,red;orange;yellow;black).
+colorxstack(red;orange;yellow;black,1..3).
 
 
 %%%%%%%%%% FLUENTS %%%%%%%%%%
 
-fluent(f1(A, B)):-color(A),integer(B).
-fluent(f3(X)):-color(X).
-fluent(f_b).
+fluent(on_block(A, B)):-color(A),color(B).
+fluent(on_stack(A, B)):-color(A),stak(B).
+fluent(top_block(X)):-color(X).
+fluent(gripped(X)):-color(X).
+fluent(free_gripper).
+fluent(free_stack(X)):-stak(X).
 
 
 %%%%%%%%%% INITIALLY %%%%%%%%%%
 
-holds(f1(red,1), 1).
-holds(f3(orange), 1).
-holds(f1(orange,2), 1).
+holds(on_stack(red,1), 1).
+holds(on_block(black,red), 1).
+holds(top_block(black), 1).
+holds(on_stack(orange,2), 1).
+holds(top_block(orange), 1).
+holds(free_gripper, 1).
+holds(free_stack(3), 1).
 
 
 %%%%%%%%%% ACTIONS %%%%%%%%%%
 
-action(action_1(X)):-integer(X).
-action(action_2).
+action(pick(C1,C2)):-color(C1),color(C2).
+action(place(C1,C2)):-color(C1),color(C2).
+action(place_on_ground(C1,S)):-color(C1),stak(S).
 
 
 %%%%%%%%%% EXECUTABLE %%%%%%%%%%
 
-exec(action_1(X),f1(red,X)):-integer(X),integer(X).
-exec(action_1(X),f3(orange)):-integer(X).
+exec(pick(C1,C2),top_block(C1)):-color(C1),color(C2),color(C1).
+exec(pick(C1,C2),on_block(C1,C2)):-color(C1),color(C2),color(C1),color(C2).
+exec(pick(C1,C2),free_gripper):-color(C1),color(C2).
+exec(place(C1,C2),top_block(C2)):-color(C1),color(C2),color(C2).
+exec(place(C1,C2),neg(free_gripper)):-color(C1),color(C2).
+exec(place(C1,C2),gripped(C1)):-color(C1),color(C2),color(C1).
+exec(place_on_ground(C1,S),free_stack(S)):-color(C1),stak(S),stak(S).
+exec(place_on_ground(C1,S),neg(free_gripper)):-color(C1),stak(S).
+exec(place_on_ground(C1,S),gripped(C1)):-color(C1),stak(S),color(C1).
 
 
 %%%%%%%%%% CAUSES %%%%%%%%%%
 
-causes(action_1(X),f1(yellow,X)):-integer(X),integer(X).
-causes(action_1(X),neg(f1(red,X))):-integer(X),integer(X).
-causes(action_2,neg(f3(orange))).
-causes(action_2,boolean_fluent).
+causes(pick(C1,C2),neg(top_block(C1))):-color(C1),color(C2),color(C1).
+causes(pick(C1,C2),neg(on_block(C1,C2))):-color(C1),color(C2),color(C1),color(C2).
+causes(pick(C1,C2),top_block(C2)):-color(C1),color(C2),color(C2).
+causes(pick(C1,C2),neg(free_gripper)):-color(C1),color(C2).
+causes(pick(C1,C2),gripped(C1)):-color(C1),color(C2),color(C1).
+causes(place(C1,C2),top_block(C1)):-color(C1),color(C2),color(C1).
+causes(place(C1,C2),on_block(C1,C2)):-color(C1),color(C2),color(C1),color(C2).
+causes(place(C1,C2),neg(top_block(C2))):-color(C1),color(C2),color(C2).
+causes(place(C1,C2),free_gripper):-color(C1),color(C2).
+causes(place(C1,C2),neg(gripped(C1))):-color(C1),color(C2),color(C1).
+causes(place_on_ground(C1,S),neg(free_stack(S))):-color(C1),stak(S),stak(S).
+causes(place_on_ground(C1,S),top_block(C1)):-color(C1),stak(S),color(C1).
+causes(place_on_ground(C1,S),free_gripper):-color(C1),stak(S).
+causes(place_on_ground(C1,S),neg(gripped(C1))):-color(C1),stak(S),color(C1).
 
 
 %%%%%%%%%% GOALS %%%%%%%%%%
 
-goal(f1(yellow,1)).
-goal(neg(f3(orange))).
+goal(on_block(black,orange)).
+goal(free_gripper).
 
 
 %%%%%%%%%% [[	PROBLEM INDEPENDENT RULES	]] %%%%%%%%%%
@@ -68,6 +94,6 @@ holds(F, t+1) :- executable(A,t), occurs(A,t), causes(A,F).
 {occurs(A,t) : action(A)}1.
 :- action(A), occurs(A,t), not executable(A,t).
 #program check(t).
-:- goal(F), not holds(F,t), query(t).
-:- goal(neg(F)), holds(F,t), query(t).
+:- goal(F), not holds(F,t+1), query(t).
+:- goal(neg(F)), holds(F,t+1), query(t).
 #program base.
