@@ -12,4 +12,6 @@ class Method():
     2) give the set of goal pair (g1, g2) s.t. g1 < g2"""
 
     name: str
+    params: List[Variables]
+    precondition: List[Predicate]
     goal_poset: Poset

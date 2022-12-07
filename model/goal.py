@@ -19,7 +19,7 @@ class Goal():
 class Poset():
     #Poset for now it is only total order
 
-    representation: List[List[Goal]]
+    representation: List[Goal]
 
     def __init__():
         self.representation = []
@@ -29,4 +29,4 @@ class Poset():
         self.representation.append(ordered_elements)
 
     def get_maximal_goals() -> Set[Goal]:
-        return representation[0][-1]
+        return representation[-1]

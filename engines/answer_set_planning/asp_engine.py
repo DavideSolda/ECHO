@@ -2,7 +2,7 @@ from typing import Tuple, List, Dict, Union
 import clingo
 from clingo.application import clingo_main, Application, ApplicationOptions
 
-from asp_compiler import compile_into_asp
+from classical_asp_encoding import compile_into_asp
 from asp_iclingo_like import IncApp
 
 import os

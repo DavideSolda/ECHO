@@ -15,9 +15,21 @@ from method import Method
 class TestGoalAndMethods(unittest.TestCase):
 
     def setUp(slef):
-        self.integer = IntType("integer", 1, 3)
-        self.enum_values = ["red", "orange", "yellow"]
-        self.e = EnumType("color", self.enum_values)
+        
+        self.color  = EnumType("table", ["table1", "table2", "table3"])
+        self.C = Variable('TABLE', self.color)
+        
+        self.loaded = Fluent("loaded", self.color)
+        self.moved = Fluent("moved", self.color)
+        self.moved = Fluent("ready", self.color)
+
+        #goal definitions
+        
+        self.method = Method(name='lighten_up',
+                             params=self.C,
+                             precondition=[self.loaded(self.C)],
+                             goal_poset=)
+
         self.s = StructType("s", [self.e, self.integer])
         self.f1 = Fluent("f1", self.s)
         self.f2 = Fluent("f1", self.s)

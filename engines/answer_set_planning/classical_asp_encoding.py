@@ -6,9 +6,6 @@ import sys
 sys.path.insert(1, os.path.join(current_dir, '..', 'model'))
 import shortcuts as sc
 
-#holds(F,T)
-#occ(A,T)
-#possible(A,T)
 
 
 def enum_values(enum_type: sc.EnumType) -> str:
