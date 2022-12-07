@@ -1,7 +1,9 @@
 from typing import Tuple, List, Dict, Union
 import clingo
+from clingo.application import clingo_main, Application, ApplicationOptions
 
 from asp_compiler import compile_into_asp
+from asp_iclingo_like import IncApp
 
 import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -21,6 +23,8 @@ def action_2_instantiated_action(problem: ClassicalPlanningProblem, symbol_actio
     return InstantiatedIAction(action, var_val)
 
 
+
+
 class Context:
     pass
 
@@ -30,29 +34,40 @@ def on_model(m):
 def solve(problem: ClassicalPlanningProblem) -> Tuple[List[Predicate], List[InstantiatedIAction]]:
 
     asp_encoding = compile_into_asp(problem)
-    ctl = clingo.Control(["-c", "l=10"])
-    ctl.add("base", [], asp_encoding)
 
-    ctl.ground([("base", [])], context=Context())
-    ctl.solve(on_model=on_model)
+    encoding_file_path = os.path.join(current_dir, 'asp_encoding.lp')
+    print(asp_encoding)
+    print(encoding_file_path)
 
-    models = []
-    with ctl.solve(yield_=True) as handle:
-        for model in handle:
-            models.append(model.symbols(atoms=True))
-            break
-    sorted(models)
-    fluents = models[0]
+    
+    with open(encoding_file_path, 'w') as encoding_file:
+        encoding_file.write(asp_encoding)
+
+    inc_app = IncApp()
+    clingo_main(inc_app, [encoding_file_path])
+
+    model = inc_app.get_model()
+
+    print('look at here')
+    print(model)
     final_holds = []
     plan = []
 
-    for fluent in fluents:
-        if fluent.name == 'finally':
+    #get maximum timestamp
+    max_timestamp = 1
+    for fluent in model:
+        print(fluent)
+        if fluent.name == 'holds':
+            max_timestamp = max(max_timestamp, fluent.arguments[1].number)
+    print(f'maximum timestamp {max_timestamp}')
+    for fluent in model:
+        if fluent.name == 'holds' and fluent.arguments[1].number == max_timestamp:
             if fluent.arguments[0].name != 'neg' and fluent.positive:
                 final_holds.append(str(fluent.arguments[0]))
         elif fluent.name == 'occurs' and fluent.positive:
             action = action_2_instantiated_action(problem, fluent.arguments[0])
             index = int(str(fluent.arguments[1]))
             plan.append((action, index))
+    
     plan = [x[0] for x in sorted(plan, key=lambda x : x[1])]
     return final_holds, plan

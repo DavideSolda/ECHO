@@ -21,6 +21,7 @@ class TestProblem2ASP(unittest.TestCase):
         self.f1 = Fluent("f1", self.s)
         self.f2 = Fluent("f1", self.s)
         self.f3 = Fluent("f3", self.e)
+        self.boolean_fluent = Fluent('boolean_fluent')
         self.f_bool = Fluent("f_b")
 
         self.x = Variable("x", self.integer)
@@ -29,7 +30,7 @@ class TestProblem2ASP(unittest.TestCase):
         l_pre = [self.f1('red', self.x), self.f3("orange")]
         l_effect = [self.f1('yellow', self.x), - self.f1('red', self.x)]
         self.action_1 = IAction(name = "action_1", params = [self.x], precondition = l_pre, effects = l_effect)
-        self.action_2 = IAction(name = "action_2", params = [], precondition = [], effects = [- self.f3("orange")])
+        self.action_2 = IAction(name = "action_2", params = [], precondition = [], effects = [- self.f3("orange"), self.boolean_fluent()])
 
     def test_problem_2_asp(self):
         p = ClassicalPlanningProblem()
@@ -56,6 +57,9 @@ class TestProblem2ASP(unittest.TestCase):
 
         #solve:
         finally_holds, plan = solve(p)
-        print(f'plan:\n{plan}')
+        print(f'plan of length {len(plan)}:\n{plan}')
         print("\n\n")
         print(f'finally the following fluents hold:\n{finally_holds}')
+
+if __name__ == "__main__":
+    unittest.main()

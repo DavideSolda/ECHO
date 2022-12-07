@@ -155,15 +155,16 @@ class ClassicalPlanningProblem(PlanningProblem):
 
     def add_action(self, action: IAction):
         """Add action to the problem"""
+        #TODO ADD CHECK ON THE FLUENTS: IF THEY ARE ADDED TO THE PROBLEM
         for pre in action.precondition:
             for sub_type in pre.types:
-                if sub_type not in self._types:
+                if sub_type not in self._types and not sub_type.is_bool_type():
                     raise Exception(f"""{sub_type} not added,
                     from {pre} in preconditions""")
 
         for eff in action.effects:
             for sub_type in eff.types:
-                if sub_type not in self._types:
+                if sub_type not in self._types and not sub_type.is_bool_type():
                     raise Exception(f"""{sub_type} not added,
                     from {eff} in effects""")
 
@@ -199,3 +200,12 @@ class MEPlanningProblem(PlanningProblem):
                     from {eff} in effects""")
 
         self._domain.append(action)
+
+@dataclass(repr=False)
+class MEPClassical():
+    classical_problem: ClassicalPlanningProblem
+    meap_problem: MEPlanningProblem
+
+    def __init__(self, classical_problem, maep_problem):
+        self.classical_problem = classical_problem
+        self.maep_problem = maep_problem

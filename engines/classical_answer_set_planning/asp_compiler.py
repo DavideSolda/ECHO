@@ -50,7 +50,10 @@ def literal(predicate: sc.Predicate) -> str:
     lit_str = ""
     if isinstance(predicate, sc.Literal):
         f_name = f"{predicate.fluent.name}"
-        lit_str = f_name + '(' + ','.join(map(param_val_2_asp, predicate.args)) + ')'
+        lit_str = f_name
+        if len(predicate.args) > 0:
+            lit_str += '(' + ','.join(map(param_val_2_asp, predicate.args)) + ')'
+        
         if neg:
             return "neg(" + lit_str + ")"
 
@@ -110,7 +113,7 @@ def action_to_asp(action: sc.IAction) -> str:
     name = action.name
     variables = action.params
     s = ''
-    if len(action.params) > 1:
+    if len(action.params) == 0:
         s = f'action({name})'
         return s
     else:
@@ -142,29 +145,32 @@ def action_causes(action: sc.IAction, cause_lit: sc.Literal) -> str:
 
 def vars_to_asp(variables: List[sc.Variable]) -> str:
 
+    print(variables)
     return ",".join([f"{var.type.name}({var.name.upper()})" for var in variables])
 
 def independent_rules() -> List[str]:
 
     return [
-        #TIME:
-        "time(0..l)",
         #OPPOSITE:
         "opposite(F, neg(F)) :- fluent(F)",
         "opposite(neg(F), F) :- fluent(F)",
+        "#program step(t)",
         #INERTIA:
-        "holds(F,T+1) :- opposite(F,G), T < l, holds(F,T), not holds(G, T+1)",
-        #GOALS:
-        "not_goal_at(T) :- time(T), not holds(F, T), goal(F)",
-        ":- not_goal_at(l)",
+        "holds(F,t+1) :- opposite(F,G), holds(F,t), not holds(G, t+1)",
+        #"holds(F,t):- not holds(G,t), opposite(F,G)",
         #EXECUTABILITY:
-        "not_executable(A,T) :- exec(A,F), not holds(F,T), time(T)",
-        "executable(A,T) :- T < l, not not_executable(A,T), time(T), action(A)",
-        "holds(F, T+1) :- T < l, executable(A,T), occurs(A,T), causes(A,F)",
+        "not_executable(A,t) :- exec(A,F), not holds(F,t)",
+        "executable(A,t) :- not not_executable(A,t), action(A)",
+        "holds(F, t+1) :- executable(A,t), occurs(A,t), causes(A,F)",
         #OCCURS
-        "{occurs(A,T) : action(A)}1 :- time(T)",
-        ":- action(A), time(T), occurs(A,T), not executable(A,T)",
-        "finally(F):- holds(F,l)"
+        "{occurs(A,t) : action(A)}1",
+        ":- action(A), occurs(A,t), not executable(A,t)",
+        #LAST STEP
+        "#program check(t)",
+        ":- goal(F), not holds(F,t), query(t)",
+        ":- goal(neg(F)), holds(F,t), query(t)",
+        #"finally(F):- holds(F,t), query(t)",
+        "#program base"
     ]
 
 def compile_into_asp(problem: sc.ClassicalPlanningProblem) -> str:
@@ -202,7 +208,7 @@ def compile_into_asp(problem: sc.ClassicalPlanningProblem) -> str:
 
     init_values = []
     for lit in problem.init_values:
-        init_values.append("holds(" + literal(lit) + ", 0)")
+        init_values.append("holds(" + literal(lit) + ", 1)")
 
     s += to_asp_lines(init_values)
 
@@ -248,4 +254,5 @@ def compile_into_asp(problem: sc.ClassicalPlanningProblem) -> str:
 
     s += to_asp_lines(independent_rules())
 
+    print(s)
     return s

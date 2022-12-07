@@ -1,3 +1,3 @@
 #! /bin/bash
 cd dev-tests/
-python -m unittest discover
+python3 -m unittest discover

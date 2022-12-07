@@ -1,15 +1,16 @@
-"""module for the definiton of Types of parameters in the planning problem"""
+"""
+module for the definiton of Types of parameters in the planning problem
+***This way to proceed means that we :require :typing
+"""
 from typing import List, Tuple
 from dataclasses import dataclass
 from abc import abstractmethod
 
+
 @dataclass(frozen=True)
 class Type:
     """Definition of the Type class"""
-    _name: str
-
-    def __init__(self, name : str):
-        object.__setattr__(self, "_name", name)
+    name: str
 
     def is_bool_type(self) -> bool:
         """is boolean?"""
@@ -27,6 +28,10 @@ class Type:
         """is struct ?"""
         return False
 
+    def is_agent_type(self) -> bool:
+        """we reserve a particular type for agents"""
+        return False
+
     def __eq__(self, _type):
         return self is _type or \
             _type.is_bool_type() and self.is_bool_type()
@@ -37,11 +42,6 @@ class Type:
     @abstractmethod
     def __hash__(self) -> int:
         pass
-
-    @property
-    def name(self) -> str:
-        """Get name of the type"""
-        return self._name
 
 
 @dataclass(frozen=True)
@@ -56,38 +56,33 @@ class BoolType(Type):
     def __hash__(self) -> int:
         return 100
 
+    def __len__(self):
+        return 0
 
 @dataclass(frozen=True)
 class IntType(Type):
     """Definition of integer type"""
-    _max: int
-    _min: int
-    _name: str
+    name: str
+    min_val: int
+    max_val: int
 
-    def __init__(self, name: str, _min: int, _max: int):
+    def __post_init__(self):
 
-        super().__init__(name)
+        if self.max < self.min:
+            raise Exception(f"max : {self.max} > min : {self.min}")
 
-        if _max < _min:
-            raise Exception(f"max : {_max} > min : {_min}")
-
-        if isinstance(_min, int) and isinstance(_max, int):
-
-            object.__setattr__(self, "_max", _max)
-            object.__setattr__(self, "_min", _min)
-            object.__setattr__(self, "_name", name)
-            return
-        raise Exception(f"integer type ill-defined: IntType({_min}, {_max})")
+        if not isinstance(self.min, int) or not isinstance(self.max, int):
+            raise Exception(f"integer type ill-defined: IntType({self.min}, {self.max})")
 
     @property
     def min(self) -> int:
         """Returns the minimum range value"""
-        return self._min
+        return self.min_val
 
     @property
     def max(self) -> int:
         """Returns the maximum range value"""
-        return self._max
+        return self.max_val
 
     def __contains__(self, i: int):
         return self.min <= i <= self.max
@@ -115,22 +110,16 @@ class IntType(Type):
 @dataclass(frozen=True)
 class EnumType(Type):
     """Definition of enumerate type"""
+    name: str
     domain: List[str]
-    agent: False
-    def __init__(self, name: str, domain: List[str], agent=False):
 
-        super().__init__(name)
+    def __post_init__(self):
 
-        if not isinstance(domain, list):
+        if not isinstance(self.domain, list):
             raise Exception(f"{domain} is not a list of strings")
-        for enum_val in domain:
+        for enum_val in self.domain:
             if not isinstance(enum_val, str):
                 raise Exception(f"{enum_val} is not a string")
-
-        object.__setattr__(self, "domain", domain)
-        if agent:
-            assert name == 'agents'
-        object.__setattr__(self, "agent", agent)
 
     def __repr__(self) -> str:
         return f"{self.name} : {self.domain}"
@@ -141,6 +130,13 @@ class EnumType(Type):
     def __iter__(self):
         for val in self.domain:
             yield val
+
+    def contained_in(self, other: "EnumType") -> bool:
+        """Returns if the domain is contained"""
+        for s in self.domain:
+            if s not in other.domain:
+                return False
+        return True
 
     @property
     def enum_values(self) -> List[str]:
@@ -157,18 +153,37 @@ class EnumType(Type):
 
 
 @dataclass(frozen=True)
+class AgentType(EnumType):
+    """A type suited for agents"""
+    name: str
+    domain: List[str]
+
+    def __init__(self, domain):
+        super().__init__('agent', domain)
+
+    def __post_init__(self):
+        super().__post_init__()
+
+    def is_agent_type(self):
+        return True
+
+    def __repr__(self):
+        return super().__repr__()
+
+
+@dataclass(frozen=True)
 class StructType(Type):
     """Definition of struct type"""
-    domain: List[Type]
-    def __init__(self, name: str, types: List[Type]):
+    name: str
+    subtypes: List[Type]
 
-        super().__init__(name)
+    def __post_init__(self):
 
-        if not isinstance(types, list):
-            raise Exception(f"""{types} is not a list of plan ftype.Type
+        if not isinstance(self.subtypes, list):
+            raise Exception(f"""{self.subtypes} is not a list of plan ftype.Type
  {{ftype.EnumType, ftype.BoolType, ftype.IntType}}""")
 
-        for sub_type in types:
+        for sub_type in self.subtypes:
             if not isinstance(sub_type, Type):
                 raise Exception(f"{sub_type} is not an instance of ftype.Type")
             if isinstance(sub_type, StructType):
@@ -177,22 +192,19 @@ class StructType(Type):
                 raise Exception(f"""ftype.BoolType cannot be a field in a
 fType.StructType""")
 
-        object.__setattr__(self, "domain", types)
-
     def __repr__(self):
-        return f"{self.name} : {self.domain}"
+        return f"{self.name} : {self.subtypes}"
 
     def is_struct_type(self) -> bool:
         return True
 
     def __iter__(self):
-        for sub_type in self.domain:
-            yield sub_type
+        for subtype in self.subtypes:
+            yield subtype
 
     def __len__(self):
-        return len(self.domain)
+        return len(self.subtypes)
 
-    def __hash__(self) -> int:
+    def __hash__(self) -> int:#TODO
         h = 1
-        
         return h

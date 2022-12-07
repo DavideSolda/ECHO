@@ -151,7 +151,7 @@ class TestProblem(unittest.TestCase):
         self.e = EnumType("color", self.enum_values)
         self.s = StructType("s", [self.e, self.integer])
         self.f1 = Fluent("f1", self.s)
-        self.f2 = Fluent("f1", self.s)
+        self.f2 = Fluent("f2", self.s)
         self.f3 = Fluent("f3", self.e)
         self.p = ClassicalPlanningProblem()
         #add fluents:
@@ -162,22 +162,6 @@ class TestProblem(unittest.TestCase):
         #add action:
         p.add_action(self.action)
 
-
-from goal import Goal, Poset
-from method import Method
-
-class TestGoalAndMethods(unittest.TestCase):
-
-    def setUp(slef):
-        self.integer = IntType("integer", 1, 3)
-        self.enum_values = ["red", "orange", "yellow"]
-        self.e = EnumType("color", self.enum_values)
-        self.s = StructType("s", [self.e, self.integer])
-        self.f1 = Fluent("f1", self.s)
-        self.f2 = Fluent("f1", self.s)
-        self.f3 = Fluent("f3", self.e)
-
-        self.goal = Goal('goal1', set(self.f3('red')))
 
         
 if __name__ == "__main__":

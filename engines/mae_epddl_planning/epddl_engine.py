@@ -3,14 +3,14 @@ import re
 import os
 import sys
 from compiler_to_epddl import compile_into_epddl
-from MetacognitiveEpistemicPlanning.Planners.EPDDL.parser import EPDDL_Parser
+from sofai.Planners.EPDDL.parser import EPDDL_Parser
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(1, os.path.join(CURRENT_DIR, '..', 'model'))
 import shortcuts as pd
 TEMP = 'temp'
 DOMAIN_F = os.path.join(CURRENT_DIR, TEMP, 'domain.epddl')
 PROBLEM_F = os.path.join(CURRENT_DIR, TEMP, 'problem.epddl')
-EFP = os.path.join(CURRENT_DIR, 'MetacognitiveEpistemicPlanning',
+EFP = os.path.join(CURRENT_DIR, 'sofai',
                    'Planners', 'EFP', 'build', 'efp.out')
 EFP_OUTPUT = os.path.join(CURRENT_DIR, TEMP, 'efp_output.txt')
 EX_DOMAIN_F = os.path.join(CURRENT_DIR, TEMP,

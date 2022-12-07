@@ -1,39 +1,34 @@
 from enum import Enum
-from dataclasses import field
-from typing import List, Union
+from dataclasses import field, dataclass
+from typing import List, Union, ClassVar
 import copy
 
 from arithmetic_expression import is_int_fvalue, is_enum_fvalue, ArithmeticExpr
 from variable import Variable
+from ftype import Type
 
 
+@dataclass
 class Predicate():
 
-    negated: bool
-    _types: List[Union[int, str, Variable]]
-    _variables: List[Variable]
 
-    def __init__(self):
+    negated: bool
+    types: List[Union[int, str, Variable]]
+    variables: List[Variable]
+
+    def __post_init__(self):
         self.negated = False
 
-    def __neg__(self):
+    def __neg__(self) -> 'Predicate':
         negated_p = copy.deepcopy(self)
         negated_p.negated = not self.negated
         return negated_p
 
-    @property
-    def types(self):
-        return self._types
+    def __and__(self, pl: 'Predicate', pr: 'Predicate') -> 'BooleanPredicate':
+        return BooleanPredicate(BooleanOperator.AND, pl, pr)
 
-    @property
-    def variables(self):
-        return self._variables
-
-    def __and__(self, pl: 'Predicate', pr: 'Predicate') -> 'BooleanOperator':
-        return BooleanOperator(BooleanOperator.AND, pl, pr)
-
-    def __or__(self, pl: 'Predicate', pr: 'Predicate') -> 'BooleanOperator':
-        return BooleanOperator(BooleanOperator.OR, pl, pr)
+    def __or__(self, pl: 'Predicate', pr: 'Predicate') -> 'BooleanPredicate':
+        return BooleanPredicate(BooleanOperator.OR, pl, pr)
 
 
 class BooleanOperator(Enum):
@@ -42,116 +37,103 @@ class BooleanOperator(Enum):
     OR = 'or'
 
 
+@dataclass
 class BooleanPredicate(Predicate):
 
-    pl: Predicate
-    pr: Predicate
+    op: BooleanOperator
+    left_predicate: Predicate
+    right_predicate: Predicate
 
-    def __init__(self, op: BooleanOperator, pl: Predicate, pr: Predicate):
-        self.pl = pl
-        self.pr = pr
-        self.op = op
-
-        self._variables = pl.variables + pr.variables
-        self._types = pl.types + pr.types
-
-    def left_predicate(self) -> Predicate:
-        return self.pl
-
-    def right_predicate(self) -> Predicate:
-        return self.pr
-
-    def op(self) -> BooleanOperator:
-        return self.op
+    def __post_init__(self):
+        """just add info about variables and types"""
+        super().__post_init__()
+        self._variables = left_predicate.variables + right_predicate.variables
+        self._types = left_predicate.types + right_predicate.types
 
 
+@dataclass
+class When(Predicate):
+
+    body: Predicate
+    head: Predicate
+
+
+@dataclass
 class Literal(Predicate):
 
     fluent: 'Fluent'
     args: List[Union[ArithmeticExpr, int, str, Variable]] = field(
         default_factory=(lambda: []))
-    when: Predicate
 
-    def __init__(self, fluent: 'Fluent', args, when=None):
+    def __post_init__(self):
+        """just add info about variables and types"""
+        super().__post_init__()
 
-        super().__init__()
-        self.fluent = fluent
-        self.args = args
-        self.negated = False
         self._types = [self.fluent.type]
-        self._variables = [arg.variables for arg in args
+        self._variables = [arg.variables for arg in self.args
                            if isinstance(arg, ArithmeticExpr)]
-        self._variables += [arg for arg in args
+        self._variables += [arg for arg in self.args
                             if isinstance(arg, Variable)]
-        self.when = None
-
-    def __repr__(self) -> str:
-        return f"{self.fluent.name}({self.args})"
 
 
 class EqualityOperator(Enum):
+
     eq = "=="
     neq = "!="
 
 
+@dataclass
 class EqualityPredicate(Predicate):
 
-    op: EqualityOperator
-    args: List[Union[ArithmeticExpr, int, Variable]]
 
-    def __init__(self, op: EqualityOperator,
-                 args: List[Union[ArithmeticExpr, int, Variable]]):
-        assert len(args) == 2
-        self._op = op
-        self._args = args
-        self._types = [arg.type for arg in args
-                       if isinstance(arg, Variable) or
-                       isinstance(arg, ArithmeticExpr)]
-        self._variables = [arg.variables for arg in args
-                           if isinstance(arg, ArithmeticExpr)]
-        self._variables += [arg for arg in args
-                            if isinstance(arg, Variable)]
+    operator: EqualityOperator
+    left_operand: Union[ArithmeticExpr, int, Variable]
+    right_operand:Union[ArithmeticExpr, int, Variable]
 
-    @property
-    def operator(self) -> EqualityOperator:
-        return self._op
+    def __post_init__(self):
 
-    @property
-    def args(self) -> List[Union[ArithmeticExpr, int, Variable]]:
-        return self._args
+        super().__post_init__()
+        
+        self.variables = get_fvalues_variable(self.left_operand) +\
+            get_fvalues_variable(self.right_operand)
+        self.types = get_fvalues_type(self.left_operand) +\
+            get_fvalues_type(self.right_operand)
+        if is_int_fvalue(self.left_operand) and is_int_fvalue(self.right_operand) or\
+           is_enum_fvalue(self.left_operand) and is_enum_fvalue(self.right_operand):
+            return
+        else:
+            raise Exception(f"{l} and {r} are not compatible")
 
-    def __repr__(self) -> str:
-        return f"{self.operator.value} {self._args}"
 
 
 def eq(l: Union[ArithmeticExpr, int, Variable, str],
        r: Union[ArithmeticExpr, int, Variable, str]):
 
-    if is_int_fvalue(l) and is_int_fvalue(r):
-        return EqualityPredicate(EqualityOperator.eq, [l, r])
-
-    if is_enum_fvalue(l) and is_enum_fvalue(r):
-        return EqualityPredicate(EqualityOperator.eq, [l, r])
-
-    raise Exception(f"{l} and {r} are not compatible")
+    return EqualityPredicate(negated = False, types = [], variables = [],
+                             operator = EqualityOperator.eq, left_operand = l,
+                             right_operand = r)
 
 
 def neq(l: Union[ArithmeticExpr, int, Variable, str],
         r: Union[ArithmeticExpr, int, Variable, str]):
 
-    if isinstance(l, int) and isinstance(l, int):
-        raise Exception(f'{l} and {r} are both integer')
+    return EqualityPredicate(negated = False, types = [], variables = [],
+                             operator = EqualityOperator.neq, left_operand = l,
+                             right_operand = r)
 
-    if isinstance(l, str) and isinstance(l, str):
-        raise Exception(f'{l} and {r} are both strings')
 
-    if is_int_fvalue(l) and is_int_fvalue(r):
-        return EqualityPredicate(EqualityOperator.neq, [l, r])
+def get_fvalues_type(fvalue: Union[ArithmeticExpr, int, Variable, str]) -> List[Type]:
+    if isinstance(fvalue, (ArithmeticExpr, Variable)):
+        return fvalue.types
+    return []
 
-    if is_enum_fvalue(l) and is_enum_fvalue(r):
-        return EqualityPredicate(EqualityOperator.neq, [l, r])
 
-    raise Exception(f"{l} and {r} are not compatible")
+def get_fvalues_variable(fvalue: Union[ArithmeticExpr, int, Variable, str]) -> List[Variable]:
+    if isinstance(fvalue, Variable):
+        return [fvalue]
+    if isinstance(fvalue, ArithmeticExpr):
+        return fvalue.variables
+    return []
 
 
 class BeliefLiteral(Predicate):
