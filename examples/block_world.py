@@ -29,12 +29,12 @@ pick = IAction(name = "pick",
                precondition = [top(C1), on_block(C1, C2), free_gripper()],
                effects = [-top(C1), -on_block(C1, C2), top(C2), -free_gripper(), gripped(C1)])
 
-"""
+
 pick_from_ground = IAction(name = "pick_from_ground",
                            params = [C1, S],
                            precondition = [top(C1), on_stack(C1, S), free_gripper()],
                            effects = [free_stack(S), -top(C1), -on_stack(C1, S), -free_gripper(), gripped(C1)])
-"""
+
 place = IAction(name = "place",
                 params = [C1, C2],
                 precondition = [top(C2), -free_gripper(), gripped(C1)],
