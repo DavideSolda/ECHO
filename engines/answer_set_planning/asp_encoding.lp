@@ -85,7 +85,9 @@ goal(picked_g(TABLE)):-table(TABLE).
 
 %%%%%%%%%% GOAL TO SAT %%%%%%%%%%
 
+prec_to_sat(ready_g(table1), 0,ready_g(table2), 0).
 goal_to_sat(ready_g(table1), 0, 0).
+goal_to_sat(ready_g(table2), 0, 0).
 #program step(t).
 %creation of new subgoals.
 goal_to_sat(G, t+1, t+1):-occurs(M, t), method_req(M, G, G2), goal(G).

@@ -90,6 +90,7 @@ def goal_DNF(g: sc.Goal, l: sc.Literal) -> str:
         s += f':-{vars_to_asp(variables)}'
     return s
     
+
 def goal_def(g: sc.Goal) -> str:
     variables = [v for v in g.arguments if isinstance(v, sc.Variable)]
     s = 'goal(' + goal(g) + ')'
@@ -167,6 +168,7 @@ def independent_rules() -> List[str]:
         "#program check(t)",
         ":- goal_to_sat(G, T, t), query(t)"
     ]
+
 
 def compile_HGN_into_asp(problem: sc.ClassicalPlanningProblem) -> str:
 
@@ -286,8 +288,8 @@ def compile_HGN_into_asp(problem: sc.ClassicalPlanningProblem) -> str:
     initial_poset = problem.initial_poset
     for prec, succ in initial_poset.get_precedence_relations():
         init_poset.append(prec_to_sat(prec, succ))
-    for maximal_goal in initial_poset.get_maximal_goals():
-        init_poset.append(goal_to_sat(maximal_goal))
+    for goal in initial_poset.get_goals():
+        init_poset.append(goal_to_sat(goal))
 
     s += to_asp_lines(init_poset)
     
