@@ -1,8 +1,11 @@
 """This modul contains Methods classes"""
 
 from dataclasses import dataclass
+from typing import List
 
 from goal import Goal, Poset
+from variable import Variable
+from predicate import Literal
 
 @dataclass
 class Method():
@@ -12,6 +15,6 @@ class Method():
     2) give the set of goal pair (g1, g2) s.t. g1 < g2"""
 
     name: str
-    params: List[Variables]
-    precondition: List[Predicate]
+    params: List[Variable]
+    precondition: List[Literal]
     goal_poset: Poset

@@ -114,7 +114,7 @@ def action_to_asp(action: sc.IAction) -> str:
         s = f'action({name})'
         return s
     else:
-        parameters = ','.join(map(param_val_2_asp, action.params))
+        parameters = ','.join(map(param_val_2_asp, set(action.params)))
         s = f'action({name}({parameters}))'
     if len(variables) > 0:
         s += f':-{vars_to_asp(variables)}'
@@ -122,22 +122,22 @@ def action_to_asp(action: sc.IAction) -> str:
 
 def action_exec(action: sc.IAction, exec_lit: sc.Predicate) -> str:
 
-    variables = action.params + exec_lit.variables
+    variables = set(action.params + exec_lit.variables)
     body = "" if len(variables) == 0 else ':-' + vars_to_asp(variables)
     if len(action.params) == 0:
         return f'exec({action.name},{literal(exec_lit)})' + body
     else:
-        parameters = ','.join(map(param_val_2_asp, action.params))
+        parameters = ','.join(map(param_val_2_asp, set(action.params)))
         return f'exec({action.name}({parameters}),{literal(exec_lit)})' + body
 
 def action_causes(action: sc.IAction, cause_lit: sc.Literal) -> str:
 
-    variables = action.params + cause_lit.variables
+    variables = set(action.params + cause_lit.variables)
     body = "" if len(variables) == 0 else ':-' + vars_to_asp(variables)
     if len(action.params) == 0:
         return f'causes({action.name},{literal(cause_lit)})' + body
     else:
-        parameters = ','.join(map(param_val_2_asp, action.params))
+        parameters = ','.join(map(param_val_2_asp, set(action.params)))
         return f'causes({action.name}({parameters}),{literal(cause_lit)})' + body
 
 def vars_to_asp(variables: List[sc.Variable]) -> str:
@@ -169,7 +169,7 @@ def independent_rules() -> List[str]:
         "#program base"
     ]
 
-def compile_into_asp(problem: sc.ClassicalPlanningProblem) -> str:
+def compile_classical_into_asp(problem: sc.HierarchicalGoalNetworkProblem) -> str:
 
 
     s =  "%Answer set planning.\n\n"
@@ -221,8 +221,6 @@ def compile_into_asp(problem: sc.ClassicalPlanningProblem) -> str:
     executabilities = []
 
     for action in problem.actions:
-        action_name = action.name
-        params = ','.join(map(param_val_2_asp, action.params))
         for precond in action.precondition:
             executabilities.append(action_exec(action, precond))
 
@@ -232,8 +230,6 @@ def compile_into_asp(problem: sc.ClassicalPlanningProblem) -> str:
 
     causes = []
     for action in problem.actions:
-        action_name = action.name
-        params = ','.join(map(param_val_2_asp, action.params))
         for effect in action.effects:
             causes.append(action_causes(action, effect))
 

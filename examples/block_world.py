@@ -5,7 +5,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(1, os.path.join(current_dir, "..", "model"))
 from shortcuts import *
 
-sys.path.insert(1, os.path.join(current_dir, "..", "engines", 'classical_answer_set_planning'))
+sys.path.insert(1, os.path.join(current_dir, "..", "engines", 'answer_set_planning'))
 from asp_engine import *
 
 stack = IntType("stak", 1, 3)
@@ -82,5 +82,5 @@ p.add_goals(free_gripper())
 #solve:
 finally_holds, plan = solve(p)
 print(f"plan of length {len(plan)}")
-print(plan)
 print(finally_holds)
+print(plan)

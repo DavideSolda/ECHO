@@ -1,5 +1,5 @@
 """class for the definition of a planning problem"""
-from typing import List, Union, Any
+from typing import List, Union, Any, Iterator
 from dataclasses import dataclass
 from enum import Enum
 import logging
@@ -10,7 +10,8 @@ from fluent import Fluent
 from predicate import Literal, Predicate, BeliefLiteral
 from variable import Variable
 from ftype import Type
-
+from method import Method
+from goal import Goal, Poset
 
 class SolvingClassicalPlanningOption(Enum):  # TODO: to move?
     """Types of classical planning solving problems"""
@@ -171,6 +172,59 @@ class ClassicalPlanningProblem(PlanningProblem):
         self._domain.append(action)
 
 
+@dataclass
+class HierarchicalGoalNetworkProblem(ClassicalPlanningProblem):
+    """definition of a classical planning problem"""
+
+    _domain: List[IAction]
+    _methods: List[Method]
+    _goals: List[Goal]
+    _poset: Poset
+
+    def __init__(self):
+        super().__init__()
+        self._domain = []
+        self._methods = []
+
+    @property
+    def methods(self) -> List[Method]:
+        """Returns list of actions involved in the problem"""
+        return self._methods
+
+    def add_method(self, method: Method):
+        """Add action to the problem"""
+        #TODO ADD CHECK ON THE FLUENTS: IF THEY ARE ADDED TO THE PROBLEM
+        for pre in method.precondition:
+            for sub_type in pre.types:
+                if sub_type not in self._types and not sub_type.is_bool_type():
+                    raise Exception(f"""{sub_type} not added,
+                    from {pre} in preconditions""")
+
+        for goal in method.goal_poset.get_goals():
+            for literal in goal.literals:
+                for sub_type in literal.types:
+                    if sub_type not in self._types and not sub_type.is_bool_type():
+                        raise Exception(f"""{sub_type} not added,
+                        from {eff} in effects""")
+
+        self._methods.append(method)
+
+    def add_poset(self, poset: Poset):
+        """Add a poset to satisfy"""
+        self._poset = poset
+
+    def add_goal(self, goal: Goal):
+        """Add subgoals of the domain"""
+        self._goals.append(goal)
+
+    @property
+    def initial_poset(self) -> Poset:
+        return self._poset
+    
+    @property
+    def goals(self) -> List[Goal]:
+        return self._goals
+        
 @dataclass(repr=False)
 class MEPlanningProblem(PlanningProblem):
     """definition of an epistemic multiagent planning problem"""
