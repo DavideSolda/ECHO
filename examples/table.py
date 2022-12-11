@@ -60,9 +60,12 @@ hgnp.add_goal(goal_placed)
 hgnp.add_goal(goal_ready)
 hgnp.add_goal(goal_picked)
 
-hgnp.add_poset(Poset([Goal("ready_g", ["table1"], [ready("table1")])]))
+hgnp.add_poset(Poset([Goal("ready_g", ["table1"], [ready("table1")]), Goal("ready_g", ["table2"], [ready("table2")])]))
 
 hgnp.add_initial_values(loaded("table1"), loaded("table2"))
 
 print(hgnp)
 finally_holds, plan = solve(hgnp)
+print(f"plan of length {len(plan)}")
+for inst_action in plan:
+    print(inst_action.action.name)
