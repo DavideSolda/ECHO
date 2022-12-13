@@ -132,9 +132,8 @@ c observes open_c;
 executable peek_a if B(a,looking_a), B(a,opened), looking_a, opened, in_room_box_a;
 peek_a determines tail if looking_a;
 a observes peek_a;
-a aware_of peek_a;
-b aware_of peek_a;
-c aware_of peek_a;
+b aware_of peek_a if in_room_box_b;
+c aware_of peek_a if in_room_box_c;
 
 %%%
 
@@ -143,9 +142,8 @@ c aware_of peek_a;
 executable peek_b if B(b,looking_b), B(b,opened), looking_b, opened, in_room_box_b;
 peek_b determines tail if looking_b;
 b observes peek_b;
-a aware_of peek_b;
-b aware_of peek_b;
-c aware_of peek_b;
+a aware_of peek_b if in_room_box_a;
+c aware_of peek_b if in_room_box_c;
 
 %%%
 
@@ -154,9 +152,8 @@ c aware_of peek_b;
 executable peek_c if B(c,looking_c), B(c,opened), looking_c, opened, in_room_box_c;
 peek_c determines tail if looking_c;
 c observes peek_c;
-a aware_of peek_c;
-b aware_of peek_c;
-c aware_of peek_c;
+a aware_of peek_c if in_room_box_a;
+b aware_of peek_c if in_room_box_b;
 
 %%%
 
@@ -188,9 +185,8 @@ c observes signal_c;
 
 executable distract_a_b if B(a,looking_b), B(a,looking_a);
 distract_a_b announces -looking_b;
-a observes distract_a_b;
-b observes distract_a_b;
-c observes distract_a_b;
+a observes distract_a_b if looking_a;
+c observes distract_a_b if looking_c;
 b observes distract_a_b;
 
 %%%
@@ -199,9 +195,8 @@ b observes distract_a_b;
 
 executable distract_a_c if B(a,looking_c), B(a,looking_a);
 distract_a_c announces -looking_c;
-a observes distract_a_c;
-b observes distract_a_c;
-c observes distract_a_c;
+a observes distract_a_c if looking_a;
+b observes distract_a_c if looking_b;
 c observes distract_a_c;
 
 %%%
@@ -210,9 +205,8 @@ c observes distract_a_c;
 
 executable distract_b_a if B(b,looking_a), B(b,looking_b);
 distract_b_a announces -looking_a;
-a observes distract_b_a;
-b observes distract_b_a;
-c observes distract_b_a;
+b observes distract_b_a if looking_b;
+c observes distract_b_a if looking_c;
 a observes distract_b_a;
 
 %%%
@@ -221,9 +215,8 @@ a observes distract_b_a;
 
 executable distract_b_c if B(b,looking_c), B(b,looking_b);
 distract_b_c announces -looking_c;
-a observes distract_b_c;
-b observes distract_b_c;
-c observes distract_b_c;
+a observes distract_b_c if looking_a;
+b observes distract_b_c if looking_b;
 c observes distract_b_c;
 
 %%%
@@ -232,9 +225,8 @@ c observes distract_b_c;
 
 executable distract_c_a if B(c,looking_a), B(c,looking_c);
 distract_c_a announces -looking_a;
-a observes distract_c_a;
-b observes distract_c_a;
-c observes distract_c_a;
+b observes distract_c_a if looking_b;
+c observes distract_c_a if looking_c;
 a observes distract_c_a;
 
 %%%
@@ -243,9 +235,8 @@ a observes distract_c_a;
 
 executable distract_c_b if B(c,looking_b), B(c,looking_c);
 distract_c_b announces -looking_b;
-a observes distract_c_b;
-b observes distract_c_b;
-c observes distract_c_b;
+a observes distract_c_b if looking_a;
+c observes distract_c_b if looking_c;
 b observes distract_c_b;
 
 %%%
@@ -259,7 +250,7 @@ b observes distract_c_b;
 %%%True fluents
 initially in_room_empty_a, in_room_empty_b, in_room_empty_c, tail, has_key_a, looking_a;
 %%%False fluents
-initially -looking_b, -has_key_b, -opened, -in_room_box_a, -in_room_box_b, -has_key_c, -in_room_box_c, -looking_c;
+initially -in_room_box_b, -opened, -has_key_b, -in_room_box_c, -has_key_c, -looking_b, -in_room_box_a, -looking_c;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -267,18 +258,18 @@ initially -looking_b, -has_key_b, -opened, -in_room_box_a, -in_room_box_b, -has_
 %%%%%%%%%%%%%%%%%%    INITIAL BELIEFS TRUTH   %%%%%%%%%%%%%%%%%%
 %Extracted from the :init field
 
+initially C([a,b,c],in_room_empty_b);
+initially C([a,b,c],-has_key_b);
 initially C([a,b,c],-in_room_box_b);
 initially C([a,b,c],-has_key_c);
-initially C([a,b,c],in_room_empty_b);
-initially C([a,b,c],-opened);
-initially C([a,b,c],in_room_empty_a);
-initially C([a,b,c],-has_key_b);
-initially C([a,b,c],-in_room_box_a);
-initially C([a,b,c],-looking_b);
 initially C([a,b,c],-in_room_box_c);
-initially C([a,b,c],looking_a);
+initially C([a,b,c],-looking_b);
 initially C([a,b,c],in_room_empty_c);
 initially C([a,b,c],-looking_c);
+initially C([a,b,c],looking_a);
+initially C([a,b,c],-opened);
+initially C([a,b,c],in_room_empty_a);
+initially C([a,b,c],-in_room_box_a);
 initially C([a,b,c],has_key_a);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

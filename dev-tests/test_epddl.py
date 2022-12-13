@@ -24,12 +24,14 @@ class TestProblem2EPDDL(unittest.TestCase):
         self.agent_names = p.AgentType(['agent_1', 'agent_2'])
         self.vagent = p.Variable('ag1', self.agent_names)
         self.vagent2 = p.Variable('ag2', self.agent_names)
-        self.obs1 = p.ObservablePredicate(self.vagent)
-        self.b_pos = p.BeliefLiteral([self.vagent], self.cpos('one'))
+        self.b_pos = p.BeliefPredicate([self.vagent], self.cpos('one'))
         self.move_action = p.MEAction(name='move',
-                                      precond=[self.b_pos, self.cpos(self.vpos)],
+                                      params=[],
+                                      type=p.MEActionType.sensing,
+                                      precondition=[self.b_pos, self.cpos(self.vpos)],
                                       effects=[- self.b_pos],
-                                      full_obs=[self.obs1])
+                                      full_obs=['agent_1'],
+                                      partial_obs = [])
 
     def test_coin_in_the_box(self):
 
@@ -53,59 +55,62 @@ class TestProblem2EPDDL(unittest.TestCase):
         in_room_box__ag = in_room_box(ag)
         #  actions:
         move_to_box = p.MEAction('movetobox',
-                                 precond=[p.B([ag], in_room_empty__ag),
+                                 params = [ag],
+                                 precondition=[p.B([ag], in_room_empty__ag),
                                           in_room_empty__ag],
                                  effects=[-in_room_empty__ag,
                                           in_room_box(ag)],
-                                 full_obs=[p.ObservablePredicate(forall=ag2,
-                                                                 who=ag2)])
+                                 full_obs=[p.Forall(ag2, who=ag2)])
 
         move_to_empty = p.MEAction('movetoempty',
-                                   precond=[p.B([ag], in_room_box__ag),
+                                   params = [ag],
+                                   precondition=[p.B([ag], in_room_box__ag),
                                             in_room_box__ag],
                                    effects=[in_room_empty__ag,
                                             -in_room_box(ag)],
-                                   full_obs=[p.ObservablePredicate(forall=ag2,
-                                                                   who=ag2)])
+                                   full_obs=[p.Forall(ag2, who=ag2)])
 
         _open = p.MEAction('open',
-                           precond=[has_key(ag), p.B([ag], has_key(ag)), in_room_box(ag)],
+                           params = [ag],
+                           precondition=[has_key(ag), p.B([ag], has_key(ag)), in_room_box(ag)],
                            effects=[opened()],
-                           full_obs=[p.ObservablePredicate(forall=p.neq(ag2, ag),
-                                                           who=ag2)])
+                           full_obs=[p.Forall(ag2, neq=p.neq(ag2, ag),
+                                              who=ag2)])
 
         peek = p.MEAction('peek',
-                          precond=[p.B([ag], opened()),
+                          params = [ag],
+                          precondition=[p.B([ag], opened()),
                                    p.B([ag], looking(ag)),
                                    looking(ag),
                                    opened(),
                                    in_room_box(ag)],
                           effects=[p.When(looking(ag), tail())],
                           full_obs=[ag],
-                          part_obs=[p.ObservablePredicate(forall=p.neq(ag2, ag),
-                                                          when=looking(ag2) and in_room_box(ag2),
-                                                          who=ag2)],
-                          _type=p.MEActionType.sensing)
+                          partial_obs=[p.Forall(ag2, neq=p.neq(ag2, ag),
+                                             when=looking(ag2) and in_room_box(ag2),
+                                             who=ag2)],
+                          type=p.MEActionType.sensing)
 
         signal = p.MEAction('signal',
-                            precond=[p.B([ag], opened()),
+                            params = [ag],
+                            precondition=[p.B([ag], opened()),
                                      p.B([ag], looking(ag)),
                                      looking(ag),
                                      opened(),
                                      in_room_box(ag)],
                             effects=[p.When(looking(ag), tail())],
                             full_obs=[ag],
-                            _type=p.MEActionType.sensing)
+                            type=p.MEActionType.sensing)
 
         distract = p.MEAction('distract',
-                              precond=[p.B([ag], looking(ag)),
+                              params = [ag, ag2],
+                              precondition=[p.B([ag], looking(ag)),
                                        p.B([ag2], looking(ag2))],
                               effects=[-looking(ag2)],
-                              full_obs=[p.ObservablePredicate(forall=p.neq(ag2, ag3),
-                                                              when=looking(ag3),
-                                                              who=ag3),
+                              full_obs=[p.Forall(ag3, neq=p.neq(ag2, ag3),
+                                                 when=looking(ag3), who=ag3),
                                         ag2],
-                              _type=p.MEActionType.announcement)
+                              type=p.MEActionType.announcement)
         coinintheboxmep.name = 'coininthebox'
         coinintheboxmep.add_type(agents)
         coinintheboxmep.add_variable(ag)

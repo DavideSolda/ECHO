@@ -7,7 +7,7 @@ from abc import abstractmethod
 
 from action import IAction, MEAction
 from fluent import Fluent
-from predicate import Literal, Predicate, BeliefLiteral
+from predicate import Literal, Predicate, Predicate
 from variable import Variable
 from ftype import Type
 from method import Method
@@ -241,7 +241,7 @@ class MEPlanningProblem(PlanningProblem):
 
     def add_action(self, action: MEAction):
         """Add action to the problem"""
-        for pre in action.preconditions:
+        for pre in action.precondition:
             for sub_type in pre.types:
                 if sub_type not in self._types and not sub_type.is_bool_type():
                     raise Exception(f"""{sub_type} not added,

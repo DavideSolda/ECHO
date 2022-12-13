@@ -1,6 +1,6 @@
 from enum import Enum
 from dataclasses import field, dataclass
-from typing import List, Union, ClassVar
+from typing import List, Union, ClassVar, Optional
 import copy
 
 from arithmetic_expression import is_int_fvalue, is_enum_fvalue, ArithmeticExpr
@@ -50,17 +50,19 @@ class BooleanPredicate(Predicate):
         self.variables = left_predicate.variables + right_predicate.variables
         self.types = left_predicate.types + right_predicate.types
 
-
+"""
 @dataclass
 class When(Predicate):
 
+    #Not a real predicate
+
     body: Predicate
-    head: Predicate
+    head: Variable
 
     negated: bool
     variables: List[Variable]
 
-    def __init__(self, body: Predicate, head: Predicate):
+    def __init__(self, body: Predicate, head: Variable):
 
         variables = body.variables + head.variables
         types = body.types + head.types
@@ -68,7 +70,7 @@ class When(Predicate):
         self.body = body
         self.head = head
         super().__init__(negated = negated, variables = variables, types = types)
-
+"""
 
 @dataclass
 class Literal(Predicate):
@@ -116,6 +118,8 @@ class EqualityPredicate(Predicate):
         else:
             raise Exception(f"{l} and {r} are not compatible")
 
+    def __repr__(self) -> str:
+        return self.left_operand.name + str(self.operator) + self.right_operand.name
 
 
 def eq(l: Union[ArithmeticExpr, int, Variable, str],
@@ -150,18 +154,17 @@ def get_fvalues_variable(fvalue: Union[ArithmeticExpr, int, Variable, str]) -> L
     return []
 
 
-class BeliefLiteral(Predicate):
+class BeliefPredicate(Predicate):
     """B_ag(current_position(4))"""
     agents: List[Union[Variable, str]]
-    belief_proposition: Union['BeliefLiteral', Literal]
+    belief_proposition: Predicate
 
     def __init__(self, agents: List[Union[Variable, str]],
-                 proposition: Union['BeliefLiteral', Literal]):
+                 proposition: Predicate):
 
         for agent in agents:
             assert isinstance(agent, (Variable, str))
-        assert isinstance(proposition, Literal) or \
-            proposition.__name__ == 'BeliefLiteral'
+        assert isinstance(proposition, Predicate)
 
         types = proposition.types
         
@@ -189,63 +192,90 @@ class BeliefLiteral(Predicate):
         return f'not {s}' if self.negated else s
 
 
-def B(agents, proposition) -> BeliefLiteral:
+def B(agents, proposition) -> BeliefPredicate:
     if type(proposition).__name__ == 'Fluent':
         proposition = Literal(fluent=proposition, args=[])
-    return BeliefLiteral(agents=agents, proposition=proposition)
+    return BeliefPredicate(agents=agents, proposition=proposition)
 
 
-class ObservablePredicate(Predicate):
-    """Predicate to express observability"""
+@dataclass
+class When(Predicate):
+    body: Predicate
+    head: Predicate
 
-    forall: Union[Variable, EqualityPredicate]
-    when: Predicate
-    who: Union[str, Variable]
+    def __init__(self, body, head):
 
-    def __init__(self, who, forall=None, when=None):
-        if not self.is_an_agent(who):
-            raise ValueError(f'''{who} is neither the name of an agent,
+        negate = False
+        variables = body.variables + head.variables
+        types = body.types + head.types
+
+        super().__init__(negate, variables, types)
+
+        assert isinstance(body, Predicate)
+        assert isinstance(head, Predicate)
+
+        self.variables = body.variables + head.variables
+        self.types = body.types + head.types
+
+        self.body = body
+        self.head = head
+
+class Forall():
+    """Predicate to express forall formulae"""
+
+    quantified_variable: Variable
+    disequality_predicate: Optional[EqualityPredicate]
+    when: Optional[When]
+    who: Union[Variable, str]
+
+    variables: List[Variable]
+    types: List[Type]
+
+    def __init__(self, quantified_variable: Variable, neq: EqualityPredicate=None,
+                 when: Predicate=None, who: Union[Variable, str]=None):
+
+        self.quantified_variable = quantified_variable
+        self.disequality_predicate = neq
+        self.when = when
+        self.who = who
+
+
+    def __post_init__(self):
+
+        self.variables = []
+        self.types = []
+
+        #check that the quantified variable is an agent
+        if not isinstance(self.quantified_variable, Variable):
+            raise ValueError(f'''{quantified_variable} is neither the name of an agent,
             nor an agent variable''')
-        if isinstance(forall, EqualityPredicate):
-            if not all(map(self.is_an_agent, forall.variables)):
-                raise ValueError(f'''forall should talk about agents only''')
-            if forall.operator == EqualityOperator.eq or who not in forall.variables:
-                raise ValueError(f'''forall {forall.variables[0]} == 
-                {forall.variables[1]} {who} does not make sense)''')
+        else:
+            self.variables.append(self.quantified_variable)
+
+        #if specified, equality_predicate should contain the quantified variable
+        if self.equality_predicate is not None:
+            assert isinstance(self.equality_predicate, EqualityPredicate)
+
+            if disequality_predicate.operator == EqualityOperator.eq or \
+               quantified_variable not in disequality_predicate.variables:
+                raise ValueError(f'''forall {disequality_predicate.variables[0].name} == 
+                {disequality_predicate.variables[1].name} {quantified_variable.name} does not make sense)''')
+            self.variables = disequality_predicate.variables
+
+        #if specified, when should be an instance of Predicate
         if when is not None and not isinstance(when, Predicate):
             raise ValueError(f'when should be a predicate: {when}')
-        self.forall = forall
-        self.who = who
-        self.when = when
-        self.collect_variables()
+        elif when is not None:
+            self.variables += [var for var in when.variables
+                               if var != self.quantified_variable]
 
-    def collect_variables(self):
-        self._variables = []
-        if isinstance(self.who, Variable):
-            self._variables.append(self.who)
-        #  TODO:check forall
-        """
-        if self.when is not None:  # TODO remove?
-            self._variables
-            self._variables += [lit.variables for lit in self.when]
-        """
-
-    @staticmethod
-    def is_an_agent(agent: Union[str, Variable]) -> bool:
-        return isinstance(agent, str) or \
-           isinstance(agent, Variable) and agent.is_agent()
-
-    def negated(self) -> bool:
-        return False
 
     def __repr__(self) -> str:
-        s = str(self.who)
+        
+        s = f'forall {self.quantified_variable.name} '
+        if self.disequality_predicate is not None:
+            s += f'{self.disequality_predicate} '
         if self.when is not None:
-            s += f'when {self.when}'
-        if self.forall is not None:
-            if isinstance(self.forall, Predicate):
-                return f'''forall({self.forall.variables[0]} != {self.forall.variables[1]})
-                {s}'''
-            elif isinstance(self.forall, Variable):
-                return f'''forall({self.forall.name})'''
+            s += f'(when {self.when} )'
+        s += f'{self.quantified_variable.name}' 
         return s

@@ -105,7 +105,7 @@ def pred(_predicate: pd.Predicate, prob=False) -> str:
     epddl_pred = ''
     if isinstance(_predicate, pd.Literal):
         epddl_pred = f'{literal(_predicate, prob)}'
-    elif isinstance(_predicate, pd.BeliefLiteral):
+    elif isinstance(_predicate, pd.BeliefPredicate):
         def to_agent(ag: Union[str, pd.Variable]):
             return agent(ag, prob)
         
@@ -135,40 +135,34 @@ def preds(predicates: List[pd.Predicate]) -> str:
                                  map(pred, predicates)))
 
 
-def obss(full_observers: List[Union[pd.ObservablePredicate,
-                                         str, pd.Variable]]) -> str:
+def obss(observers: List[Union[pd.Forall, str, pd.Variable]]) -> str:
     """from list of observer to epddl observers"""
-    return ' '.join(map(obs, full_observers))
+    return ' '.join(map(obs, observers))
 
 
-def forall(forall_obj: Union[pd.Variable, pd.EqualityPredicate]):
-    if isinstance(forall_obj, pd.Variable):
-        return f'{agent(forall_obj)}'
-    if isinstance(forall_obj, pd.EqualityPredicate):
+def obs(observer: Union[pd.Forall, str, pd.Variable]) -> str:
 
-        assert forall_obj.operator == pd.EqualityOperator.neq
-        vars = forall_obj.variables
-        for var in vars:
-            assert isinstance(var, pd.Variable)
-        assert len(vars) == 2
-        return f'diff({agent(vars[0])})({agent(vars[1])})'
+    print(observer)
+    if isinstance(observer, str):
+        return f'({agent(observer)})'
+
+    if isinstance(observer, pd.Variable):
+        return f'({agent(observer.name.lower())})'
+
+    if isinstance(observer, pd.Forall):
+        who = f'{agent(observer.who)}'
+        if observer.when is not None:
+            who = f'when ({pred(observer.when)}) ({who})'
+
+        forall = who
+        if observer.disequality_predicate is not None:
+            neq = observer.disequality_predicate
+            agentl = agent(neq.left_operand.name.lower())
+            agentr = agent(neq.right_operand.name.lower())
+            forall = f'diff ({agentl}) ({agentr})'
+        return f'(forall ({forall}) ({who}))'
 
 
-def obs(full_observer: Union[pd.ObservablePredicate,
-                             str, pd.Variable]) -> str:
-    if isinstance(full_observer, str):
-        return f'({agent(full_observer)})'
-    if isinstance(full_observer, pd.Variable):
-        return f'({agent(full_observer.name.lower())})'
-    if isinstance(full_observer, pd.ObservablePredicate):
-        who = f'({agent(full_observer.who)})'
-        s = who
-        if full_observer.when is not None:
-            when = f'({pred(full_observer.when)})'
-            s = who + ' ' + when
-        if full_observer.forall is not None:
-            s = f'(forall ({forall(full_observer.forall)}) {s})'
-    return s
 
 
 def action(mep_action: pd.MEAction) -> str:
@@ -177,14 +171,14 @@ def action(mep_action: pd.MEAction) -> str:
     action_enc += f'\t\t:act_type {mep_action.type.value}\n'
     if len(mep_action.params) > 0:
         action_enc += f'\t\t:parameters ({parameters(mep_action.params)})\n'
-    if len(mep_action.preconditions) > 0:
-        action_enc += f'\t\t:precondition ({preds(mep_action.preconditions)})\n'
+    if len(mep_action.precondition) > 0:
+        action_enc += f'\t\t:precondition ({preds(mep_action.precondition)})\n'
     if len(mep_action.effects) > 0:
         action_enc += f'\t\t:effect ({preds(mep_action.effects)})\n'
-    if len(mep_action.full_observers) > 0:
-        action_enc += f'\t\t:observers (and {obss(mep_action.full_observers)})\n'
-    if len(mep_action.partial_observers) > 0:
-        action_enc += f'\t\t:p_observers (and {obss(mep_action.partial_observers)})'
+    if len(mep_action.full_obs) > 0:
+        action_enc += f'\t\t:observers (and {obss(mep_action.full_obs)})\n'
+    if len(mep_action.partial_obs) > 0:
+        action_enc += f'\t\t:p_observers (and {obss(mep_action.partial_obs)})'
     return action_enc + '\n\t)'
 
 
