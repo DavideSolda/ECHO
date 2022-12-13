@@ -13,9 +13,9 @@ fluent looking_b, looking_c, opened, tail;
 %%%%%%%%%%%%%%%%%%%%%    ACTIONS' NAMES    %%%%%%%%%%%%%%%%%%%%%
 %Actions' names generated from EPDDL by adding to each action names its grounded predicates
 
-action move_to_box_PARAMS_a, move_to_box_PARAMS_b, move_to_box_PARAMS_c, move_to_empty_PARAMS_a, move_to_empty_PARAMS_b, move_to_empty_PARAMS_c, open_PARAMS_a, open_PARAMS_b, open_PARAMS_c, peek_PARAMS_a;
-action peek_PARAMS_b, peek_PARAMS_c, signal_PARAMS_a, signal_PARAMS_b, signal_PARAMS_c, distract_PARAMS_a_b, distract_PARAMS_a_c, distract_PARAMS_b_a, distract_PARAMS_b_c, distract_PARAMS_c_a;
-action distract_PARAMS_c_b;
+action movetobox_a, movetobox_b, movetobox_c, movetoempty_a, movetoempty_b, movetoempty_c, open_a, open_b, open_c, peek_a;
+action peek_b, peek_c, signal_a, signal_b, signal_c, distract_a_b, distract_a_c, distract_b_a, distract_b_c, distract_c_a;
+action distract_c_b;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -31,222 +31,222 @@ agent a, b, c;
 %%%%%%%%%%%%%%%%%    ACTIONS' SPECIFICATIONS    %%%%%%%%%%%%%%%%
 %Actions' specifications generated from EPDDL by grounding each action's definition
 
-%%%Action move_to_box_PARAMS_a
+%%%Action movetobox_a
 
-executable move_to_box_PARAMS_a if B(a,in_room_empty_a), in_room_empty_a;
-move_to_box_PARAMS_a causes -in_room_empty_a;
-move_to_box_PARAMS_a causes in_room_box_a;
-a observes move_to_box_PARAMS_a;
-b observes move_to_box_PARAMS_a;
-c observes move_to_box_PARAMS_a;
-
-%%%
-
-%%%Action move_to_box_PARAMS_b
-
-executable move_to_box_PARAMS_b if B(b,in_room_empty_b), in_room_empty_b;
-move_to_box_PARAMS_b causes -in_room_empty_b;
-move_to_box_PARAMS_b causes in_room_box_b;
-a observes move_to_box_PARAMS_b;
-b observes move_to_box_PARAMS_b;
-c observes move_to_box_PARAMS_b;
+executable movetobox_a if B(a,in_room_empty_a), in_room_empty_a;
+movetobox_a causes -in_room_empty_a;
+movetobox_a causes in_room_box_a;
+a observes movetobox_a;
+b observes movetobox_a;
+c observes movetobox_a;
 
 %%%
 
-%%%Action move_to_box_PARAMS_c
+%%%Action movetobox_b
 
-executable move_to_box_PARAMS_c if B(c,in_room_empty_c), in_room_empty_c;
-move_to_box_PARAMS_c causes -in_room_empty_c;
-move_to_box_PARAMS_c causes in_room_box_c;
-a observes move_to_box_PARAMS_c;
-b observes move_to_box_PARAMS_c;
-c observes move_to_box_PARAMS_c;
-
-%%%
-
-%%%Action move_to_empty_PARAMS_a
-
-executable move_to_empty_PARAMS_a if B(a,in_room_box_a), in_room_box_a;
-move_to_empty_PARAMS_a causes in_room_empty_a;
-move_to_empty_PARAMS_a causes -in_room_box_a;
-a observes move_to_empty_PARAMS_a;
-b observes move_to_empty_PARAMS_a;
-c observes move_to_empty_PARAMS_a;
+executable movetobox_b if B(b,in_room_empty_b), in_room_empty_b;
+movetobox_b causes -in_room_empty_b;
+movetobox_b causes in_room_box_b;
+a observes movetobox_b;
+b observes movetobox_b;
+c observes movetobox_b;
 
 %%%
 
-%%%Action move_to_empty_PARAMS_b
+%%%Action movetobox_c
 
-executable move_to_empty_PARAMS_b if B(b,in_room_box_b), in_room_box_b;
-move_to_empty_PARAMS_b causes in_room_empty_b;
-move_to_empty_PARAMS_b causes -in_room_box_b;
-a observes move_to_empty_PARAMS_b;
-b observes move_to_empty_PARAMS_b;
-c observes move_to_empty_PARAMS_b;
-
-%%%
-
-%%%Action move_to_empty_PARAMS_c
-
-executable move_to_empty_PARAMS_c if B(c,in_room_box_c), in_room_box_c;
-move_to_empty_PARAMS_c causes in_room_empty_c;
-move_to_empty_PARAMS_c causes -in_room_box_c;
-a observes move_to_empty_PARAMS_c;
-b observes move_to_empty_PARAMS_c;
-c observes move_to_empty_PARAMS_c;
+executable movetobox_c if B(c,in_room_empty_c), in_room_empty_c;
+movetobox_c causes -in_room_empty_c;
+movetobox_c causes in_room_box_c;
+a observes movetobox_c;
+b observes movetobox_c;
+c observes movetobox_c;
 
 %%%
 
-%%%Action open_PARAMS_a
+%%%Action movetoempty_a
 
-executable open_PARAMS_a if B(a,has_key_a), has_key_a, in_room_box_a;
-open_PARAMS_a causes opened;
-a observes open_PARAMS_a;
-b observes open_PARAMS_a;
-c observes open_PARAMS_a;
-
-%%%
-
-%%%Action open_PARAMS_b
-
-executable open_PARAMS_b if B(b,has_key_b), has_key_b, in_room_box_b;
-open_PARAMS_b causes opened;
-a observes open_PARAMS_b;
-b observes open_PARAMS_b;
-c observes open_PARAMS_b;
+executable movetoempty_a if B(a,in_room_box_a), in_room_box_a;
+movetoempty_a causes in_room_empty_a;
+movetoempty_a causes -in_room_box_a;
+a observes movetoempty_a;
+b observes movetoempty_a;
+c observes movetoempty_a;
 
 %%%
 
-%%%Action open_PARAMS_c
+%%%Action movetoempty_b
 
-executable open_PARAMS_c if B(c,has_key_c), has_key_c, in_room_box_c;
-open_PARAMS_c causes opened;
-a observes open_PARAMS_c;
-b observes open_PARAMS_c;
-c observes open_PARAMS_c;
-
-%%%
-
-%%%Action peek_PARAMS_a
-
-executable peek_PARAMS_a if B(a,looking_a), B(a,opened), looking_a, in_room_box_a, opened;
-peek_PARAMS_a determines tail;
-a observes peek_PARAMS_a;
-a aware_of peek_PARAMS_a;
-b aware_of peek_PARAMS_a;
-c aware_of peek_PARAMS_a;
+executable movetoempty_b if B(b,in_room_box_b), in_room_box_b;
+movetoempty_b causes in_room_empty_b;
+movetoempty_b causes -in_room_box_b;
+a observes movetoempty_b;
+b observes movetoempty_b;
+c observes movetoempty_b;
 
 %%%
 
-%%%Action peek_PARAMS_b
+%%%Action movetoempty_c
 
-executable peek_PARAMS_b if B(b,looking_b), B(b,opened), looking_b, in_room_box_b, opened;
-peek_PARAMS_b determines tail;
-b observes peek_PARAMS_b;
-a aware_of peek_PARAMS_b;
-b aware_of peek_PARAMS_b;
-c aware_of peek_PARAMS_b;
-
-%%%
-
-%%%Action peek_PARAMS_c
-
-executable peek_PARAMS_c if B(c,looking_c), B(c,opened), looking_c, in_room_box_c, opened;
-peek_PARAMS_c determines tail;
-c observes peek_PARAMS_c;
-a aware_of peek_PARAMS_c;
-b aware_of peek_PARAMS_c;
-c aware_of peek_PARAMS_c;
+executable movetoempty_c if B(c,in_room_box_c), in_room_box_c;
+movetoempty_c causes in_room_empty_c;
+movetoempty_c causes -in_room_box_c;
+a observes movetoempty_c;
+b observes movetoempty_c;
+c observes movetoempty_c;
 
 %%%
 
-%%%Action signal_PARAMS_a
+%%%Action open_a
 
-executable signal_PARAMS_a if B(a,looking_a), B(a,opened), looking_a, in_room_box_a, opened;
-signal_PARAMS_a determines tail;
-a observes signal_PARAMS_a;
-
-%%%
-
-%%%Action signal_PARAMS_b
-
-executable signal_PARAMS_b if B(b,looking_b), B(b,opened), looking_b, in_room_box_b, opened;
-signal_PARAMS_b determines tail;
-b observes signal_PARAMS_b;
+executable open_a if B(a,has_key_a), has_key_a, in_room_box_a;
+open_a causes opened;
+a observes open_a;
+b observes open_a;
+c observes open_a;
 
 %%%
 
-%%%Action signal_PARAMS_c
+%%%Action open_b
 
-executable signal_PARAMS_c if B(c,looking_c), B(c,opened), looking_c, in_room_box_c, opened;
-signal_PARAMS_c determines tail;
-c observes signal_PARAMS_c;
-
-%%%
-
-%%%Action distract_PARAMS_a_b
-
-executable distract_PARAMS_a_b if B(a,looking_a), B(a,looking_b);
-distract_PARAMS_a_b announces -looking_a;
-a observes distract_PARAMS_a_b;
-b observes distract_PARAMS_a_b;
-c observes distract_PARAMS_a_b;
-a observes distract_PARAMS_a_b;
+executable open_b if B(b,has_key_b), has_key_b, in_room_box_b;
+open_b causes opened;
+a observes open_b;
+b observes open_b;
+c observes open_b;
 
 %%%
 
-%%%Action distract_PARAMS_a_c
+%%%Action open_c
 
-executable distract_PARAMS_a_c if B(a,looking_a), B(a,looking_c);
-distract_PARAMS_a_c announces -looking_a;
-a observes distract_PARAMS_a_c;
-b observes distract_PARAMS_a_c;
-c observes distract_PARAMS_a_c;
-a observes distract_PARAMS_a_c;
-
-%%%
-
-%%%Action distract_PARAMS_b_a
-
-executable distract_PARAMS_b_a if B(b,looking_b), B(b,looking_a);
-distract_PARAMS_b_a announces -looking_b;
-a observes distract_PARAMS_b_a;
-b observes distract_PARAMS_b_a;
-c observes distract_PARAMS_b_a;
-b observes distract_PARAMS_b_a;
+executable open_c if B(c,has_key_c), has_key_c, in_room_box_c;
+open_c causes opened;
+a observes open_c;
+b observes open_c;
+c observes open_c;
 
 %%%
 
-%%%Action distract_PARAMS_b_c
+%%%Action peek_a
 
-executable distract_PARAMS_b_c if B(b,looking_b), B(b,looking_c);
-distract_PARAMS_b_c announces -looking_b;
-a observes distract_PARAMS_b_c;
-b observes distract_PARAMS_b_c;
-c observes distract_PARAMS_b_c;
-b observes distract_PARAMS_b_c;
-
-%%%
-
-%%%Action distract_PARAMS_c_a
-
-executable distract_PARAMS_c_a if B(c,looking_c), B(c,looking_a);
-distract_PARAMS_c_a announces -looking_c;
-a observes distract_PARAMS_c_a;
-b observes distract_PARAMS_c_a;
-c observes distract_PARAMS_c_a;
-c observes distract_PARAMS_c_a;
+executable peek_a if B(a,looking_a), B(a,opened), looking_a, opened, in_room_box_a;
+peek_a determines tail if looking_a;
+a observes peek_a;
+a aware_of peek_a;
+b aware_of peek_a;
+c aware_of peek_a;
 
 %%%
 
-%%%Action distract_PARAMS_c_b
+%%%Action peek_b
 
-executable distract_PARAMS_c_b if B(c,looking_c), B(c,looking_b);
-distract_PARAMS_c_b announces -looking_c;
-a observes distract_PARAMS_c_b;
-b observes distract_PARAMS_c_b;
-c observes distract_PARAMS_c_b;
-c observes distract_PARAMS_c_b;
+executable peek_b if B(b,looking_b), B(b,opened), looking_b, opened, in_room_box_b;
+peek_b determines tail if looking_b;
+b observes peek_b;
+a aware_of peek_b;
+b aware_of peek_b;
+c aware_of peek_b;
+
+%%%
+
+%%%Action peek_c
+
+executable peek_c if B(c,looking_c), B(c,opened), looking_c, opened, in_room_box_c;
+peek_c determines tail if looking_c;
+c observes peek_c;
+a aware_of peek_c;
+b aware_of peek_c;
+c aware_of peek_c;
+
+%%%
+
+%%%Action signal_a
+
+executable signal_a if B(a,looking_a), B(a,opened), looking_a, opened, in_room_box_a;
+signal_a determines tail if looking_a;
+a observes signal_a;
+
+%%%
+
+%%%Action signal_b
+
+executable signal_b if B(b,looking_b), B(b,opened), looking_b, opened, in_room_box_b;
+signal_b determines tail if looking_b;
+b observes signal_b;
+
+%%%
+
+%%%Action signal_c
+
+executable signal_c if B(c,looking_c), B(c,opened), looking_c, opened, in_room_box_c;
+signal_c determines tail if looking_c;
+c observes signal_c;
+
+%%%
+
+%%%Action distract_a_b
+
+executable distract_a_b if B(a,looking_b), B(a,looking_a);
+distract_a_b announces -looking_b;
+a observes distract_a_b;
+b observes distract_a_b;
+c observes distract_a_b;
+b observes distract_a_b;
+
+%%%
+
+%%%Action distract_a_c
+
+executable distract_a_c if B(a,looking_c), B(a,looking_a);
+distract_a_c announces -looking_c;
+a observes distract_a_c;
+b observes distract_a_c;
+c observes distract_a_c;
+c observes distract_a_c;
+
+%%%
+
+%%%Action distract_b_a
+
+executable distract_b_a if B(b,looking_a), B(b,looking_b);
+distract_b_a announces -looking_a;
+a observes distract_b_a;
+b observes distract_b_a;
+c observes distract_b_a;
+a observes distract_b_a;
+
+%%%
+
+%%%Action distract_b_c
+
+executable distract_b_c if B(b,looking_c), B(b,looking_b);
+distract_b_c announces -looking_c;
+a observes distract_b_c;
+b observes distract_b_c;
+c observes distract_b_c;
+c observes distract_b_c;
+
+%%%
+
+%%%Action distract_c_a
+
+executable distract_c_a if B(c,looking_a), B(c,looking_c);
+distract_c_a announces -looking_a;
+a observes distract_c_a;
+b observes distract_c_a;
+c observes distract_c_a;
+a observes distract_c_a;
+
+%%%
+
+%%%Action distract_c_b
+
+executable distract_c_b if B(c,looking_b), B(c,looking_c);
+distract_c_b announces -looking_b;
+a observes distract_c_b;
+b observes distract_c_b;
+c observes distract_c_b;
+b observes distract_c_b;
 
 %%%
 
@@ -259,7 +259,7 @@ c observes distract_PARAMS_c_b;
 %%%True fluents
 initially in_room_empty_a, in_room_empty_b, in_room_empty_c, tail, has_key_a, looking_a;
 %%%False fluents
-initially -in_room_box_b, -in_room_box_a, -has_key_c, -opened, -looking_b, -has_key_b, -looking_c, -in_room_box_c;
+initially -looking_b, -has_key_b, -opened, -in_room_box_a, -in_room_box_b, -has_key_c, -in_room_box_c, -looking_c;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -267,19 +267,19 @@ initially -in_room_box_b, -in_room_box_a, -has_key_c, -opened, -looking_b, -has_
 %%%%%%%%%%%%%%%%%%    INITIAL BELIEFS TRUTH   %%%%%%%%%%%%%%%%%%
 %Extracted from the :init field
 
-initially C([a,b,c],-in_room_box_c);
-initially C([a,b,c],in_room_empty_b);
-initially C([a,b,c],in_room_empty_c);
-initially C([a,b,c],-opened);
-initially C([a,b,c],has_key_a);
-initially C([a,b,c],-has_key_c);
-initially C([a,b,c],looking_a);
-initially C([a,b,c],-looking_b);
-initially C([a,b,c],in_room_empty_a);
 initially C([a,b,c],-in_room_box_b);
-initially C([a,b,c],-in_room_box_a);
-initially C([a,b,c],-looking_c);
+initially C([a,b,c],-has_key_c);
+initially C([a,b,c],in_room_empty_b);
+initially C([a,b,c],-opened);
+initially C([a,b,c],in_room_empty_a);
 initially C([a,b,c],-has_key_b);
+initially C([a,b,c],-in_room_box_a);
+initially C([a,b,c],-looking_b);
+initially C([a,b,c],-in_room_box_c);
+initially C([a,b,c],looking_a);
+initially C([a,b,c],in_room_empty_c);
+initially C([a,b,c],-looking_c);
+initially C([a,b,c],has_key_a);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

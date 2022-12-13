@@ -4,7 +4,7 @@ which are the possible arguments of a predicate
 """
 from dataclasses import dataclass
 
-from ftype import Type, BoolType
+from ftype import Type, BoolType, AgentType
 from arithmetic_expression import ArithmeticExpr, is_int_fvalue, \
     ArithmeticOperator
 
@@ -22,7 +22,7 @@ class Variable():
 
     def is_agent(self) -> bool:
         """Returns True iff the variable represents an agent"""
-        return self._agent
+        return isinstance(self._vtype, AgentType)
 
     @property
     def name(self):
@@ -36,7 +36,7 @@ class Variable():
 
     def __hash__(self):
         print(self.type)
-        return hash(self.name)**hash(self.type)
+        return hash(self.name)#**hash(self.type)
 
     def __eq__(self, var):
         return var.name == self.name and var.type == self.type

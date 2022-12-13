@@ -4,9 +4,9 @@ from fluent import Fluent
 from variable import Variable
 from arithmetic_expression import ArithmeticExpr
 from problem import ClassicalPlanningProblem, MEPlanningProblem, HierarchicalGoalNetworkProblem
-from ftype import Type, BoolType, IntType, EnumType, StructType
+from ftype import Type, BoolType, IntType, EnumType, StructType, AgentType
 from predicate import Predicate, Literal, EqualityPredicate,\
     BeliefLiteral, ObservablePredicate, eq, neq, B,\
-    BooleanPredicate, BooleanOperator, EqualityOperator
+    BooleanPredicate, BooleanOperator, EqualityOperator, When
 from method import Method
 from goal import Goal, Poset

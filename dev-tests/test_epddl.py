@@ -21,9 +21,9 @@ class TestProblem2EPDDL(unittest.TestCase):
         self.cpos = p.Fluent('current_position', self.position)
         self.safe = p.Fluent('safe')
         self.position_in_plain = p.Fluent('pos_in_plain', self.position)
-        self.agent_names = p.EnumType('agents', ['agent_1', 'agent_2'], agent=True)
-        self.vagent = p.Variable('agent', self.agent_names, agent=True)
-        self.vagent2 = p.Variable('agent2', self.agent_names, agent=True)
+        self.agent_names = p.AgentType(['agent_1', 'agent_2'])
+        self.vagent = p.Variable('ag1', self.agent_names)
+        self.vagent2 = p.Variable('ag2', self.agent_names)
         self.obs1 = p.ObservablePredicate(self.vagent)
         self.b_pos = p.BeliefLiteral([self.vagent], self.cpos('one'))
         self.move_action = p.MEAction(name='move',
@@ -36,23 +36,23 @@ class TestProblem2EPDDL(unittest.TestCase):
         #  problem
         coinintheboxmep = p.MEPlanningProblem()
         #  types:
-        agents = p.EnumType('agents', ['a', 'b', 'c'], agent=True)
+        agents = p.AgentType(['a', 'b', 'c'])
         #  variables:
-        ag = p.Variable('ag', agents, agent=True)
-        ag2 = p.Variable('ag2', agents, agent=True)
-        ag3 = p.Variable('ag2', agents, agent=True)
+        ag = p.Variable('ag', agents)
+        ag2 = p.Variable('ag2', agents)
+        ag3 = p.Variable('ag2', agents)
         #  fluents:
         opened = p.Fluent(name='opened')
-        has_key = p.Fluent(name='has_key', ftype=agents)
-        looking = p.Fluent(name='looking', ftype=agents)
+        has_key = p.Fluent(name='has_key', _type=agents)
+        looking = p.Fluent(name='looking', _type=agents)
         tail = p.Fluent(name='tail')
-        in_room_box = p.Fluent(name='in_room_box', ftype=agents)
-        in_room_empty = p.Fluent(name='in_room_empty', ftype=agents)
+        in_room_box = p.Fluent(name='in_room_box', _type=agents)
+        in_room_empty = p.Fluent(name='in_room_empty', _type=agents)
         #  predicates:
         in_room_empty__ag = in_room_empty(ag)
         in_room_box__ag = in_room_box(ag)
         #  actions:
-        move_to_box = p.MEAction('move_to_box',
+        move_to_box = p.MEAction('movetobox',
                                  precond=[p.B([ag], in_room_empty__ag),
                                           in_room_empty__ag],
                                  effects=[-in_room_empty__ag,
@@ -60,7 +60,7 @@ class TestProblem2EPDDL(unittest.TestCase):
                                  full_obs=[p.ObservablePredicate(forall=ag2,
                                                                  who=ag2)])
 
-        move_to_empty = p.MEAction('move_to_empty',
+        move_to_empty = p.MEAction('movetoempty',
                                    precond=[p.B([ag], in_room_box__ag),
                                             in_room_box__ag],
                                    effects=[in_room_empty__ag,
@@ -70,17 +70,17 @@ class TestProblem2EPDDL(unittest.TestCase):
 
         _open = p.MEAction('open',
                            precond=[has_key(ag), p.B([ag], has_key(ag)), in_room_box(ag)],
-                           effects=[opened],
+                           effects=[opened()],
                            full_obs=[p.ObservablePredicate(forall=p.neq(ag2, ag),
                                                            who=ag2)])
 
         peek = p.MEAction('peek',
-                          precond=[p.B([ag], opened),
+                          precond=[p.B([ag], opened()),
                                    p.B([ag], looking(ag)),
                                    looking(ag),
-                                   opened,
+                                   opened(),
                                    in_room_box(ag)],
-                          effects=[p.Literal(fluent=tail, args=[], when=looking(ag))],
+                          effects=[p.When(looking(ag), tail())],
                           full_obs=[ag],
                           part_obs=[p.ObservablePredicate(forall=p.neq(ag2, ag),
                                                           when=looking(ag2) and in_room_box(ag2),
@@ -88,12 +88,12 @@ class TestProblem2EPDDL(unittest.TestCase):
                           _type=p.MEActionType.sensing)
 
         signal = p.MEAction('signal',
-                            precond=[p.B([ag], opened),
+                            precond=[p.B([ag], opened()),
                                      p.B([ag], looking(ag)),
                                      looking(ag),
-                                     opened,
+                                     opened(),
                                      in_room_box(ag)],
-                            effects=[p.Literal(fluent=tail, args=[], when=looking(ag))],
+                            effects=[p.When(looking(ag), tail())],
                             full_obs=[ag],
                             _type=p.MEActionType.sensing)
 
@@ -125,14 +125,14 @@ class TestProblem2EPDDL(unittest.TestCase):
         coinintheboxmep.add_initial_values(in_room_empty('a'),
                                            in_room_empty('b'),
                                            in_room_empty('c'),
-                                           tail,
+                                           tail(),
                                            has_key('a'),
                                            looking('a'),
                                            p.B(['a', 'b', 'c'], has_key('a')),
                                            p.B(['a', 'b', 'c'], has_key('a')),
                                            p.B(['a', 'b', 'c'], -has_key('b')),
                                            p.B(['a', 'b', 'c'], -has_key('c')),
-                                           p.B(['a', 'b', 'c'], -opened),
+                                           p.B(['a', 'b', 'c'], -opened()),
                                            p.B(['a', 'b', 'c'], looking('a')),
                                            p.B(['a', 'b', 'c'], -looking('b')),
                                            p.B(['a', 'b', 'c'], -looking('c')),
@@ -142,7 +142,9 @@ class TestProblem2EPDDL(unittest.TestCase):
                                            p.B(['a', 'b', 'c'], -in_room_box('a')),
                                            p.B(['a', 'b', 'c'], -in_room_box('b')),
                                            p.B(['a', 'b', 'c'], -in_room_box('c')))
-        coinintheboxmep.add_goals(p.B(['a'], opened))
+        coinintheboxmep.add_goals(p.B(['a'], opened()))
         res = solve(coinintheboxmep)
         for action, var_inst in res:
             print(action.name, f'{var_inst}')
+if __name__ == "__main__":
+    unittest.main()

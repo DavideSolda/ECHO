@@ -5,7 +5,7 @@ import copy
 
 from arithmetic_expression import is_int_fvalue, is_enum_fvalue, ArithmeticExpr
 from variable import Variable
-from ftype import Type
+from ftype import Type, AgentType
 
 
 @dataclass
@@ -13,8 +13,8 @@ class Predicate():
 
 
     negated: bool
-    types: List[Union[int, str, Variable]]
     variables: List[Variable]
+    types: List[Union[int, str, Variable]]
 
     def __post_init__(self):
         self.negated = False
@@ -47,8 +47,8 @@ class BooleanPredicate(Predicate):
     def __post_init__(self):
         """just add info about variables and types"""
         super().__post_init__()
-        self._variables = left_predicate.variables + right_predicate.variables
-        self._types = left_predicate.types + right_predicate.types
+        self.variables = left_predicate.variables + right_predicate.variables
+        self.types = left_predicate.types + right_predicate.types
 
 
 @dataclass
@@ -56,6 +56,18 @@ class When(Predicate):
 
     body: Predicate
     head: Predicate
+
+    negated: bool
+    variables: List[Variable]
+
+    def __init__(self, body: Predicate, head: Predicate):
+
+        variables = body.variables + head.variables
+        types = body.types + head.types
+        negated = False
+        self.body = body
+        self.head = head
+        super().__init__(negated = negated, variables = variables, types = types)
 
 
 @dataclass
@@ -69,11 +81,11 @@ class Literal(Predicate):
         """just add info about variables and types"""
         super().__post_init__()
 
-        self._types = [self.fluent.type]
-        self._variables = [arg.variables for arg in self.args
-                           if isinstance(arg, ArithmeticExpr)]
-        self._variables += [arg for arg in self.args
-                            if isinstance(arg, Variable)]
+        self.types = [self.fluent.type]
+        self.variables = [arg.variables for arg in self.args
+                          if isinstance(arg, ArithmeticExpr)]
+        self.variables += [arg for arg in self.args
+                           if isinstance(arg, Variable)]
 
 
 class EqualityOperator(Enum):
@@ -123,8 +135,10 @@ def neq(l: Union[ArithmeticExpr, int, Variable, str],
 
 
 def get_fvalues_type(fvalue: Union[ArithmeticExpr, int, Variable, str]) -> List[Type]:
-    if isinstance(fvalue, (ArithmeticExpr, Variable)):
+    if isinstance(fvalue, ArithmeticExpr):
         return fvalue.types
+    elif isinstance(fvalue, Variable):
+        return [fvalue.type]
     return []
 
 
@@ -139,13 +153,25 @@ def get_fvalues_variable(fvalue: Union[ArithmeticExpr, int, Variable, str]) -> L
 class BeliefLiteral(Predicate):
     """B_ag(current_position(4))"""
     agents: List[Union[Variable, str]]
-    belief_proposition: Predicate
-    when: Predicate
+    belief_proposition: Union['BeliefLiteral', Literal]
 
     def __init__(self, agents: List[Union[Variable, str]],
-                 proposition: Predicate, when=None):
+                 proposition: Union['BeliefLiteral', Literal]):
 
-        super().__init__()
+        for agent in agents:
+            assert isinstance(agent, (Variable, str))
+        assert isinstance(proposition, Literal) or \
+            proposition.__name__ == 'BeliefLiteral'
+
+        types = proposition.types
+        
+        #  deal with variables
+        variables = proposition.variables
+        for agent in agents:
+            if isinstance(agent, Variable):
+                variables.append(agent)
+
+        super().__init__(negated=False, variables=variables, types=types)
         #  typing checks
         for agent in agents:
             assert isinstance(agent, Variable) and agent.is_agent() or \
@@ -156,22 +182,9 @@ class BeliefLiteral(Predicate):
 
         self.agents = agents
         self.belief_proposition = proposition
-        self.when = when
 
-        #  deal with variables
-        self._variables = proposition.variables
-        for agent in self.agents:
-            if isinstance(agent, Variable):
-                self._variables.append(agent)
-        if when is not None:
-            self._variables += when.variables
 
-        #  deal with types
-        self._types = proposition.types
-        if when is not None:
-            self._types += when.types
-
-    def __repr__(self) -> str:  # TODO WHEN
+    def __repr__(self) -> str:
         s = f'B_{self.agents} ({self.belief_proposition})'
         return f'not {s}' if self.negated else s
 
@@ -188,18 +201,17 @@ class ObservablePredicate(Predicate):
     forall: Union[Variable, EqualityPredicate]
     when: Predicate
     who: Union[str, Variable]
-    free_variables: List[Variable]  # ??????
 
     def __init__(self, who, forall=None, when=None):
         if not self.is_an_agent(who):
             raise ValueError(f'''{who} is neither the name of an agent,
             nor an agent variable''')
         if isinstance(forall, EqualityPredicate):
-            if not all(map(self.is_an_agent, forall.args)):
+            if not all(map(self.is_an_agent, forall.variables)):
                 raise ValueError(f'''forall should talk about agents only''')
-            if forall.operator == EqualityOperator.eq or who not in forall.args:
-                raise ValueError(f'''forall {forall.args[0]} == 
-                {forall.args[1]} {who} does not make sense)''')
+            if forall.operator == EqualityOperator.eq or who not in forall.variables:
+                raise ValueError(f'''forall {forall.variables[0]} == 
+                {forall.variables[1]} {who} does not make sense)''')
         if when is not None and not isinstance(when, Predicate):
             raise ValueError(f'when should be a predicate: {when}')
         self.forall = forall
@@ -231,6 +243,9 @@ class ObservablePredicate(Predicate):
         if self.when is not None:
             s += f'when {self.when}'
         if self.forall is not None:
-            return f'''forall({self.forall.args[0]} != {self.forall.args[1]})
-            {s}'''
+            if isinstance(self.forall, Predicate):
+                return f'''forall({self.forall.variables[0]} != {self.forall.variables[1]})
+                {s}'''
+            elif isinstance(self.forall, Variable):
+                return f'''forall({self.forall.name})'''
         return s

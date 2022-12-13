@@ -8,6 +8,7 @@ from fluent import Fluent
 from predicate import Literal, Predicate, BeliefLiteral, \
     ObservablePredicate
 from variable import Variable
+from goal import Poset
 
 #  TODO: introduction of templates
 #      needs of a fluent definition wich can be or
@@ -101,61 +102,11 @@ class MEAction():
         full obersvers: {self.full_observers}
         partial obersvers: {self.partial_observers}'''
 
+    def classical_sub_goals(self, sub_goal: Union[Poset, List[Literal]]):
+        #only ontic actions can be refined:
+        assert self.type == MEActionType.ontic
+        self._sub_goal = sub_goal
 
-@dataclass(frozen=True)
-class MEAction():
-    """MEAction class introduced to represent Mulit-Agent Epistemic Actions"""
-    name: str
-    type: MEActionType
-    preconditions: List[Union[Literal, BeliefLiteral]]
-    effects: List[Literal]
-    full_observers: List[Union[str, ObservablePredicate]]
-    partial_observers: List[Union[str, ObservablePredicate]]
-    params: List[Variable]
-    classical_effects: List[Literal]
-    pure_epddl: bool
-
-    def __init__(self, name, precond, effects,
-                 full_obs=None, part_obs=None, _type=MEActionType.ontic):
-
-        precond = precond
-        effects = effects
-
-        object.__setattr__(self, 'pure_epddl', True)
-        object.__setattr__(self, 'name', name)
-        object.__setattr__(self, 'type', _type)
-        object.__setattr__(self, 'preconditions', precond)
-        object.__setattr__(self, 'effects', effects)
-        if full_obs is not None:
-            assert all(map(self._observer_ok, full_obs))
-        else:
-            full_obs = []
-        object.__setattr__(self, 'full_observers', full_obs)
-        if part_obs is not None:
-            assert all(map(self._observer_ok, part_obs))
-        else:
-            part_obs = []
-        object.__setattr__(self, 'partial_observers', part_obs)
-        params = [var for pred in precond for var in pred.variables]
-        params += [var for eff in effects for var in eff.variables]
-        #  params += [var for obs in full_obs for var in obs.variables
-        #           if isinstance(obs, Predicate)]
-        #  params += [var for obs in part_obs for var in obs.variables
-        #           if isinstance(obs, Predicate)]
-        object.__setattr__(self, 'params', params)
-
-    @staticmethod
-    def _observer_ok(observer: Union[str, Predicate]) -> bool:
-        return isinstance(observer, (str, ObservablePredicate, Variable))
-
-    def __repr__(self) -> str:
-        return f'''action {self.name}({", ".join(map(str, self.params))})
-        of type {self.type}
-        preconditions: {self.preconditions}
-        effects: {self.effects}
-        full obersvers: {self.full_observers}
-        partial obersvers: {self.partial_observers}'''
-
-    def insert(self, classical_fluents:List[Literal]):
-        object.__setattr__(self, 'classical_effects', classical_fluents)
-        object.__setattr__(self, 'pure_epddl', False)
+    @property
+    def sub_goals(self) -> Union[Poset, List[Literal]]:
+        return self._sub_goal

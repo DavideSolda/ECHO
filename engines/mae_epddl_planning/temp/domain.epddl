@@ -1,7 +1,7 @@
 (define (domain coininthebox)
 	(:requirements :strips :negative-preconditions :mep :no-duplicates)
-	(:predicates (opened) (has_key  ?ag_bscnk - agent) (looking  ?ag_ftaod - agent) (tail))
-	(:action move_to_box
+	(:predicates (opened) (has_key  ?ag_abvyv - agent) (looking  ?ag_wldam - agent) (tail))
+	(:action movetobox
 		:act_type ontic
 		:parameters (?ag - agent)
 		:precondition (and ([?ag](in_room_empty ?ag)) (in_room_empty ?ag))
@@ -9,7 +9,7 @@
 		:observers (and (forall (?ag2) (?ag2)))
 
 	)
-	(:action move_to_empty
+	(:action movetoempty
 		:act_type ontic
 		:parameters (?ag - agent)
 		:precondition (and ([?ag](in_room_box ?ag)) (in_room_box ?ag))
@@ -28,16 +28,16 @@
 	(:action peek
 		:act_type sensing
 		:parameters (?ag - agent)
-		:precondition (and ([?ag](opened )) ([?ag](looking ?ag)) (looking ?ag) (in_room_box ?ag) (opened ))
-		:effect (tail )
+		:precondition (and ([?ag](opened )) ([?ag](looking ?ag)) (looking ?ag) (opened ) (in_room_box ?ag))
+		:effect (when (looking ?ag) (tail ))
 		:observers (and (?ag))
 		:p_observers (and (forall (diff(?ag2)(?ag)) (?ag2) (in_room_box ?ag2)))
 	)
 	(:action signal
 		:act_type sensing
 		:parameters (?ag - agent)
-		:precondition (and ([?ag](opened )) ([?ag](looking ?ag)) (looking ?ag) (in_room_box ?ag) (opened ))
-		:effect (tail )
+		:precondition (and ([?ag](opened )) ([?ag](looking ?ag)) (looking ?ag) (opened ) (in_room_box ?ag))
+		:effect (when (looking ?ag) (tail ))
 		:observers (and (?ag))
 
 	)

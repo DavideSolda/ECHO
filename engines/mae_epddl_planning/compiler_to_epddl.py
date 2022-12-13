@@ -20,7 +20,7 @@ def predicate_argument(fluent_type: Union[pd.IntType,
                                           pd.EnumType,
                                           pd.StructType]) -> str:
     """from pd.FType to epddl argument of predicates"""
-    if isinstance(fluent_type, pd.EnumType) and fluent_type.agent:
+    if isinstance(fluent_type, pd.AgentType):
         return f'?ag_{get_random_string(5)} - ' + 'agent'
     type_name = fluent_type.name
     if isinstance(fluent_type, (pd.IntType, pd.EnumType)):
@@ -102,7 +102,6 @@ def negate(p: str, prob: bool) -> str:
 def pred(_predicate: pd.Predicate, prob=False) -> str:
     """from pd.Predicate to epddl's action predicate"""
     neg = _predicate.negated
-    when = _predicate.when
     epddl_pred = ''
     if isinstance(_predicate, pd.Literal):
         epddl_pred = f'{literal(_predicate, prob)}'
@@ -118,10 +117,10 @@ def pred(_predicate: pd.Predicate, prob=False) -> str:
         l_pred = pred(_predicate.left_predicate())
         r_pred = pred(_predicate.right_predicate())
         return op + ' (' + l_pred + ') (' + r_pred + ')'
+    elif isinstance(_predicate, pd.When):
+        epddl_pred = f'when ({pred(_predicate.body)}) ({pred(_predicate.head)})'
     else:
         assert False
-    if when is not None:
-        epddl_pred = f'when ({pred(_predicate.when)}) ({epddl_pred})'
     if neg:
         epddl_pred = negate(epddl_pred, prob=prob)
     return epddl_pred
@@ -148,7 +147,7 @@ def forall(forall_obj: Union[pd.Variable, pd.EqualityPredicate]):
     if isinstance(forall_obj, pd.EqualityPredicate):
 
         assert forall_obj.operator == pd.EqualityOperator.neq
-        vars = forall_obj.args
+        vars = forall_obj.variables
         for var in vars:
             assert isinstance(var, pd.Variable)
         assert len(vars) == 2
@@ -192,7 +191,7 @@ def action(mep_action: pd.MEAction) -> str:
 def agent_names(problem: pd.MEPlanningProblem) -> str:
     """serach for the type of agents and returns a list of agent names"""
     agent_type = next(iter([t for t in problem.types
-                            if t.is_enum_type() and t.agent]))
+                            if t.is_agent_type()]))
     return ' '.join(agent_type.domain)
 
 
@@ -224,7 +223,7 @@ def process_type(t: pd.Type) -> str:
 def types(problem: pd.MEPlanningProblem) -> str:
     """from types to PDDL types"""
     if len(problem.types) > 1:
-        types = map(process_type, [t for t in problem.types if not t.agent])
+        types = map(process_type, [t for t in problem.types if not t.is_agent_type()])
         return '\t(:types\n' + '\n'.join(types) + '\n\t)\n'
     return ''
 
