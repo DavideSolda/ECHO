@@ -13,20 +13,16 @@ class Fluent():
     """Fluent class to represnet classical planning fluents"""
     default_type : ClassVar = BoolType('bool')
     name: str
-    _type: Type = default_type
+    type: Type = default_type
 
     def __post_init__(self):
 
         if not isinstance(self.name, str):
             raise Exception("The fluent name must be a string")
 
-        if not isinstance(self._type, Type):
+        if not isinstance(self.type, Type):
             raise Exception("""The fluent type must be \
                                 an instance of fType.Type""")
-    @property
-    def type(self):
-        """Returns the ftype.Type of the Fluent"""
-        return self._type
 
     def __eq__(self, other):
         return self.name == other.name and self.type == other.type

@@ -45,11 +45,11 @@ class TestProblem2EPDDL(unittest.TestCase):
         ag3 = p.Variable('ag2', agents)
         #  fluents:
         opened = p.Fluent(name='opened')
-        has_key = p.Fluent(name='has_key', _type=agents)
-        looking = p.Fluent(name='looking', _type=agents)
+        has_key = p.Fluent('has_key', agents)
+        looking = p.Fluent('looking', agents)
         tail = p.Fluent(name='tail')
-        in_room_box = p.Fluent(name='in_room_box', _type=agents)
-        in_room_empty = p.Fluent(name='in_room_empty', _type=agents)
+        in_room_box = p.Fluent('in_room_box', agents)
+        in_room_empty = p.Fluent('in_room_empty', agents)
         #  predicates:
         in_room_empty__ag = in_room_empty(ag)
         in_room_box__ag = in_room_box(ag)

@@ -183,61 +183,61 @@ c observes signal_c;
 
 %%%Action distract_a_b
 
-executable distract_a_b if B(a,looking_b), B(a,looking_a);
-distract_a_b announces -looking_b;
-a observes distract_a_b if looking_a;
+executable distract_a_b if B(a,looking_a), B(a,looking_b);
+distract_a_b announces -looking_a;
+b observes distract_a_b if looking_b;
 c observes distract_a_b if looking_c;
-b observes distract_a_b;
+a observes distract_a_b;
 
 %%%
 
 %%%Action distract_a_c
 
-executable distract_a_c if B(a,looking_c), B(a,looking_a);
-distract_a_c announces -looking_c;
-a observes distract_a_c if looking_a;
+executable distract_a_c if B(a,looking_a), B(a,looking_c);
+distract_a_c announces -looking_a;
 b observes distract_a_c if looking_b;
-c observes distract_a_c;
+c observes distract_a_c if looking_c;
+a observes distract_a_c;
 
 %%%
 
 %%%Action distract_b_a
 
-executable distract_b_a if B(b,looking_a), B(b,looking_b);
-distract_b_a announces -looking_a;
-b observes distract_b_a if looking_b;
+executable distract_b_a if B(b,looking_b), B(b,looking_a);
+distract_b_a announces -looking_b;
+a observes distract_b_a if looking_a;
 c observes distract_b_a if looking_c;
-a observes distract_b_a;
+b observes distract_b_a;
 
 %%%
 
 %%%Action distract_b_c
 
-executable distract_b_c if B(b,looking_c), B(b,looking_b);
-distract_b_c announces -looking_c;
+executable distract_b_c if B(b,looking_b), B(b,looking_c);
+distract_b_c announces -looking_b;
 a observes distract_b_c if looking_a;
-b observes distract_b_c if looking_b;
-c observes distract_b_c;
+c observes distract_b_c if looking_c;
+b observes distract_b_c;
 
 %%%
 
 %%%Action distract_c_a
 
-executable distract_c_a if B(c,looking_a), B(c,looking_c);
-distract_c_a announces -looking_a;
+executable distract_c_a if B(c,looking_c), B(c,looking_a);
+distract_c_a announces -looking_c;
+a observes distract_c_a if looking_a;
 b observes distract_c_a if looking_b;
-c observes distract_c_a if looking_c;
-a observes distract_c_a;
+c observes distract_c_a;
 
 %%%
 
 %%%Action distract_c_b
 
-executable distract_c_b if B(c,looking_b), B(c,looking_c);
-distract_c_b announces -looking_b;
+executable distract_c_b if B(c,looking_c), B(c,looking_b);
+distract_c_b announces -looking_c;
 a observes distract_c_b if looking_a;
-c observes distract_c_b if looking_c;
-b observes distract_c_b;
+b observes distract_c_b if looking_b;
+c observes distract_c_b;
 
 %%%
 
@@ -250,7 +250,7 @@ b observes distract_c_b;
 %%%True fluents
 initially in_room_empty_a, in_room_empty_b, in_room_empty_c, tail, has_key_a, looking_a;
 %%%False fluents
-initially -in_room_box_b, -opened, -has_key_b, -in_room_box_c, -has_key_c, -looking_b, -in_room_box_a, -looking_c;
+initially -looking_c, -opened, -in_room_box_c, -has_key_c, -in_room_box_a, -in_room_box_b, -has_key_b, -looking_b;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -258,19 +258,19 @@ initially -in_room_box_b, -opened, -has_key_b, -in_room_box_c, -has_key_c, -look
 %%%%%%%%%%%%%%%%%%    INITIAL BELIEFS TRUTH   %%%%%%%%%%%%%%%%%%
 %Extracted from the :init field
 
+initially C([a,b,c],-in_room_box_a);
 initially C([a,b,c],in_room_empty_b);
-initially C([a,b,c],-has_key_b);
-initially C([a,b,c],-in_room_box_b);
-initially C([a,b,c],-has_key_c);
 initially C([a,b,c],-in_room_box_c);
-initially C([a,b,c],-looking_b);
-initially C([a,b,c],in_room_empty_c);
-initially C([a,b,c],-looking_c);
 initially C([a,b,c],looking_a);
 initially C([a,b,c],-opened);
 initially C([a,b,c],in_room_empty_a);
-initially C([a,b,c],-in_room_box_a);
+initially C([a,b,c],-has_key_c);
+initially C([a,b,c],in_room_empty_c);
+initially C([a,b,c],-has_key_b);
+initially C([a,b,c],-in_room_box_b);
 initially C([a,b,c],has_key_a);
+initially C([a,b,c],-looking_b);
+initially C([a,b,c],-looking_c);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
