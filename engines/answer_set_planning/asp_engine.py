@@ -36,6 +36,31 @@ def action_2_instantiated_action(problem: ClassicalPlanningProblem, symbol_actio
     return InstantiatedIAction(action, var_val)
 
 
+def correct_argument(struct_type: Type, arguments: clingo.Symbol) -> Union[str, int]:
+
+    params = []
+    for sub_type, argument in zip(struct_type, arguments):
+        if sub_type.is_int_type():
+            params.append(argument.number)
+        elif sub_type.is_enum_type():
+            params.append(argument.name)
+    return params
+
+def to_problem_literal(fluents: List[Fluent], c_symbol: clingo.Symbol) -> Literal:
+
+    print(c_symbol.name)
+    fluent = next(iter([f for f in fluents if f.name == c_symbol.name]))
+    if fluent.type.is_bool_type():
+        return fluent()
+    elif fluent.type.is_int_type():
+        return fluent(c_symbol.arguments[0].number)
+    elif fluent.type.is_enum_type():
+        return fluent(c_symbol.arguments[0].name)
+    elif fluent.type.is_struct_type():
+        return fluent(*correct_argument(fluent.type, c_symbol.arguments))
+    assert False
+
+
 def solve(problem: Union[ClassicalPlanningProblem, HierarchicalGoalNetworkProblem]) -> Tuple[List[Predicate], List[InstantiatedIAction]]:
 
     if isinstance(problem, HierarchicalGoalNetworkProblem):
@@ -94,7 +119,10 @@ def solve(problem: Union[ClassicalPlanningProblem, HierarchicalGoalNetworkProble
     for fluent in model:
         if fluent.name == 'holds' and fluent.arguments[1].number == max_timestamp:
             if fluent.arguments[0].name != 'neg' and fluent.positive:
-                final_holds.append(str(fluent.arguments[0]))
+
+                #here!
+                final_holds.append(to_problem_literal(problem.fluents, fluent.arguments[0]))
+                #final_holds.append(str(fluent.arguments[0]))
         elif fluent.name == 'occurs' and fluent.positive:
             operation_name = fluent.arguments[0].name
             print(operation_name)

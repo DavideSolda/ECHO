@@ -1,2 +1,35 @@
 EFP version 2.0 - Built date: Thu Dec  1 17:00:44 CET 2022
 We select the state with the highest number of satisfied subgoals.
+
+Building agent list...
+
+Building fluent literals...
+
+Building action list...
+
+Adding propositions to actions...
+
+Adding to pointed world and initial conditions...
+
+Building attitudes table...
+
+Adding to Goal...
+
+Building initial possibility...
+
+Initial Built in 0.000225071 seconds
+
+Heuristic Built in 6.237e-06 seconds
+
+
+
+Well Done, Goal found in 0.000506593 :)
+
+Plan Length: 2
+
+Solution =  open_a, peek_a
+completed the search in: 0.000506593
+
+
+
+*****THE END*****

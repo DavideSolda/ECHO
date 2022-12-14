@@ -50,27 +50,6 @@ class BooleanPredicate(Predicate):
         self.variables = left_predicate.variables + right_predicate.variables
         self.types = left_predicate.types + right_predicate.types
 
-"""
-@dataclass
-class When(Predicate):
-
-    #Not a real predicate
-
-    body: Predicate
-    head: Variable
-
-    negated: bool
-    variables: List[Variable]
-
-    def __init__(self, body: Predicate, head: Variable):
-
-        variables = body.variables + head.variables
-        types = body.types + head.types
-        negated = False
-        self.body = body
-        self.head = head
-        super().__init__(negated = negated, variables = variables, types = types)
-"""
 
 @dataclass
 class Literal(Predicate):
@@ -89,6 +68,14 @@ class Literal(Predicate):
         self.variables += [arg for arg in self.args
                            if isinstance(arg, Variable)]
 
+    def instatiate(var_val: Dict[Variables, Union[str, int]]) -> 'Literal':
+
+        args = deepcopy(self.args)
+        for idx, arg in enumerate(args):
+            if isinstance(arg, Variable):
+                args[idx] = var_val[idx]
+        return Literal(negated = False, types = [self.type], variables = [],
+                       fluent = self.fluent, args=args)
 
 class EqualityOperator(Enum):
 
