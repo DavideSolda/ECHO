@@ -159,7 +159,11 @@ def obs(observer: Union[pd.Forall, str, pd.Variable]) -> str:
             neq = observer.disequality_predicate
             agentl = agent(neq.left_operand.name.lower())
             agentr = agent(neq.right_operand.name.lower())
-            forall = f'diff ({agentl}) ({agentr})'
+            if observer.who == neq.left_operand:
+                forall = f'diff ({agentl}) ({agentr})'
+            else:
+                forall = f'diff ({agentr}) ({agentl})'
+
         return f'(forall ({forall}) ({who}))'
 
 

@@ -1,52 +1,28 @@
-(define (domain coininthebox)
+(define (domain no_name)
 	(:requirements :strips :negative-preconditions :mep :no-duplicates)
-	(:predicates (opened) (has_key  ?ag_crvrs - agent) (looking  ?ag_qnuxu - agent) (tail))
-	(:action movetobox
-		:act_type ontic
-		:parameters (?ag - agent)
-		:precondition (and ([?ag](in_room_empty ?ag)) (in_room_empty ?ag))
-		:effect (and (-in_room_empty ?ag) (in_room_box ?ag))
-		:observers (and (forall (?ag2) (?ag2)))
-
-	)
-	(:action movetoempty
-		:act_type ontic
-		:parameters (?ag - agent)
-		:precondition (and ([?ag](in_room_box ?ag)) (in_room_box ?ag))
-		:effect (and (in_room_empty ?ag) (-in_room_box ?ag))
-		:observers (and (forall (?ag2) (?ag2)))
-
-	)
+	(:predicates (opened) (has_key  ?ag_ocxyb - agent) (looking  ?ag_mxvoj - agent) (tail))
 	(:action open
 		:act_type ontic
-		:parameters (?ag - agent)
-		:precondition (and (has_key ?ag) ([?ag](has_key ?ag)) (in_room_box ?ag))
+		:parameters (?i - agent)
+		:precondition ([?i](has_key ?i))
 		:effect (opened )
-		:observers (and (forall (diff (?ag2) (?ag)) (?ag2)))
+		:observers (and (forall (diff (?j) (?i)) (when (looking ?j) (?j))) (?i))
 
 	)
 	(:action peek
 		:act_type sensing
-		:parameters (?ag - agent)
-		:precondition (and ([?ag](opened )) ([?ag](looking ?ag)) (looking ?ag) (opened ) (in_room_box ?ag))
-		:effect (when (looking ?ag) (tail ))
-		:observers (and (?ag))
-		:p_observers (and (forall (diff (?ag2) (?ag)) (when (in_room_box ?ag2) (?ag2))))
+		:parameters (?i - agent)
+		:precondition (and ([?i](opened )) ([?i](looking ?i)))
+		:effect (tail )
+		:observers (and (?i))
+		:p_observers (and (forall (diff (?j) (?i)) (when (looking ?j) (?j))))
 	)
-	(:action signal
-		:act_type sensing
-		:parameters (?ag - agent)
-		:precondition (and ([?ag](opened )) ([?ag](looking ?ag)) (looking ?ag) (opened ) (in_room_box ?ag))
-		:effect (when (looking ?ag) (tail ))
-		:observers (and (?ag))
-
-	)
-	(:action distract
+	(:action announce
 		:act_type announcement
-		:parameters (?ag2 - agent ?ag - agent)
-		:precondition (and ([?ag](looking ?ag)) ([?ag2](looking ?ag2)))
-		:effect (-looking ?ag2)
-		:observers (and (forall (diff (?ag2) (?ag2)) (when (looking ?ag2) (?ag2))) (?ag2))
+		:parameters (?i - agent)
+		:precondition ([?i](tail ))
+		:effect (tail )
+		:observers (and (forall (diff (?j) (?i)) (when (looking ?j) (?j))) (?i))
 
 	)
 )
