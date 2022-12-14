@@ -31,56 +31,64 @@ agent alice, bob;
 
 %%%Action look_up_alice_red
 
-executable look_up_alice_redlook_up_alice_red causes owner_alice_red if owner_alice_red;
+executable look_up_alice_red
+look_up_alice_red causes owner_alice_red if owner_alice_red;
 alice observes look_up_alice_red;
 
 %%%
 
 %%%Action look_up_alice_orange
 
-executable look_up_alice_orangelook_up_alice_orange causes owner_alice_orange if owner_alice_orange;
+executable look_up_alice_orange
+look_up_alice_orange causes owner_alice_orange if owner_alice_orange;
 alice observes look_up_alice_orange;
 
 %%%
 
 %%%Action look_up_alice_yellow
 
-executable look_up_alice_yellowlook_up_alice_yellow causes owner_alice_yellow if owner_alice_yellow;
+executable look_up_alice_yellow
+look_up_alice_yellow causes owner_alice_yellow if owner_alice_yellow;
 alice observes look_up_alice_yellow;
 
 %%%
 
 %%%Action look_up_alice_black
 
-executable look_up_alice_blacklook_up_alice_black causes owner_alice_black if owner_alice_black;
+executable look_up_alice_black
+look_up_alice_black causes owner_alice_black if owner_alice_black;
 alice observes look_up_alice_black;
 
 %%%
 
 %%%Action look_up_bob_red
 
-executable look_up_bob_redlook_up_bob_red causes owner_bob_red if owner_bob_red;
+executable look_up_bob_red
+look_up_bob_red causes owner_bob_red if owner_bob_red;
 bob observes look_up_bob_red;
 
 %%%
 
 %%%Action look_up_bob_orange
 
-executable look_up_bob_orangelook_up_bob_orange causes owner_bob_orange if owner_bob_orange;
+executable look_up_bob_orange
+look_up_bob_orange causes owner_bob_orange if owner_bob_orange;
 bob observes look_up_bob_orange;
 
 %%%
 
 %%%Action look_up_bob_yellow
 
-executable look_up_bob_yellowlook_up_bob_yellow causes owner_bob_yellow if owner_bob_yellow;
+executable look_up_bob_yellow
+look_up_bob_yellow causes owner_bob_yellow if owner_bob_yellow;
 bob observes look_up_bob_yellow;
 
 %%%
 
 %%%Action look_up_bob_black
 
-executable look_up_bob_blacklook_up_bob_black causes owner_bob_black if owner_bob_black;
+executable look_up_bob_black
+look_up_bob_black causes owner_bob_black if owner_bob_black;
 bob observes look_up_bob_black;
 
 %%%
@@ -94,7 +102,7 @@ bob observes look_up_bob_black;
 %%%True fluents
 initially owner_bob_red, owner_bob_black, owner_bob_orange, free_table;
 %%%False fluents
-initially -owner_alice_black, -owner_alice_red, -owner_alice_yellow, -owner_bob_yellow, -table_red, -owner_alice_orange, -table_orange, -table_yellow, -table_black;
+initially -owner_alice_red, -table_yellow, -owner_alice_black, -table_orange, -owner_alice_yellow, -owner_alice_orange, -table_black, -owner_bob_yellow, -table_red;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

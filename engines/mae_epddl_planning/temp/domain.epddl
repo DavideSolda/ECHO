@@ -1,6 +1,6 @@
 (define (domain no_name)
 	(:requirements :strips :typing :negative-preconditions :mep :no-duplicates)
-	(:predicates (owner  ?ag_nwyhj - agent ?color_goyev - color) (free_table) (table  ?color_lhexe - color))
+	(:predicates (owner  ?ag_ffhij - agent ?color_dzhwj - color) (free_table) (table  ?color_zsopw - color))
 	(:action look_up
 		:act_type ontic
 		:parameters (?a1 - agent ?c1 - color)
