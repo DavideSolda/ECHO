@@ -15,10 +15,8 @@ EFP = os.path.join(CURRENT_DIR, 'sofai',
                    'Planners', 'EFP', 'bin', 'efp.out')
 EFP_OUTPUT = os.path.join(CURRENT_DIR, TEMP, 'efp_output.txt')
 
-IstantiatedMEAction = TypeVar("Istantiated_MEAction")
 
-
-def solve(mepproblem: pd.MEPlanningProblem) -> Iterator[IstantiatedMEAction]:
+def solve(mepproblem: pd.MEPlanningProblem) -> Iterator[pd.IstantiatedMEAction]:
 
     domain_s, problem_s = compile_into_epddl(mepproblem)
     

@@ -31,6 +31,7 @@ def action_2_instantiated_action(problem: ClassicalPlanningProblem, symbol_actio
     assert len(action.params) == len(symbol_parameters)
     var_val = {}
     for var, value in zip(action.params, symbol_parameters):
+        print(var)
         var_val[var] = int(str(value)) if var.type.is_int_type() else str(value)
     return InstantiatedIAction(action, var_val)
 

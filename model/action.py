@@ -1,6 +1,6 @@
 """This modul contains Action datatypes"""
 
-from typing import List, Union
+from typing import List, Union, TypeVar
 from dataclasses import dataclass
 from enum import Enum
 from collections import namedtuple
@@ -91,3 +91,5 @@ class MEAction():
     @property
     def sub_goals(self) -> Union[Poset, List[Literal]]:
         return self._sub_goal
+
+IstantiatedMEAction = TypeVar("Istantiated_MEAction")

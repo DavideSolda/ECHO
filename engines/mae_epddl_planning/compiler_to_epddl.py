@@ -75,7 +75,7 @@ def param_val_to_epddl(param_val: Union[pd.ArithmeticExpr,
 def literal(lit: pd.Literal, prob: bool) -> str:
     """from pd.Literal to epddl literal"""
     f_name = f"{lit.fluent.name}"
-    return f_name + ' ' + ','.join(map(lambda x: param_val_to_epddl(x, prob)
+    return f_name + ' ' + ' '.join(map(lambda x: param_val_to_epddl(x, prob)
                                        , lit.args))
 
 
@@ -221,16 +221,15 @@ def process_type(t: pd.Type) -> str:
 def types(problem: pd.MEPlanningProblem) -> str:
     """from types to PDDL types"""
     if len(problem.types) > 1:
-        types = map(process_type, [t for t in problem.types if not t.is_agent_type()])
-        return '\t(:types\n' + '\n'.join(types) + '\n\t)\n'
+        types = map(process_type, [t for t in problem.types if not t.is_agent_type() and not t.is_struct_type()])
+        return '\t(:objects\n' + '\n'.join(types) + '\n\t)\n'
     return ''
 
 
 def compile_into_epddl(problem: pd.MEPlanningProblem) -> Tuple[str, str]:
     """from pd.MEPlanningProblem to epddl domain and problem files"""
     p_dom = f'(define (domain {problem.name})\n'
-    p_dom += '\t(:requirements :strips :negative-preconditions :mep :no-duplicates)\n'
-
+    p_dom += '\t(:requirements :strips :typing :negative-preconditions :mep :no-duplicates)\n'
     #  fluents:
     p_dom += '\t(:predicates '
     p_dom += ' '.join(map(lambda fluent: f'({predicate(fluent)})',
@@ -241,9 +240,9 @@ def compile_into_epddl(problem: pd.MEPlanningProblem) -> Tuple[str, str]:
 
     p_dom += '\n)\n'
     p_inst = f'(define (problem {problem.name})\n'
+    p_inst += types(problem)
     p_inst += f'\t(:domain {problem.name})\n'
     p_inst += f'\t(:agents {agent_names(problem)})\n'
-    p_inst += types(problem)
     p_inst += '\t(:depth 2)\n'
     p_inst += '\t(:dynck false)\n'
     p_inst += f'\t(:init {init(problem)})\n'

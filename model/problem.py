@@ -103,10 +103,18 @@ class PlanningProblem():
                 continue
             self._inits.append(arg)
 
+    def reset_initial_values(self):
+        """Remove initial literals"""
+        self._inits = []
+            
     def add_goals(self, *args):
         """Add final literal to the problem"""
         for arg in args:
             self._goals.append(arg)
+
+    def reset_goals(self):
+        """Remove final literals"""
+        self._goals = []
 
     @staticmethod
     def _stringy(objs: List[Any]) -> List[str]:
@@ -219,8 +227,13 @@ class HierarchicalGoalNetworkProblem(ClassicalPlanningProblem):
 
     @property
     def initial_poset(self) -> Poset:
+        """Add initial poset to the domain"""
         return self._poset
-    
+
+    def reset_poset(self) -> None:
+        """Remove initial poset to the domain"""
+        self._poset = None
+
     @property
     def goals(self) -> List[Goal]:
         return self._goals
@@ -256,10 +269,7 @@ class MEPlanningProblem(PlanningProblem):
         self._domain.append(action)
 
 @dataclass(repr=False)
-class MEPClassical():
+class EpiCla():
+
     classical_problem: ClassicalPlanningProblem
     meap_problem: MEPlanningProblem
-
-    def __init__(self, classical_problem, maep_problem):
-        self.classical_problem = classical_problem
-        self.maep_problem = maep_problem
