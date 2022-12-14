@@ -122,6 +122,7 @@ print(plan)
 
 look_up = MEAction('look_up',
                    params = [A1, C1],
+                   precondition = [B([A1], free_table())],
                    effects=[When(owner(A1, C1), owner(A1, C1))],
                    full_obs=[A1])
 
@@ -146,10 +147,14 @@ e.add_variable(A2)
 e.add_action(look_up)
 #add initial values:
 e.add_initial_values(owner('bob', 'red'))
-e.add_initial_values(owner('bob', 'black'))
 e.add_initial_values(owner('bob', 'orange'))
+e.add_initial_values(owner('bob', 'black'))
 e.add_initial_values(free_table())
+e.add_initial_values(B(['bob', 'alice'], owner('bob', 'red')))
+e.add_initial_values(B(['bob', 'alice'], owner('bob', 'orange')))
+e.add_initial_values(B(['bob', 'alice'], owner('bob', 'black')))
+e.add_initial_values(B(['bob', 'alice'], free_table()))
 #add goals:
-e.add_goals(B(['bob'], owner('bob', 'red')))
+e.add_goals(B(['bob', 'alice'], free_table()))
 
 epddl_engine.solve(e)
