@@ -1,6 +1,6 @@
 (define (domain no_name)
 	(:requirements :strips :typing :negative-preconditions :mep :no-duplicates)
-	(:predicates (owner  ?ag_eymnz - agent ?color_bylyn - color) (free_table) (table  ?color_omvyb - color))
+	(:predicates (owner  ?ag_uttqi - agent ?color_czkqe - color) (free_table) (table  ?color_lqbgu - color))
 	(:action pspt
 		:act_type ontic
 		:parameters (?a1 - agent ?c1 - color)
@@ -13,7 +13,7 @@
 		:act_type ontic
 		:parameters (?a1 - agent ?c1 - color)
 		:precondition (and (-owner ?a1 ?c1) (-free_table ) (table ?c1))
-		:effect (owner ?a1 ?c1)
+		:effect (and (owner ?a1 ?c1) (-table ?c1) (free_table ))
 		:observers (and (?a1))
 
 	)

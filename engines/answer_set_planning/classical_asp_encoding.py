@@ -186,8 +186,8 @@ def compile_classical_into_asp(problem: sc.HierarchicalGoalNetworkProblem) -> st
                 type_asp_convertion.append(f"{t.name}({enum_values(t)})")
             elif t.is_int_type():
                 type_asp_convertion.append(f"{t.name}({int_values(t)})")
-            elif t.is_struct_type():
-                type_asp_convertion.append(f"{t.name}({struct_values(t)})")
+            #elif t.is_struct_type():
+            #    type_asp_convertion.append(f"{t.name}({struct_values(t)})")
                 
 
     s += to_asp_lines(type_asp_convertion)
@@ -246,5 +246,6 @@ def compile_classical_into_asp(problem: sc.HierarchicalGoalNetworkProblem) -> st
 
     s += to_asp_lines(independent_rules())
 
-    print(s)
+    with open(os.path.join(current_dir, 'example.lp'), 'w') as f:
+        f.write(s)
     return s

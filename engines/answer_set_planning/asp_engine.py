@@ -23,6 +23,7 @@ class Context:
 
 def on_model(m):
     print(m)
+    pass
 
 
 def action_2_instantiated_action(problem: ClassicalPlanningProblem, symbol_action: clingo.Symbol)-> Instantiated_Action:
@@ -33,7 +34,6 @@ def action_2_instantiated_action(problem: ClassicalPlanningProblem, symbol_actio
     assert len(action.params) == len(symbol_parameters)
     var_val = {}
     for var, value in zip(action.params, symbol_parameters):
-        print(var)
         var_val[var] = int(str(value)) if var.type.is_int_type() else str(value)
     return Instantiated_Action(action, var_val)
 
@@ -50,7 +50,6 @@ def correct_argument(struct_type: Type, arguments: clingo.Symbol) -> Union[str, 
 
 def to_problem_literal(fluents: List[Fluent], c_symbol: clingo.Symbol) -> Literal:
 
-    print(c_symbol.name)
     fluent = next(iter([f for f in fluents if f.name == c_symbol.name]))
     if fluent.type.is_bool_type():
         return fluent()
@@ -67,7 +66,6 @@ def solve(problem: Union[ClassicalPlanningProblem, HierarchicalGoalNetworkProble
 
     if isinstance(problem, HierarchicalGoalNetworkProblem):
         asp_encoding = compile_HGN_into_asp(problem)
-        print(asp_encoding)
     elif isinstance(problem, ClassicalPlanningProblem):
         asp_encoding = compile_classical_into_asp(problem)
         
@@ -91,7 +89,7 @@ def solve(problem: Union[ClassicalPlanningProblem, HierarchicalGoalNetworkProble
 
     model = []
     for step in range(0,MAX_STEP):
-        print(step)
+        print(f'step number: {step}')
         ctl.ground([("step", [clingo.Number(step)])])
         ctl.ground([("check", [clingo.Number(step)])])
         ctl.assign_external(clingo.Function("query", [clingo.Number(step)]), True)
@@ -106,8 +104,6 @@ def solve(problem: Union[ClassicalPlanningProblem, HierarchicalGoalNetworkProble
         if len(model) >0:
             break
 
-    print('look at here')
-    print(model)
     final_holds = []
     plan = []
 
@@ -132,5 +128,5 @@ def solve(problem: Union[ClassicalPlanningProblem, HierarchicalGoalNetworkProble
                 plan.append((action, index))
     
     plan = [x[0] for x in sorted(plan, key=lambda x : x[1])]
-    print(final_holds, plan)
+    #print(final_holds, plan)
     return final_holds, plan

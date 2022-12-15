@@ -100,6 +100,19 @@ p.add_action(place_on_ground)
 p.add_action(pick_from_table)
 p.add_action(place_on_table)
 #add initial values:
+
+p.add_initial_values(free_gripper('alice'))
+p.add_initial_values(on_table('black'))
+p.add_initial_values(free_gripper('bob'))
+p.add_initial_values(owner('bob', 'red'))
+p.add_initial_values(owner('bob', 'orange'))
+p.add_initial_values(top('red'))
+p.add_initial_values(top('orange'))
+p.add_initial_values(free_stack(3))
+p.add_initial_values(on_stack('orange', 2))
+p.add_initial_values(on_stack('red', 1))
+
+"""
 p.add_initial_values(on_stack('red', 1))
 p.add_initial_values(on_block('black', 'red'))
 p.add_initial_values(top('black'))
@@ -112,17 +125,24 @@ p.add_initial_values(owner('bob', 'red'))
 p.add_initial_values(owner('bob', 'black'))
 p.add_initial_values(owner('bob', 'orange'))
 p.add_initial_values(free_table())
+"""
+
+p.add_goals(owner('alice', 'black'))
+p.add_goals(-on_table('black'))
+p.add_goals(free_table())
+
 #add goals:
 #p.add_goals(on_block('black', 'orange'))
 #p.add_goals(on_table('red'))
 #p.add_goals(free_gripper('bob'))
 #p.add_goals(*[free_table(), owner('alice', 'black')])
 #solve:
-#finally_holds, plan = asp_engine.solve(p)
-#print(f"plan of length {len(plan)}")
-#print(finally_holds)
-#print(plan)
 
+finally_holds, plan = asp_engine.solve(p)
+print(f"plan of length {len(plan)}")
+print(finally_holds)
+print(plan)
+quit()
 
 pick_from_stack_place_on_table = MEAction('pspt',
                                           params = [A1, C1],
@@ -134,7 +154,7 @@ pick_from_table_place_on_stack = MEAction('ptps',
                                           params = [A1, C1],
                                           precondition = [-owner(A1, C1), -free_table(),# -B([A1], free_table()),
                                                           on_table(C1)],
-                                          effects=[owner(A1, C1)],# -on_table(C1), free_table()],
+                                          effects=[owner(A1, C1), -on_table(C1), free_table()],
                                           full_obs=[A1])
 
 
@@ -168,7 +188,7 @@ e.add_initial_values(B(['bob', 'alice'], owner('bob', 'black')))
 e.add_initial_values(B(['bob', 'alice'], free_table()))
 #add goals:
 #e.add_goals(free_table(), owner('alice', 'black'))
-e.add_goals(owner('alice', 'black'))#free_table(), owner('alice', 'black'))
+e.add_goals(free_table(), owner('alice', 'black'))#free_table(), owner('alice', 'black'))
 epddl_engine.solve(e)
 
 

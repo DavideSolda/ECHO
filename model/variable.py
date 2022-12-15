@@ -35,7 +35,6 @@ class Variable():
         return self._vtype
 
     def __hash__(self):
-        print(self.type)
         return hash(self.name)#**hash(self.type)
 
     def __eq__(self, var):

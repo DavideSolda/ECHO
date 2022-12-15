@@ -22,12 +22,11 @@ from problem import EpiCla, HierarchicalGoalNetworkProblem
 
 def extract_classical_effects(effects: List[Literal], var_val: Dict[Variable, str]) -> List[Literal]:
 
-    print(var_val)
     effects = copy.deepcopy(effects)
-    print(effects)
+
     for idx, effect in enumerate(effects):
         effects[idx] = effect.instatiate(var_val)
-        print(effects[idx])
+
     return effects
 
 
@@ -59,11 +58,11 @@ def solve(epicla: EpiCla) -> Iterator[Union[
 
             else:
                 effects = extract_classical_effects(epistemic_action.effects, var_val)
-                print(effects)
                 classical_problem.add_goals(*effects)
 
             final_state, plan = asp_engine.solve(classical_problem)
 
+            
             epicla_plan.append((epistemic_action, plan))
 
             if isinstance(classical_problem, HierarchicalGoalNetworkProblem):

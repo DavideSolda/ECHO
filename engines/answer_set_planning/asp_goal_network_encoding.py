@@ -293,6 +293,4 @@ def compile_HGN_into_asp(problem: sc.ClassicalPlanningProblem) -> str:
 
     s += to_asp_lines(init_poset)
     
-    print(s + to_asp_lines(independent_rules()))
-
     return s + to_asp_lines(independent_rules())

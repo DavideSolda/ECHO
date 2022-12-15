@@ -114,6 +114,8 @@ bob observes pspt_bob_black;
 
 executable ptps_alice_red if -owner_alice_red, -free_table, table_red;
 ptps_alice_red causes owner_alice_red;
+ptps_alice_red causes -table_red;
+ptps_alice_red causes free_table;
 alice observes ptps_alice_red;
 
 %%%
@@ -122,6 +124,8 @@ alice observes ptps_alice_red;
 
 executable ptps_alice_orange if -owner_alice_orange, -free_table, table_orange;
 ptps_alice_orange causes owner_alice_orange;
+ptps_alice_orange causes -table_orange;
+ptps_alice_orange causes free_table;
 alice observes ptps_alice_orange;
 
 %%%
@@ -130,6 +134,8 @@ alice observes ptps_alice_orange;
 
 executable ptps_alice_yellow if -owner_alice_yellow, -free_table, table_yellow;
 ptps_alice_yellow causes owner_alice_yellow;
+ptps_alice_yellow causes -table_yellow;
+ptps_alice_yellow causes free_table;
 alice observes ptps_alice_yellow;
 
 %%%
@@ -138,6 +144,8 @@ alice observes ptps_alice_yellow;
 
 executable ptps_alice_black if -owner_alice_black, -free_table, table_black;
 ptps_alice_black causes owner_alice_black;
+ptps_alice_black causes -table_black;
+ptps_alice_black causes free_table;
 alice observes ptps_alice_black;
 
 %%%
@@ -146,6 +154,8 @@ alice observes ptps_alice_black;
 
 executable ptps_bob_red if -owner_bob_red, -free_table, table_red;
 ptps_bob_red causes owner_bob_red;
+ptps_bob_red causes -table_red;
+ptps_bob_red causes free_table;
 bob observes ptps_bob_red;
 
 %%%
@@ -154,6 +164,8 @@ bob observes ptps_bob_red;
 
 executable ptps_bob_orange if -owner_bob_orange, -free_table, table_orange;
 ptps_bob_orange causes owner_bob_orange;
+ptps_bob_orange causes -table_orange;
+ptps_bob_orange causes free_table;
 bob observes ptps_bob_orange;
 
 %%%
@@ -162,6 +174,8 @@ bob observes ptps_bob_orange;
 
 executable ptps_bob_yellow if -owner_bob_yellow, -free_table, table_yellow;
 ptps_bob_yellow causes owner_bob_yellow;
+ptps_bob_yellow causes -table_yellow;
+ptps_bob_yellow causes free_table;
 bob observes ptps_bob_yellow;
 
 %%%
@@ -170,6 +184,8 @@ bob observes ptps_bob_yellow;
 
 executable ptps_bob_black if -owner_bob_black, -free_table, table_black;
 ptps_bob_black causes owner_bob_black;
+ptps_bob_black causes -table_black;
+ptps_bob_black causes free_table;
 bob observes ptps_bob_black;
 
 %%%
@@ -183,7 +199,7 @@ bob observes ptps_bob_black;
 %%%True fluents
 initially owner_bob_red, owner_bob_orange, owner_bob_black, free_table;
 %%%False fluents
-initially -owner_alice_orange, -owner_alice_red, -owner_alice_yellow, -owner_bob_yellow, -table_yellow, -table_black, -table_orange, -owner_alice_black, -table_red;
+initially -table_black, -owner_alice_orange, -table_orange, -owner_alice_black, -table_yellow, -owner_alice_yellow, -owner_alice_red, -owner_bob_yellow, -table_red;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -191,10 +207,10 @@ initially -owner_alice_orange, -owner_alice_red, -owner_alice_yellow, -owner_bob
 %%%%%%%%%%%%%%%%%%    INITIAL BELIEFS TRUTH   %%%%%%%%%%%%%%%%%%
 %Extracted from the :init field
 
-initially C([bob,alice],free_table);
-initially C([bob,alice],owner_bob_black);
 initially C([bob,alice],owner_bob_orange);
+initially C([bob,alice],owner_bob_black);
 initially C([bob,alice],owner_bob_red);
+initially C([bob,alice],free_table);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -202,5 +218,6 @@ initially C([bob,alice],owner_bob_red);
 %%%%%%%%%%%%%%%%%%%%%%%%%%    GOALS   %%%%%%%%%%%%%%%%%%%%%%%%%%
 %The goals of the plan. Each goal is presented separately to ease the reading
 
+goal free_table;
 goal owner_alice_black;
 
