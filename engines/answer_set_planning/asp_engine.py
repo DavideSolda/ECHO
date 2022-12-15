@@ -88,7 +88,7 @@ def solve(problem: Union[ClassicalPlanningProblem, HierarchicalGoalNetworkProble
     print("solving phase:")
 
     model = []
-    for step in range(0,MAX_STEP):
+    for step in range(1,MAX_STEP):
         print(f'step number: {step}')
         ctl.ground([("step", [clingo.Number(step)])])
         ctl.ground([("check", [clingo.Number(step)])])

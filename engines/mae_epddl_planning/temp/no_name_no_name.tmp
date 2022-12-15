@@ -199,7 +199,7 @@ bob observes ptps_bob_black;
 %%%True fluents
 initially owner_bob_red, owner_bob_orange, owner_bob_black, free_table;
 %%%False fluents
-initially -table_black, -owner_alice_orange, -table_orange, -owner_alice_black, -table_yellow, -owner_alice_yellow, -owner_alice_red, -owner_bob_yellow, -table_red;
+initially -owner_alice_black, -owner_alice_yellow, -table_orange, -table_yellow, -table_red, -table_black, -owner_alice_orange, -owner_alice_red, -owner_bob_yellow;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -207,10 +207,10 @@ initially -table_black, -owner_alice_orange, -table_orange, -owner_alice_black, 
 %%%%%%%%%%%%%%%%%%    INITIAL BELIEFS TRUTH   %%%%%%%%%%%%%%%%%%
 %Extracted from the :init field
 
-initially C([bob,alice],owner_bob_orange);
 initially C([bob,alice],owner_bob_black);
-initially C([bob,alice],owner_bob_red);
 initially C([bob,alice],free_table);
+initially C([bob,alice],owner_bob_red);
+initially C([bob,alice],owner_bob_orange);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

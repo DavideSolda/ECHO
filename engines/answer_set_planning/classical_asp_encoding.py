@@ -156,11 +156,12 @@ def independent_rules() -> List[str]:
         "holds(F,t+1) :- opposite(F,G), holds(F,t), not holds(G, t+1)",
         #"holds(F,t):- not holds(G,t), opposite(F,G)",
         #EXECUTABILITY:
-        "not_executable(A,t) :- exec(A,F), not holds(F,t)",
+        "not_executable(A,t) :- fluent(F), exec(A,F), not holds(F,t)",
+        "not_executable(A,t) :- exec(A,G), opposite(F,G), holds(F,t)",
         "executable(A,t) :- not not_executable(A,t), action(A)",
         "holds(F, t+1) :- executable(A,t), occurs(A,t), causes(A,F)",
         #OCCURS
-        "{occurs(A,t) : action(A)}1",
+        "1{occurs(A,t) : action(A)}1",
         ":- action(A), occurs(A,t), not executable(A,t)",
         #LAST STEP
         "#program check(t)",
@@ -246,6 +247,4 @@ def compile_classical_into_asp(problem: sc.HierarchicalGoalNetworkProblem) -> st
 
     s += to_asp_lines(independent_rules())
 
-    with open(os.path.join(current_dir, 'example.lp'), 'w') as f:
-        f.write(s)
     return s

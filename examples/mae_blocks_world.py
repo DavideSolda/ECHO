@@ -18,6 +18,7 @@ agent = AgentType(['alice', 'bob'])
 color_pair = StructType("colorxcolor", [color, color])
 color_stack = StructType("colorxstack", [color, stack])
 agent_color = StructType("agentxcolor", [agent, color])
+agent_stack = StructType("agentxstack", [agent, stack])
 
 on_block     = Fluent("on_block", color_pair)
 on_stack     = Fluent("on_stack", color_stack)
@@ -28,6 +29,7 @@ free_stack   = Fluent("free_stack", stack)
 owner        = Fluent("owner", agent_color)
 free_table   = Fluent("free_table")
 on_table     = Fluent("table", color)
+in_front_of  = Fluent("in_front_of", agent_stack)
 
 C1 = Variable("C1", color)
 C2 = Variable("C2", color)
@@ -44,7 +46,7 @@ pick = IAction(name = "pick",
 
 pick_from_ground = IAction(name = "pick_from_ground",
                            params = [R, C1, S],
-                           precondition = [top(C1), on_stack(C1, S), free_gripper(R), owner(R, C1)],
+                           precondition = [in_front_of(R, S), top(C1), on_stack(C1, S), free_gripper(R), owner(R, C1)],
                            effects = [free_stack(S), -top(C1), -on_stack(C1, S), -free_gripper(R), gripped(R, C1)])
 
 pick_from_table = IAction(name = "pick_from_table",
@@ -54,12 +56,12 @@ pick_from_table = IAction(name = "pick_from_table",
 
 place = IAction(name = "place",
                 params = [R, C1, C2],
-                precondition = [top(C2), -free_gripper(R), gripped(R, C1), owner(R, C1)],
+                precondition = [top(C2), -free_gripper(R), gripped(R, C1), owner(R, C1), owner(R, C2)],
                 effects = [top(C1), on_block(C1, C2), -top(C2), free_gripper(R), -gripped(R, C1)])
 
 place_on_ground = IAction(name = "place_on_ground",
                 params = [R, C1, S],
-                precondition = [free_stack(S), -free_gripper(R), gripped(R, C1), owner(R, C1)],
+                precondition = [free_stack(S), -free_gripper(R), gripped(R, C1), owner(R, C1), in_front_of(R, S)],
                 effects = [-free_stack(S), top(C1), free_gripper(R), -gripped(R, C1)])
 
 place_on_table = IAction(name = "place_on_table",
@@ -75,6 +77,7 @@ p.add_type(color)
 p.add_type(color_pair)
 p.add_type(color_stack)
 p.add_type(agent_color)
+p.add_type(agent_stack)
 #add fluents:
 p.add_fluent(on_block)
 p.add_fluent(on_stack)
@@ -85,6 +88,7 @@ p.add_fluent(free_stack)
 p.add_fluent(owner)
 p.add_fluent(free_table)
 p.add_fluent(on_table)
+p.add_fluent(in_front_of)
 #add variables:
 p.add_variable(C1)
 p.add_variable(C2)
@@ -101,18 +105,6 @@ p.add_action(pick_from_table)
 p.add_action(place_on_table)
 #add initial values:
 
-p.add_initial_values(free_gripper('alice'))
-p.add_initial_values(on_table('black'))
-p.add_initial_values(free_gripper('bob'))
-p.add_initial_values(owner('bob', 'red'))
-p.add_initial_values(owner('bob', 'orange'))
-p.add_initial_values(top('red'))
-p.add_initial_values(top('orange'))
-p.add_initial_values(free_stack(3))
-p.add_initial_values(on_stack('orange', 2))
-p.add_initial_values(on_stack('red', 1))
-
-"""
 p.add_initial_values(on_stack('red', 1))
 p.add_initial_values(on_block('black', 'red'))
 p.add_initial_values(top('black'))
@@ -124,25 +116,11 @@ p.add_initial_values(free_stack(3))
 p.add_initial_values(owner('bob', 'red'))
 p.add_initial_values(owner('bob', 'black'))
 p.add_initial_values(owner('bob', 'orange'))
+p.add_initial_values(in_front_of('bob', 1))
+p.add_initial_values(in_front_of('bob', 2))
+p.add_initial_values(in_front_of('alice', 3))
 p.add_initial_values(free_table())
-"""
 
-p.add_goals(owner('alice', 'black'))
-p.add_goals(-on_table('black'))
-p.add_goals(free_table())
-
-#add goals:
-#p.add_goals(on_block('black', 'orange'))
-#p.add_goals(on_table('red'))
-#p.add_goals(free_gripper('bob'))
-#p.add_goals(*[free_table(), owner('alice', 'black')])
-#solve:
-
-finally_holds, plan = asp_engine.solve(p)
-print(f"plan of length {len(plan)}")
-print(finally_holds)
-print(plan)
-quit()
 
 pick_from_stack_place_on_table = MEAction('pspt',
                                           params = [A1, C1],
@@ -187,8 +165,7 @@ e.add_initial_values(B(['bob', 'alice'], owner('bob', 'orange')))
 e.add_initial_values(B(['bob', 'alice'], owner('bob', 'black')))
 e.add_initial_values(B(['bob', 'alice'], free_table()))
 #add goals:
-#e.add_goals(free_table(), owner('alice', 'black'))
-e.add_goals(free_table(), owner('alice', 'black'))#free_table(), owner('alice', 'black'))
+e.add_goals(free_table(), owner('alice', 'black'))
 epddl_engine.solve(e)
 
 

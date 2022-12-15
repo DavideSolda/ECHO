@@ -14,3 +14,22 @@ Adding to pointed world and initial conditions...
 Building attitudes table...
 
 Adding to Goal...
+
+Building initial possibility...
+
+Initial Built in 1.13735 seconds
+
+Heuristic Built in 9.858e-06 seconds
+
+
+
+Well Done, Goal found in 11.0412 :)
+
+Plan Length: 2
+
+Solution =  pspt_bob_black, ptps_alice_black
+completed the search in: 11.0412
+
+
+
+*****THE END*****
