@@ -17,18 +17,18 @@ Adding to Goal...
 
 Building initial possibility...
 
-Initial Built in 1.14571 seconds
+Initial Built in 1.15042 seconds
 
-Heuristic Built in 3.4738e-05 seconds
+Heuristic Built in 3.2174e-05 seconds
 
 
 
-Well Done, Goal found in 0.410438 :)
+Well Done, Goal found in 0.423143 :)
 
 Plan Length: 0
 
 Solution =  
-completed the search in: 0.410438
+completed the search in: 0.423143
 
 
 

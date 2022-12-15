@@ -50,6 +50,8 @@ def solve(mepproblem: pd.MEPlanningProblem) -> Iterator[pd.IstantiatedMEAction]:
                 mAp_plan = s.split(', ')
 
     print(mAp_plan)
+    if mAp_plan == ['']:
+        return zip([],[])
     action_name_plan = [re.split('_', act)[0] for act in mAp_plan]
     instantiated = [re.split('_', act)[1].split('_') for act in mAp_plan]
 
