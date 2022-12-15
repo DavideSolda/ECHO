@@ -1,6 +1,6 @@
 from enum import Enum
 from dataclasses import field, dataclass
-from typing import List, Union, ClassVar, Optional
+from typing import List, Union, ClassVar, Optional, Dict
 import copy
 
 from arithmetic_expression import is_int_fvalue, is_enum_fvalue, ArithmeticExpr
@@ -68,7 +68,7 @@ class Literal(Predicate):
         self.variables += [arg for arg in self.args
                            if isinstance(arg, Variable)]
 
-    def instatiate(var_val: Dict[Variables, Union[str, int]]) -> 'Literal':
+    def instatiate(var_val: Dict[Variable, Union[str, int]]) -> 'Literal':
 
         args = deepcopy(self.args)
         for idx, arg in enumerate(args):

@@ -1,28 +1,12 @@
 (define (domain no_name)
 	(:requirements :strips :typing :negative-preconditions :mep :no-duplicates)
-	(:predicates (opened) (has_key  ?ag_aunhl - agent) (looking  ?ag_vzvdj - agent) (tail))
-	(:action open
+	(:predicates (owner  ?ag_hhccm - agent ?color_ryaer - color) (free_table) (table  ?color_hjvlf - color))
+	(:action look_up
 		:act_type ontic
-		:parameters (?i - agent)
-		:precondition ([?i](has_key ?i))
-		:effect (opened )
-		:observers (and (forall (diff (?j) (?i)) (when (looking ?j) (?j))) (?i))
-
-	)
-	(:action peek
-		:act_type sensing
-		:parameters (?i - agent)
-		:precondition (and ([?i](opened )) ([?i](looking ?i)))
-		:effect (tail )
-		:observers (and (?i))
-		:p_observers (and (forall (diff (?j) (?i)) (when (looking ?j) (?j))))
-	)
-	(:action announce
-		:act_type announcement
-		:parameters (?i - agent)
-		:precondition ([?i](tail ))
-		:effect (tail )
-		:observers (and (forall (diff (?j) (?i)) (when (looking ?j) (?j))) (?i))
+		:parameters (?a1 - agent ?c1 - color)
+		:precondition ([?a1](free_table ))
+		:effect (when (owner ?a1 ?c1) (owner ?a1 ?c1))
+		:observers (and (?a1))
 
 	)
 )

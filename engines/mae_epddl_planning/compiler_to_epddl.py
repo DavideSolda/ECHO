@@ -47,7 +47,7 @@ def var_param(variable: pd.Variable) -> str:
 
 def parameters(variables: List[pd.Variable]) -> str:
     """from list of pd.Variable to epddl parameters"""
-    variables = list(set(variables))
+    variables = variables
     return ' '.join([var_param(variable)
                      for variable in variables])
 

@@ -1,14 +1,14 @@
 
 from dataclasses import dataclass
 
-from typing import Set, List, Iterator, Tuple, Union
+from typing import Set, List, Iterator, Tuple, Union, Dict
 from predicate import Literal
 from variable import Variable
 from copy import deepcopy
 
 
 def convert_elw(el: Union[Variable, str, int],
-               var_val: Dict[Variables, Union[str, int]]) -> Union[str, int]:
+               var_val: Dict[Variable, Union[str, int]]) -> Union[str, int]:
 
     if isinstance(el, int):
         return el
@@ -31,7 +31,7 @@ class Goal():
                 if literal_1 == (- literal_2):
                     raise Exception(f'Incosistent goal {literal_1} and {literal_2}')
 
-    def instatiate(var_val: Dict[Variables, Union[str, int]]) -> 'Goal':
+    def instatiate(var_val: Dict[Variable, Union[str, int]]) -> 'Goal':
 
         goal = Goal(name=name,
                     arguments=list(map(Union[str, int], self.arguments)),
@@ -66,6 +66,6 @@ class Poset():
         for i in range(0, len(self.representation)-1):
             yield(self.representation[i], self.representation[i+1])
 
-    def instatiate(var_val: Dict[Variables, Union[str, int]]) -> 'Poset':
+    def instatiate(var_val: Dict[Variable, Union[str, int]]) -> 'Poset':
 
         return Poset(list(map(lambda x : x.instatiate(var_val), self.representation)))
