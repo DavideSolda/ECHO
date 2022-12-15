@@ -38,9 +38,6 @@ class IAction():
     def __repr__(self):
         return self.name + '(' + str(self.params) + ')'
 
-InstantiatedIAction = namedtuple('Instantiated_I_Action',
-                                 ['action', 'var_map'])
-
 
 @dataclass(frozen=True)
 class MEActionType(Enum):
@@ -92,4 +89,5 @@ class MEAction():
     def sub_goals(self) -> Union[Poset, List[Literal]]:
         return self._sub_goal
 
-IstantiatedMEAction = TypeVar("Istantiated_MEAction")
+Instantiated_Action = namedtuple('Instantiated_Action',
+                                 ['action', 'var_map'])

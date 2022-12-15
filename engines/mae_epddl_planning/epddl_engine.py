@@ -16,7 +16,7 @@ EFP = os.path.join(CURRENT_DIR, 'sofai',
 EFP_OUTPUT = os.path.join(CURRENT_DIR, TEMP, 'efp_output.txt')
 
 
-def solve(mepproblem: pd.MEPlanningProblem) -> Iterator[pd.IstantiatedMEAction]:
+def solve(mepproblem: pd.MEPlanningProblem) -> Iterator[pd.Instantiated_Action]:
 
     domain_s, problem_s = compile_into_epddl(mepproblem)
     
@@ -52,8 +52,16 @@ def solve(mepproblem: pd.MEPlanningProblem) -> Iterator[pd.IstantiatedMEAction]:
     print(mAp_plan)
     if mAp_plan == ['']:
         return zip([],[])
-    action_name_plan = [re.split('_', act)[0] for act in mAp_plan]
-    instantiated = [re.split('_', act)[1].split('_') for act in mAp_plan]
+
+    action_name_plan = []
+    #collect action names:
+    for action in mAp_plan:
+        action_name_plan.append(action.split('_')[0])
+
+    instantiated = []
+    #collect instantiations:
+    for action in mAp_plan:
+        instantiated.append(action.split('_')[1:])
 
     print(action_name_plan)
     print(instantiated)

@@ -8,6 +8,9 @@ from shortcuts import *
 sys.path.insert(1, os.path.join(current_dir, "..", "engines", 'answer_set_planning'))
 import asp_engine
 
+sys.path.insert(1, os.path.join(current_dir, "..", "engines", 'epicla_planning'))
+import epicla_engine
+
 stack = IntType("stack", 1, 3)
 color = EnumType("color", ["red", "orange", "yellow", "black"])
 agent = AgentType(['alice', 'bob'])
@@ -110,21 +113,29 @@ p.add_initial_values(owner('bob', 'black'))
 p.add_initial_values(owner('bob', 'orange'))
 p.add_initial_values(free_table())
 #add goals:
-p.add_goals(on_block('black', 'orange'))
-p.add_goals(on_table('red'))
-p.add_goals(free_gripper('bob'))
+#p.add_goals(on_block('black', 'orange'))
+#p.add_goals(on_table('red'))
+#p.add_goals(free_gripper('bob'))
+#p.add_goals(*[free_table(), owner('alice', 'black')])
 #solve:
-finally_holds, plan = asp_engine.solve(p)
-print(f"plan of length {len(plan)}")
-print(finally_holds)
-print(plan)
+#finally_holds, plan = asp_engine.solve(p)
+#print(f"plan of length {len(plan)}")
+#print(finally_holds)
+#print(plan)
 
 
-look_up = MEAction('look_up',
-                   params = [A1, C1],
-                   precondition = [B([A1], free_table())],
-                   effects=[When(owner(A1, C1), owner(A1, C1))],
-                   full_obs=[A1])
+pick_from_stack_place_on_table = MEAction('pspt',
+                                          params = [A1, C1],
+                                          precondition = [owner(A1, C1), free_table(), B([A1], free_table())],
+                                          effects=[-owner(A1, C1), on_table(C1), -free_table()],
+                                          full_obs=[A1])
+
+pick_from_table_place_on_stack = MEAction('ptps',
+                                          params = [A1, C1],
+                                          precondition = [-owner(A1, C1), -free_table(),# -B([A1], free_table()),
+                                                          on_table(C1)],
+                                          effects=[owner(A1, C1)],# -on_table(C1), free_table()],
+                                          full_obs=[A1])
 
 
 sys.path.insert(1, os.path.join(current_dir, "..", "engines", 'mae_epddl_planning'))
@@ -144,7 +155,8 @@ e.add_variable(C1)
 e.add_variable(A1)
 e.add_variable(A2)
 #add action:
-e.add_action(look_up)
+e.add_action(pick_from_stack_place_on_table)
+e.add_action(pick_from_table_place_on_stack)
 #add initial values:
 e.add_initial_values(owner('bob', 'red'))
 e.add_initial_values(owner('bob', 'orange'))
@@ -155,6 +167,14 @@ e.add_initial_values(B(['bob', 'alice'], owner('bob', 'orange')))
 e.add_initial_values(B(['bob', 'alice'], owner('bob', 'black')))
 e.add_initial_values(B(['bob', 'alice'], free_table()))
 #add goals:
-e.add_goals(B(['bob', 'alice'], free_table()))
-
+#e.add_goals(free_table(), owner('alice', 'black'))
+e.add_goals(owner('alice', 'black'))#free_table(), owner('alice', 'black'))
 epddl_engine.solve(e)
+
+
+epicla = EpiCla(p, e)
+
+
+epicla_plan = epicla_engine.solve(epicla)
+print('epicla_plan')
+pretty_print_epica_plan(epicla_plan)        

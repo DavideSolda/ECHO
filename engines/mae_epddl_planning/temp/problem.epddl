@@ -7,5 +7,5 @@
 	(:depth 2)
 	(:dynck false)
 	(:init (owner bob red) (owner bob orange) (owner bob black) (free_table ) ([bob alice](owner bob red)) ([bob alice](owner bob orange)) ([bob alice](owner bob black)) ([bob alice](free_table )))
-	(:goal ([bob alice](free_table )))
+	(:goal (owner alice black))
 )

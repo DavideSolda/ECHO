@@ -6,6 +6,7 @@ from classical_asp_encoding import compile_classical_into_asp
 from asp_goal_network_encoding import compile_HGN_into_asp
 from asp_iclingo_like import IncApp
 
+import copy
 import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
 import sys
@@ -24,16 +25,17 @@ def on_model(m):
     print(m)
 
 
-def action_2_instantiated_action(problem: ClassicalPlanningProblem, symbol_action: clingo.Symbol)-> InstantiatedIAction:
+def action_2_instantiated_action(problem: ClassicalPlanningProblem, symbol_action: clingo.Symbol)-> Instantiated_Action:
 
     action = next(act for act in problem.actions if act.name == symbol_action.name)
+    action = copy.deepcopy(action)
     symbol_parameters = symbol_action.arguments
     assert len(action.params) == len(symbol_parameters)
     var_val = {}
     for var, value in zip(action.params, symbol_parameters):
         print(var)
         var_val[var] = int(str(value)) if var.type.is_int_type() else str(value)
-    return InstantiatedIAction(action, var_val)
+    return Instantiated_Action(action, var_val)
 
 
 def correct_argument(struct_type: Type, arguments: clingo.Symbol) -> Union[str, int]:
@@ -61,7 +63,7 @@ def to_problem_literal(fluents: List[Fluent], c_symbol: clingo.Symbol) -> Litera
     assert False
 
 
-def solve(problem: Union[ClassicalPlanningProblem, HierarchicalGoalNetworkProblem]) -> Tuple[List[Predicate], List[InstantiatedIAction]]:
+def solve(problem: Union[ClassicalPlanningProblem, HierarchicalGoalNetworkProblem]) -> Tuple[List[Predicate], List[Instantiated_Action]]:
 
     if isinstance(problem, HierarchicalGoalNetworkProblem):
         asp_encoding = compile_HGN_into_asp(problem)
@@ -112,7 +114,6 @@ def solve(problem: Union[ClassicalPlanningProblem, HierarchicalGoalNetworkProble
     #get maximum timestamp
     max_timestamp = 1
     for fluent in model:
-        print(fluent)
         if fluent.name == 'holds':
             max_timestamp = max(max_timestamp, fluent.arguments[1].number)
     print(f'maximum timestamp {max_timestamp}')
@@ -125,7 +126,6 @@ def solve(problem: Union[ClassicalPlanningProblem, HierarchicalGoalNetworkProble
                 #final_holds.append(str(fluent.arguments[0]))
         elif fluent.name == 'occurs' and fluent.positive:
             operation_name = fluent.arguments[0].name
-            print(operation_name)
             if operation_name in [act.name for act in problem.actions]:
                 action = action_2_instantiated_action(problem, fluent.arguments[0])
                 index = int(str(fluent.arguments[1]))

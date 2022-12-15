@@ -34,18 +34,16 @@ fluent(table(X)):-color(X).
 
 %%%%%%%%%% INITIALLY %%%%%%%%%%
 
-holds(on_stack(red,1), 1).
-holds(on_block(black,red), 1).
-holds(top_block(black), 1).
-holds(on_stack(orange,2), 1).
-holds(top_block(orange), 1).
-holds(free_gripper(bob), 1).
 holds(free_gripper(alice), 1).
-holds(free_stack(3), 1).
+holds(table(black), 1).
+holds(free_gripper(bob), 1).
 holds(owner(bob,red), 1).
-holds(owner(bob,black), 1).
 holds(owner(bob,orange), 1).
-holds(free_table, 1).
+holds(top_block(red), 1).
+holds(top_block(orange), 1).
+holds(free_stack(3), 1).
+holds(on_stack(orange,2), 1).
+holds(on_stack(red,1), 1).
 
 
 %%%%%%%%%% ACTIONS %%%%%%%%%%
@@ -60,69 +58,67 @@ action(place_on_table(R,C1)):-agent(R),color(C1).
 
 %%%%%%%%%% EXECUTABLE %%%%%%%%%%
 
-exec(pick(R,C1,C2),top_block(C1)):-color(C1),color(C2),agent(R).
-exec(pick(R,C1,C2),on_block(C1,C2)):-color(C1),color(C2),agent(R).
-exec(pick(R,C1,C2),free_gripper(R)):-color(C1),color(C2),agent(R).
-exec(pick(R,C1,C2),owner(R,C1)):-color(C1),color(C2),agent(R).
-exec(pick_from_ground(R,C1,S),top_block(C1)):-color(C1),stack(S),agent(R).
-exec(pick_from_ground(R,C1,S),on_stack(C1,S)):-color(C1),stack(S),agent(R).
-exec(pick_from_ground(R,C1,S),free_gripper(R)):-color(C1),stack(S),agent(R).
-exec(pick_from_ground(R,C1,S),owner(R,C1)):-color(C1),stack(S),agent(R).
-exec(place(R,C1,C2),top_block(C2)):-color(C1),color(C2),agent(R).
-exec(place(R,C1,C2),neg(free_gripper(R))):-color(C1),color(C2),agent(R).
-exec(place(R,C1,C2),gripped(R,C1)):-color(C1),color(C2),agent(R).
-exec(place(R,C1,C2),owner(R,C1)):-color(C1),color(C2),agent(R).
-exec(place_on_ground(R,C1,S),free_stack(S)):-color(C1),stack(S),agent(R).
-exec(place_on_ground(R,C1,S),neg(free_gripper(R))):-color(C1),stack(S),agent(R).
-exec(place_on_ground(R,C1,S),gripped(R,C1)):-color(C1),stack(S),agent(R).
-exec(place_on_ground(R,C1,S),owner(R,C1)):-color(C1),stack(S),agent(R).
-exec(pick_from_table(R,C1),table(C1)):-color(C1),agent(R).
-exec(pick_from_table(R,C1),neg(free_table)):-color(C1),agent(R).
-exec(pick_from_table(R,C1),free_gripper(R)):-color(C1),agent(R).
-exec(place_on_table(R,C1),free_table):-color(C1),agent(R).
-exec(place_on_table(R,C1),neg(free_gripper(R))):-color(C1),agent(R).
-exec(place_on_table(R,C1),gripped(R,C1)):-color(C1),agent(R).
-exec(place_on_table(R,C1),owner(R,C1)):-color(C1),agent(R).
+exec(pick(R,C1,C2),top_block(C1)):-agent(R),color(C2),color(C1).
+exec(pick(R,C1,C2),on_block(C1,C2)):-agent(R),color(C2),color(C1).
+exec(pick(R,C1,C2),free_gripper(R)):-agent(R),color(C2),color(C1).
+exec(pick(R,C1,C2),owner(R,C1)):-agent(R),color(C2),color(C1).
+exec(pick_from_ground(R,C1,S),top_block(C1)):-agent(R),stack(S),color(C1).
+exec(pick_from_ground(R,C1,S),on_stack(C1,S)):-agent(R),stack(S),color(C1).
+exec(pick_from_ground(R,C1,S),free_gripper(R)):-agent(R),stack(S),color(C1).
+exec(pick_from_ground(R,C1,S),owner(R,C1)):-agent(R),stack(S),color(C1).
+exec(place(R,C1,C2),top_block(C2)):-agent(R),color(C2),color(C1).
+exec(place(R,C1,C2),neg(free_gripper(R))):-agent(R),color(C2),color(C1).
+exec(place(R,C1,C2),gripped(R,C1)):-agent(R),color(C2),color(C1).
+exec(place(R,C1,C2),owner(R,C1)):-agent(R),color(C2),color(C1).
+exec(place_on_ground(R,C1,S),free_stack(S)):-agent(R),stack(S),color(C1).
+exec(place_on_ground(R,C1,S),neg(free_gripper(R))):-agent(R),stack(S),color(C1).
+exec(place_on_ground(R,C1,S),gripped(R,C1)):-agent(R),stack(S),color(C1).
+exec(place_on_ground(R,C1,S),owner(R,C1)):-agent(R),stack(S),color(C1).
+exec(pick_from_table(R,C1),table(C1)):-agent(R),color(C1).
+exec(pick_from_table(R,C1),neg(free_table)):-agent(R),color(C1).
+exec(pick_from_table(R,C1),free_gripper(R)):-agent(R),color(C1).
+exec(place_on_table(R,C1),free_table):-agent(R),color(C1).
+exec(place_on_table(R,C1),neg(free_gripper(R))):-agent(R),color(C1).
+exec(place_on_table(R,C1),gripped(R,C1)):-agent(R),color(C1).
+exec(place_on_table(R,C1),owner(R,C1)):-agent(R),color(C1).
 
 
 %%%%%%%%%% CAUSES %%%%%%%%%%
 
-causes(pick(R,C1,C2),neg(top_block(C1))):-color(C1),color(C2),agent(R).
-causes(pick(R,C1,C2),neg(on_block(C1,C2))):-color(C1),color(C2),agent(R).
-causes(pick(R,C1,C2),top_block(C2)):-color(C1),color(C2),agent(R).
-causes(pick(R,C1,C2),neg(free_gripper(R))):-color(C1),color(C2),agent(R).
-causes(pick(R,C1,C2),gripped(R,C1)):-color(C1),color(C2),agent(R).
-causes(pick_from_ground(R,C1,S),free_stack(S)):-color(C1),stack(S),agent(R).
-causes(pick_from_ground(R,C1,S),neg(top_block(C1))):-color(C1),stack(S),agent(R).
-causes(pick_from_ground(R,C1,S),neg(on_stack(C1,S))):-color(C1),stack(S),agent(R).
-causes(pick_from_ground(R,C1,S),neg(free_gripper(R))):-color(C1),stack(S),agent(R).
-causes(pick_from_ground(R,C1,S),gripped(R,C1)):-color(C1),stack(S),agent(R).
-causes(place(R,C1,C2),top_block(C1)):-color(C1),color(C2),agent(R).
-causes(place(R,C1,C2),on_block(C1,C2)):-color(C1),color(C2),agent(R).
-causes(place(R,C1,C2),neg(top_block(C2))):-color(C1),color(C2),agent(R).
-causes(place(R,C1,C2),free_gripper(R)):-color(C1),color(C2),agent(R).
-causes(place(R,C1,C2),neg(gripped(R,C1))):-color(C1),color(C2),agent(R).
-causes(place_on_ground(R,C1,S),neg(free_stack(S))):-color(C1),stack(S),agent(R).
-causes(place_on_ground(R,C1,S),top_block(C1)):-color(C1),stack(S),agent(R).
-causes(place_on_ground(R,C1,S),free_gripper(R)):-color(C1),stack(S),agent(R).
-causes(place_on_ground(R,C1,S),neg(gripped(R,C1))):-color(C1),stack(S),agent(R).
-causes(pick_from_table(R,C1),neg(table(C1))):-color(C1),agent(R).
-causes(pick_from_table(R,C1),free_table):-color(C1),agent(R).
-causes(pick_from_table(R,C1),neg(free_gripper(R))):-color(C1),agent(R).
-causes(pick_from_table(R,C1),gripped(R,C1)):-color(C1),agent(R).
-causes(pick_from_table(R,C1),owner(R,C1)):-color(C1),agent(R).
-causes(place_on_table(R,C1),neg(free_table)):-color(C1),agent(R).
-causes(place_on_table(R,C1),neg(owner(R,C1))):-color(C1),agent(R).
-causes(place_on_table(R,C1),table(C1)):-color(C1),agent(R).
-causes(place_on_table(R,C1),free_gripper(R)):-color(C1),agent(R).
-causes(place_on_table(R,C1),neg(gripped(R,C1))):-color(C1),agent(R).
+causes(pick(R,C1,C2),neg(top_block(C1))):-agent(R),color(C2),color(C1).
+causes(pick(R,C1,C2),neg(on_block(C1,C2))):-agent(R),color(C2),color(C1).
+causes(pick(R,C1,C2),top_block(C2)):-agent(R),color(C2),color(C1).
+causes(pick(R,C1,C2),neg(free_gripper(R))):-agent(R),color(C2),color(C1).
+causes(pick(R,C1,C2),gripped(R,C1)):-agent(R),color(C2),color(C1).
+causes(pick_from_ground(R,C1,S),free_stack(S)):-agent(R),stack(S),color(C1).
+causes(pick_from_ground(R,C1,S),neg(top_block(C1))):-agent(R),stack(S),color(C1).
+causes(pick_from_ground(R,C1,S),neg(on_stack(C1,S))):-agent(R),stack(S),color(C1).
+causes(pick_from_ground(R,C1,S),neg(free_gripper(R))):-agent(R),stack(S),color(C1).
+causes(pick_from_ground(R,C1,S),gripped(R,C1)):-agent(R),stack(S),color(C1).
+causes(place(R,C1,C2),top_block(C1)):-agent(R),color(C2),color(C1).
+causes(place(R,C1,C2),on_block(C1,C2)):-agent(R),color(C2),color(C1).
+causes(place(R,C1,C2),neg(top_block(C2))):-agent(R),color(C2),color(C1).
+causes(place(R,C1,C2),free_gripper(R)):-agent(R),color(C2),color(C1).
+causes(place(R,C1,C2),neg(gripped(R,C1))):-agent(R),color(C2),color(C1).
+causes(place_on_ground(R,C1,S),neg(free_stack(S))):-agent(R),stack(S),color(C1).
+causes(place_on_ground(R,C1,S),top_block(C1)):-agent(R),stack(S),color(C1).
+causes(place_on_ground(R,C1,S),free_gripper(R)):-agent(R),stack(S),color(C1).
+causes(place_on_ground(R,C1,S),neg(gripped(R,C1))):-agent(R),stack(S),color(C1).
+causes(pick_from_table(R,C1),neg(table(C1))):-agent(R),color(C1).
+causes(pick_from_table(R,C1),free_table):-agent(R),color(C1).
+causes(pick_from_table(R,C1),neg(free_gripper(R))):-agent(R),color(C1).
+causes(pick_from_table(R,C1),gripped(R,C1)):-agent(R),color(C1).
+causes(pick_from_table(R,C1),owner(R,C1)):-agent(R),color(C1).
+causes(place_on_table(R,C1),neg(free_table)):-agent(R),color(C1).
+causes(place_on_table(R,C1),neg(owner(R,C1))):-agent(R),color(C1).
+causes(place_on_table(R,C1),table(C1)):-agent(R),color(C1).
+causes(place_on_table(R,C1),free_gripper(R)):-agent(R),color(C1).
+causes(place_on_table(R,C1),neg(gripped(R,C1))):-agent(R),color(C1).
 
 
 %%%%%%%%%% GOALS %%%%%%%%%%
 
-goal(on_block(black,orange)).
-goal(table(red)).
-goal(free_gripper(bob)).
+goal(owner(alice,black)).
 
 
 %%%%%%%%%% [[	PROBLEM INDEPENDENT RULES	]] %%%%%%%%%%

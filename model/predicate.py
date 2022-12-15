@@ -68,14 +68,16 @@ class Literal(Predicate):
         self.variables += [arg for arg in self.args
                            if isinstance(arg, Variable)]
 
-    def instatiate(var_val: Dict[Variable, Union[str, int]]) -> 'Literal':
+    def instatiate(self, var_val: Dict[Variable, Union[str, int]]) -> 'Literal':
 
-        args = deepcopy(self.args)
+        args = copy.deepcopy(self.args)
         for idx, arg in enumerate(args):
             if isinstance(arg, Variable):
-                args[idx] = var_val[idx]
-        return Literal(negated = False, types = [self.type], variables = [],
-                       fluent = self.fluent, args=args)
+                args[idx] = var_val[arg]
+        if self.negated:
+            return -self.fluent(*args)
+        else:
+            return self.fluent(*args)
 
 class EqualityOperator(Enum):
 
