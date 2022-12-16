@@ -4,8 +4,7 @@
 %Fluents generated from EPDDL by grounding each predicate (and cheking in :init, :goal and actions for extra predicates)
 %The fluents are lexicographically sorted and printed in sets of 10
 
-fluent free_table, owner_alice_black, owner_alice_orange, owner_alice_red, owner_alice_yellow, owner_bob_black, owner_bob_orange, owner_bob_red, owner_bob_yellow, table_black;
-fluent table_orange, table_red, table_yellow;
+fluent has_key_a, has_key_b, has_key_c, looking_a, looking_b, looking_c, opened, tail;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -13,8 +12,7 @@ fluent table_orange, table_red, table_yellow;
 %%%%%%%%%%%%%%%%%%%%%    ACTIONS' NAMES    %%%%%%%%%%%%%%%%%%%%%
 %Actions' names generated from EPDDL by adding to each action names its grounded predicates
 
-action pspt_alice_red, pspt_alice_orange, pspt_alice_yellow, pspt_alice_black, pspt_bob_red, pspt_bob_orange, pspt_bob_yellow, pspt_bob_black, ptps_alice_red, ptps_alice_orange;
-action ptps_alice_yellow, ptps_alice_black, ptps_bob_red, ptps_bob_orange, ptps_bob_yellow, ptps_bob_black;
+action open_a, open_b, open_c, peek_a, peek_b, peek_c, announce_a, announce_b, announce_c;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -22,7 +20,7 @@ action ptps_alice_yellow, ptps_alice_black, ptps_bob_red, ptps_bob_orange, ptps_
 %%%%%%%%%%%%%%%%%%%%%    AGENTS' NAMES    %%%%%%%%%%%%%%%%%%%%%%
 %Agents' names generated from EPDDL by looking at the 'agent' predicate
 
-agent alice, bob;
+agent a, b, c;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -30,163 +28,93 @@ agent alice, bob;
 %%%%%%%%%%%%%%%%%    ACTIONS' SPECIFICATIONS    %%%%%%%%%%%%%%%%
 %Actions' specifications generated from EPDDL by grounding each action's definition
 
-%%%Action pspt_alice_red
+%%%Action open_a
 
-executable pspt_alice_red if B(alice,free_table), owner_alice_red, free_table;
-pspt_alice_red causes -owner_alice_red;
-pspt_alice_red causes table_red;
-pspt_alice_red causes -free_table;
-alice observes pspt_alice_red;
-
-%%%
-
-%%%Action pspt_alice_orange
-
-executable pspt_alice_orange if B(alice,free_table), owner_alice_orange, free_table;
-pspt_alice_orange causes -owner_alice_orange;
-pspt_alice_orange causes table_orange;
-pspt_alice_orange causes -free_table;
-alice observes pspt_alice_orange;
+executable open_a if B(a,has_key_a);
+open_a causes opened;
+b observes open_a if looking_b;
+c observes open_a if looking_c;
+a observes open_a;
 
 %%%
 
-%%%Action pspt_alice_yellow
+%%%Action open_b
 
-executable pspt_alice_yellow if B(alice,free_table), owner_alice_yellow, free_table;
-pspt_alice_yellow causes -owner_alice_yellow;
-pspt_alice_yellow causes table_yellow;
-pspt_alice_yellow causes -free_table;
-alice observes pspt_alice_yellow;
-
-%%%
-
-%%%Action pspt_alice_black
-
-executable pspt_alice_black if B(alice,free_table), owner_alice_black, free_table;
-pspt_alice_black causes -owner_alice_black;
-pspt_alice_black causes table_black;
-pspt_alice_black causes -free_table;
-alice observes pspt_alice_black;
+executable open_b if B(b,has_key_b);
+open_b causes opened;
+a observes open_b if looking_a;
+c observes open_b if looking_c;
+b observes open_b;
 
 %%%
 
-%%%Action pspt_bob_red
+%%%Action open_c
 
-executable pspt_bob_red if B(bob,free_table), owner_bob_red, free_table;
-pspt_bob_red causes -owner_bob_red;
-pspt_bob_red causes table_red;
-pspt_bob_red causes -free_table;
-bob observes pspt_bob_red;
-
-%%%
-
-%%%Action pspt_bob_orange
-
-executable pspt_bob_orange if B(bob,free_table), owner_bob_orange, free_table;
-pspt_bob_orange causes -owner_bob_orange;
-pspt_bob_orange causes table_orange;
-pspt_bob_orange causes -free_table;
-bob observes pspt_bob_orange;
+executable open_c if B(c,has_key_c);
+open_c causes opened;
+a observes open_c if looking_a;
+b observes open_c if looking_b;
+c observes open_c;
 
 %%%
 
-%%%Action pspt_bob_yellow
+%%%Action peek_a
 
-executable pspt_bob_yellow if B(bob,free_table), owner_bob_yellow, free_table;
-pspt_bob_yellow causes -owner_bob_yellow;
-pspt_bob_yellow causes table_yellow;
-pspt_bob_yellow causes -free_table;
-bob observes pspt_bob_yellow;
-
-%%%
-
-%%%Action pspt_bob_black
-
-executable pspt_bob_black if B(bob,free_table), owner_bob_black, free_table;
-pspt_bob_black causes -owner_bob_black;
-pspt_bob_black causes table_black;
-pspt_bob_black causes -free_table;
-bob observes pspt_bob_black;
+executable peek_a if B(a,looking_a), B(a,opened);
+peek_a determines tail;
+a observes peek_a;
+b aware_of peek_a if looking_b;
+c aware_of peek_a if looking_c;
 
 %%%
 
-%%%Action ptps_alice_red
+%%%Action peek_b
 
-executable ptps_alice_red if -owner_alice_red, -free_table, table_red;
-ptps_alice_red causes owner_alice_red;
-ptps_alice_red causes -table_red;
-ptps_alice_red causes free_table;
-alice observes ptps_alice_red;
-
-%%%
-
-%%%Action ptps_alice_orange
-
-executable ptps_alice_orange if -owner_alice_orange, -free_table, table_orange;
-ptps_alice_orange causes owner_alice_orange;
-ptps_alice_orange causes -table_orange;
-ptps_alice_orange causes free_table;
-alice observes ptps_alice_orange;
+executable peek_b if B(b,looking_b), B(b,opened);
+peek_b determines tail;
+b observes peek_b;
+a aware_of peek_b if looking_a;
+c aware_of peek_b if looking_c;
 
 %%%
 
-%%%Action ptps_alice_yellow
+%%%Action peek_c
 
-executable ptps_alice_yellow if -owner_alice_yellow, -free_table, table_yellow;
-ptps_alice_yellow causes owner_alice_yellow;
-ptps_alice_yellow causes -table_yellow;
-ptps_alice_yellow causes free_table;
-alice observes ptps_alice_yellow;
-
-%%%
-
-%%%Action ptps_alice_black
-
-executable ptps_alice_black if -owner_alice_black, -free_table, table_black;
-ptps_alice_black causes owner_alice_black;
-ptps_alice_black causes -table_black;
-ptps_alice_black causes free_table;
-alice observes ptps_alice_black;
+executable peek_c if B(c,looking_c), B(c,opened);
+peek_c determines tail;
+c observes peek_c;
+a aware_of peek_c if looking_a;
+b aware_of peek_c if looking_b;
 
 %%%
 
-%%%Action ptps_bob_red
+%%%Action announce_a
 
-executable ptps_bob_red if -owner_bob_red, -free_table, table_red;
-ptps_bob_red causes owner_bob_red;
-ptps_bob_red causes -table_red;
-ptps_bob_red causes free_table;
-bob observes ptps_bob_red;
-
-%%%
-
-%%%Action ptps_bob_orange
-
-executable ptps_bob_orange if -owner_bob_orange, -free_table, table_orange;
-ptps_bob_orange causes owner_bob_orange;
-ptps_bob_orange causes -table_orange;
-ptps_bob_orange causes free_table;
-bob observes ptps_bob_orange;
+executable announce_a if B(a,tail);
+announce_a announces tail;
+b observes announce_a if looking_b;
+c observes announce_a if looking_c;
+a observes announce_a;
 
 %%%
 
-%%%Action ptps_bob_yellow
+%%%Action announce_b
 
-executable ptps_bob_yellow if -owner_bob_yellow, -free_table, table_yellow;
-ptps_bob_yellow causes owner_bob_yellow;
-ptps_bob_yellow causes -table_yellow;
-ptps_bob_yellow causes free_table;
-bob observes ptps_bob_yellow;
+executable announce_b if B(b,tail);
+announce_b announces tail;
+a observes announce_b if looking_a;
+c observes announce_b if looking_c;
+b observes announce_b;
 
 %%%
 
-%%%Action ptps_bob_black
+%%%Action announce_c
 
-executable ptps_bob_black if -owner_bob_black, -free_table, table_black;
-ptps_bob_black causes owner_bob_black;
-ptps_bob_black causes -table_black;
-ptps_bob_black causes free_table;
-bob observes ptps_bob_black;
+executable announce_c if B(c,tail);
+announce_c announces tail;
+a observes announce_c if looking_a;
+b observes announce_c if looking_b;
+c observes announce_c;
 
 %%%
 
@@ -197,9 +125,9 @@ bob observes ptps_bob_black;
 %Fluents are considered true when are inserted in :init; otherwise are considered false
 
 %%%True fluents
-initially owner_bob_red, owner_bob_orange, owner_bob_black, free_table;
+initially tail, has_key_a, looking_a;
 %%%False fluents
-initially -owner_alice_black, -owner_alice_yellow, -table_orange, -table_yellow, -table_red, -table_black, -owner_alice_orange, -owner_alice_red, -owner_bob_yellow;
+initially -has_key_b, -opened, -has_key_c, -looking_c, -looking_b;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -207,10 +135,13 @@ initially -owner_alice_black, -owner_alice_yellow, -table_orange, -table_yellow,
 %%%%%%%%%%%%%%%%%%    INITIAL BELIEFS TRUTH   %%%%%%%%%%%%%%%%%%
 %Extracted from the :init field
 
-initially C([bob,alice],owner_bob_black);
-initially C([bob,alice],free_table);
-initially C([bob,alice],owner_bob_red);
-initially C([bob,alice],owner_bob_orange);
+initially C([a,b,c],-has_key_b);
+initially C([a,b,c],-opened);
+initially C([a,b,c],looking_a);
+initially C([a,b,c],-has_key_c);
+initially C([a,b,c],-looking_c);
+initially C([a,b,c],-looking_b);
+initially C([a,b,c],has_key_a);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -218,6 +149,5 @@ initially C([bob,alice],owner_bob_orange);
 %%%%%%%%%%%%%%%%%%%%%%%%%%    GOALS   %%%%%%%%%%%%%%%%%%%%%%%%%%
 %The goals of the plan. Each goal is presented separately to ease the reading
 
-goal free_table;
-goal owner_alice_black;
+goal B(a,tail);
 

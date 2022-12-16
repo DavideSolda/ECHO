@@ -41,8 +41,8 @@ def title_section(title: str) -> str:
     return new_lines + comments + ' ' + title + ' ' + comments + new_lines
 
 
-def literal(predicate: sc.Predicate) -> str:
-    """sc.Predicate to asp representation"""
+def literal(predicate: sc.Literal) -> str:
+    """sc.Literal to asp representation"""
     neg = predicate.negated
     lit_str = ""
     if isinstance(predicate, sc.Literal):
@@ -55,10 +55,14 @@ def literal(predicate: sc.Predicate) -> str:
             return "neg(" + lit_str + ")"
 
         return lit_str
+    assert False
+
+def equality_predicate(predicate: sc.EqualityPredicate) -> str:
+    """sc.EqualityPredicate to asp representation"""
     if isinstance(predicate, sc.EqualityPredicate):
         operator = predicate.operator.value
-        left_val = param_val_2_asp(predicate.args[0])
-        right_val = param_val_2_asp(predicate.args[1])
+        left_val = param_val_2_asp(predicate.left_operand)
+        right_val = param_val_2_asp(predicate.right_operand)
         return left_val + operator + right_val
     assert False
     return ''
@@ -106,7 +110,7 @@ def fluent_2_asp(f: sc.Fluent) -> str:
         s += ",".join([f"{var_type.name}({var})" for var, var_type in l])
         return s
 
-def action_to_asp(action: sc.IAction) -> str:
+def action_to_asp(action: sc.IAction, pre: str = None) -> str:
     name = action.name
     variables = action.params
     s = ''
@@ -117,8 +121,10 @@ def action_to_asp(action: sc.IAction) -> str:
         parameters = ','.join(map(param_val_2_asp, action.params))
         s = f'action({name}({parameters}))'
     if len(variables) > 0:
-        s += f':-{vars_to_asp(variables)}'
-    return s
+        if pre is None:
+            return s + f':-{vars_to_asp(variables)}'
+        else:
+            return s + f':-{vars_to_asp(variables)}, {pre}'
 
 def action_exec(action: sc.IAction, exec_lit: sc.Predicate) -> str:
 
@@ -213,7 +219,14 @@ def compile_classical_into_asp(problem: sc.HierarchicalGoalNetworkProblem) -> st
 
     actions = []
     for action in problem.actions:
-        actions.append(action_to_asp(action))
+        action_equality_conds = []
+        for precond in action.precondition:
+            if isinstance(precond, sc.EqualityPredicate):
+                action_equality_conds.append(equality_predicate(precond))
+        if len(action_equality_conds) == 0:
+            actions.append(action_to_asp(action))
+        else:
+            actions.append(action_to_asp(action, ", ".join(action_equality_conds)))
 
     s += to_asp_lines(actions)
 
@@ -223,7 +236,8 @@ def compile_classical_into_asp(problem: sc.HierarchicalGoalNetworkProblem) -> st
 
     for action in problem.actions:
         for precond in action.precondition:
-            executabilities.append(action_exec(action, precond))
+            if isinstance(precond, sc.Literal):
+                executabilities.append(action_exec(action, precond))
 
     s += to_asp_lines(executabilities)
 

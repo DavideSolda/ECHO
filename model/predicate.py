@@ -108,7 +108,7 @@ class EqualityPredicate(Predicate):
             raise Exception(f"{l} and {r} are not compatible")
 
     def __repr__(self) -> str:
-        return self.left_operand.name + str(self.operator) + self.right_operand.name
+        return f'sc.EqualityPredicate: {self.left_operand}' + str(self.operator) + f'{self.right_operand}'
 
 
 def eq(l: Union[ArithmeticExpr, int, Variable, str],

@@ -33,14 +33,19 @@ class Goal():
 
     def instatiate(self, var_val: Dict[Variable, Union[str, int]]) -> 'Goal':
 
-        goal = Goal(name=name,
-                    arguments=list(map(Union[str, int], self.arguments)),
+        goal = Goal(name=self.name,
+                    arguments=list(map(lambda arg : var_val[arg] if isinstance(arg, Variable)
+                                                                 else arg,
+                                       self.arguments)),
                     literals=list(map(lambda x : x.instatiate(var_val), self.literals)))
         return goal
 
     def __hash__(self):
-        return hash(self.name)
+        return hash(self.name)        
 
+    def __call__(self, *args) -> 'Goal':
+        var_val = dict(zip(self.arguments, list(*args)))
+        return self.instatiate(var_val)
 
 class Poset():
     #Poset for now it is only total order
