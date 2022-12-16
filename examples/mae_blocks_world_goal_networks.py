@@ -73,11 +73,13 @@ top_g      = Goal('top_g', [C1], [top(C1)])
 picked_g   = Goal('picked_g', [R, C1], [gripped(R, C1)])
 on_g       = Goal('on_g', [C1, C2], [on_block(C1, C2)])
 on_table_g = Goal('on_table_g', [C1], [on_table(C1)])
+on_stack_g = Goal('on_stack_g', [C1, S], [on_stack(C1, S)])
+
 
 move_to_top = Method('move_to_top',
                      [R, C1, C2, C3],
                      [on_block(C1, C2), top(C3), neq(C3, C2)],
-                     Poset([#top_g([C1]),
+                     Poset([top_g([C1]),
                             picked_g([R, C1]),
                             on_g([C1, C3]),
                             picked_g([R, C2])])
@@ -86,9 +88,9 @@ move_to_top = Method('move_to_top',
 move_to_ground = Method('move_to_ground',
                         [R, C1, C2, S],
                         [on_block(C1, C2), free_stack(S)],
-                        Poset([#top_g([C1]),
+                        Poset([top_g([C1]),
                                picked_g([R, C1]),
-                               on_table_g([C1]),
+                               on_stack_g([C1, S]),
                                picked_g([R, C2])]
                         ))
 
@@ -155,7 +157,8 @@ p.add_goal(picked_g)
 p.add_goal(on_g)
 p.add_goal(on_table_g)
 
-p.add_poset(Poset([picked_g(["bob", "red"])]))#, on_table_g(["red"])]))
+"""
+#p.add_poset(Poset([picked_g(["bob", "red"]), on_table_g(["red"])]))
 
 fin_holds, plan = asp_engine.solve(p)
 for action in plan:
@@ -163,12 +166,17 @@ for action in plan:
     print()
 
 quit()
+"""
 
 pick_from_stack_place_on_table = MEAction('pspt',
                                           params = [A1, C1],
                                           precondition = [owner(A1, C1), free_table(), B([A1], free_table())],
                                           effects=[-owner(A1, C1), on_table(C1), -free_table()],
                                           full_obs=[A1])
+
+pt = Poset([picked_g([A1, C1]), on_table_g([C1])])
+
+pick_from_stack_place_on_table.classical_sub_goals(pt)
 
 pick_from_table_place_on_stack = MEAction('ptps',
                                           params = [A1, C1],
@@ -177,6 +185,8 @@ pick_from_table_place_on_stack = MEAction('ptps',
                                           effects=[owner(A1, C1), -on_table(C1), free_table()],
                                           full_obs=[A1])
 
+tp = Poset([picked_g([A1, C1]), top_g([C1])])
+pick_from_table_place_on_stack.classical_sub_goals(tp)
 
 sys.path.insert(1, os.path.join(current_dir, "..", "engines", 'mae_epddl_planning'))
 import epddl_engine

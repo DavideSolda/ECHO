@@ -156,6 +156,9 @@ def independent_rules() -> List[str]:
         "{occurs(M,t):method(M)}",
         ":-occurs(A,t), occurs(M,t), A!=M",
 
+        #no action nor method if selected goal is alredy satisfied:
+        ":-occurs(O,t), now_already_sat(G, t), selected_sub_goal(G, T1, t)",
+
         "%action effects:",
         "holds(F, t+1):-action(A), occurs(A,t), causes(A,F)",
 
@@ -165,7 +168,14 @@ def independent_rules() -> List[str]:
         "not_sat(G, t+1):-goal_DNF(G, F), holds(NOTF, t+1), opposite(NOTF ,F), goal(G)",
         "not_sat(G, t+1):-goal_DNF(G, F), fluent(F), not holds(F, t+1), goal(G)",
 
-        "goal_to_sat(G, T1, t+1):- goal_to_sat(G, T1, t), not action_occurs(t)",
+        "now_not_sat(G, t):-goal_DNF(G, F), holds(NOTF, t), opposite(NOTF ,F), goal(G)",
+        "now_not_sat(G, t):-goal_DNF(G, F), fluent(F), not holds(F, t), goal(G)",
+
+        "now_already_sat(G, t):- goal_to_sat(G, T1, t), not now_not_sat(G, t)",
+
+        "not_to_propagate(G, T1, t):- now_already_sat(G, t), selected_sub_goal(G, T1, t)",
+
+        "goal_to_sat(G, T1, t+1):- goal_to_sat(G, T1, t), not action_occurs(t), not not_to_propagate(G, T1, t)",
         "goal_to_sat(G, T1, t+1):- not_sat(G, t+1), goal_to_sat(G, T1, t), action_occurs(t)",
         "#program check(t)",
         ":- goal_to_sat(G, T, t), query(t)"

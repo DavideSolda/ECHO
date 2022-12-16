@@ -17,18 +17,18 @@ Adding to Goal...
 
 Building initial possibility...
 
-Initial Built in 0.000175504 seconds
+Initial Built in 1.13671 seconds
 
-Heuristic Built in 5.522e-06 seconds
+Heuristic Built in 9.381e-06 seconds
 
 
 
-Well Done, Goal found in 0.000450126 :)
+Well Done, Goal found in 11.0289 :)
 
 Plan Length: 2
 
-Solution =  open_a, peek_a
-completed the search in: 0.000450126
+Solution =  pspt_bob_black, ptps_alice_black
+completed the search in: 11.0289
 
 
 

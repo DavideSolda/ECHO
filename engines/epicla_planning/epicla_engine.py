@@ -30,9 +30,8 @@ def extract_classical_effects(effects: List[Literal], var_val: Dict[Variable, st
     return effects
 
 
-def extract_classical_poset(poset: Poset, params: List[Variable],
-                            values: List[str]) -> List[Literal]:
-    var_val = dict(zip(params, values))
+def extract_classical_poset(poset: Poset, var_val: Dict[Variable, str]) -> List[Literal]:
+
     return poset.instatiate(var_val)
 
 
@@ -53,7 +52,7 @@ def solve(epicla: EpiCla) -> Iterator[Union[
 
             var_val = dict(zip(epistemic_action.params, instatiated_variables))
             if isinstance(classical_problem, HierarchicalGoalNetworkProblem):
-                poset = extract_classical_poset(epistemic_action.effects, var_val)
+                poset = extract_classical_poset(epistemic_action.sub_goals, var_val)
                 classical_problem.add_poset(poset)
 
             else:
