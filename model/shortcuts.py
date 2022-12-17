@@ -8,7 +8,8 @@ from problem import ClassicalPlanningProblem, MEPlanningProblem, HierarchicalGoa
 from ftype import Type, BoolType, IntType, EnumType, StructType, AgentType
 from predicate import Predicate, Literal, EqualityPredicate,\
     BeliefPredicate, Forall, eq, neq, B,\
-    BooleanPredicate, BooleanOperator, EqualityOperator, When, Forall
+    BooleanPredicate, BooleanOperator, EqualityOperator, When, Forall,\
+    conj, disj
 from method import Method
 from goal import Goal, Poset
 

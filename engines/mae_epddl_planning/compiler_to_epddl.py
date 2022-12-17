@@ -114,11 +114,11 @@ def pred(_predicate: pd.Predicate, prob=False) -> str:
         epddl_pred = f'{agents}({prop})'
     elif isinstance(_predicate, pd.BooleanPredicate):
         op = _predicate.op.value
-        l_pred = pred(_predicate.left_predicate())
-        r_pred = pred(_predicate.right_predicate())
+        l_pred = pred(_predicate.left_predicate, prob)
+        r_pred = pred(_predicate.right_predicate, prob)
         return op + ' (' + l_pred + ') (' + r_pred + ')'
     elif isinstance(_predicate, pd.When):
-        epddl_pred = f'when ({pred(_predicate.body)}) ({pred(_predicate.head)})'
+        epddl_pred = f'when ({pred(_predicate.body, prob)}) ({pred(_predicate.head, prob)})'
     else:
         assert False
     if neg:

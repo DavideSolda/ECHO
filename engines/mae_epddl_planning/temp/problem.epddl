@@ -1,11 +1,11 @@
 (define (problem no_name)
 	(:objects
-		red orange - color
+		red orange yellow - color
 	)
 	(:domain no_name)
 	(:agents alice bob)
 	(:depth 2)
 	(:dynck false)
-	(:init (owner bob red) (owner bob orange) (free_table ) ([bob alice](free_table )) ([bob alice](not (table red))) ([bob alice](not (table orange))))
+	(:init (owner bob red) (owner bob orange) (owner alice yellow) (free_table ) ([bob alice](free_table )) ([bob alice](not (table red))) ([bob alice](not (table yellow))) ([bob alice](not (table orange))))
 	(:goal ([alice bob](owner alice red)) ([alice bob](owner alice orange)))
 )

@@ -28,7 +28,11 @@ class Predicate():
         return BooleanPredicate(BooleanOperator.AND, pl, pr)
 
     def __or__(self, pl: 'Predicate', pr: 'Predicate') -> 'BooleanPredicate':
+        print(BooleanPredicate(BooleanOperator.OR, pl, pr))
+        quit()
         return BooleanPredicate(BooleanOperator.OR, pl, pr)
+
+
 
 
 class BooleanOperator(Enum):
@@ -43,12 +47,20 @@ class BooleanPredicate(Predicate):
     op: BooleanOperator
     left_predicate: Predicate
     right_predicate: Predicate
-
+    
     def __post_init__(self):
         """just add info about variables and types"""
         super().__post_init__()
-        self.variables = left_predicate.variables + right_predicate.variables
-        self.types = left_predicate.types + right_predicate.types
+        self.variables = self.left_predicate.variables + self.right_predicate.variables
+        self.types = self.left_predicate.types + self.right_predicate.types
+
+
+def conj(lp, rp) -> BooleanPredicate:
+    return BooleanPredicate(False, [], [], BooleanOperator.AND, lp, rp)
+
+
+def disj(lp, rp) -> BooleanPredicate:
+    return BooleanPredicate(False, [], [], BooleanOperator.OR, lp, rp)
 
 
 @dataclass

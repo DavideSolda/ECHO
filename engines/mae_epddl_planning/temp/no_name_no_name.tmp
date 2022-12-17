@@ -4,7 +4,7 @@
 %Fluents generated from EPDDL by grounding each predicate (and cheking in :init, :goal and actions for extra predicates)
 %The fluents are lexicographically sorted and printed in sets of 10
 
-fluent free_table, owner_alice_orange, owner_alice_red, owner_bob_orange, owner_bob_red, table_orange, table_red;
+fluent free_table, owner_alice_orange, owner_alice_red, owner_alice_yellow, owner_bob_orange, owner_bob_red, owner_bob_yellow, table_orange, table_red, table_yellow;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -12,8 +12,9 @@ fluent free_table, owner_alice_orange, owner_alice_red, owner_bob_orange, owner_
 %%%%%%%%%%%%%%%%%%%%%    ACTIONS' NAMES    %%%%%%%%%%%%%%%%%%%%%
 %Actions' names generated from EPDDL by adding to each action names its grounded predicates
 
-action lookup_alice_red, lookup_alice_orange, lookup_bob_red, lookup_bob_orange, pickfromtableplaceonstack_alice_red, pickfromtableplaceonstack_alice_orange, pickfromtableplaceonstack_bob_red, pickfromtableplaceonstack_bob_orange, pickfromstackplaceontable_alice_red, pickfromstackplaceontable_alice_orange;
-action pickfromstackplaceontable_bob_red, pickfromstackplaceontable_bob_orange, announceontable_alice_red, announceontable_alice_orange, announceontable_bob_red, announceontable_bob_orange, announcefreetable_alice, announcefreetable_bob;
+action lookup_alice_red, lookup_alice_orange, lookup_alice_yellow, lookup_bob_red, lookup_bob_orange, lookup_bob_yellow, pickfromtableplaceonstack_alice_red, pickfromtableplaceonstack_alice_orange, pickfromtableplaceonstack_alice_yellow, pickfromtableplaceonstack_bob_red;
+action pickfromtableplaceonstack_bob_orange, pickfromtableplaceonstack_bob_yellow, pickfromstackplaceontable_alice_red, pickfromstackplaceontable_alice_orange, pickfromstackplaceontable_alice_yellow, pickfromstackplaceontable_bob_red, pickfromstackplaceontable_bob_orange, pickfromstackplaceontable_bob_yellow, announceontable_alice_red, announceontable_alice_orange;
+action announceontable_alice_yellow, announceontable_bob_red, announceontable_bob_orange, announceontable_bob_yellow, announcefreetable_alice, announcefreetable_bob;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -45,6 +46,14 @@ alice observes lookup_alice_orange;
 
 %%%
 
+%%%Action lookup_alice_yellow
+
+executable lookup_alice_yellow;
+lookup_alice_yellow determines owner_alice_yellow if owner_alice_yellow;
+alice observes lookup_alice_yellow;
+
+%%%
+
 %%%Action lookup_bob_red
 
 executable lookup_bob_red;
@@ -58,6 +67,14 @@ bob observes lookup_bob_red;
 executable lookup_bob_orange;
 lookup_bob_orange determines owner_bob_orange if owner_bob_orange;
 bob observes lookup_bob_orange;
+
+%%%
+
+%%%Action lookup_bob_yellow
+
+executable lookup_bob_yellow;
+lookup_bob_yellow determines owner_bob_yellow if owner_bob_yellow;
+bob observes lookup_bob_yellow;
 
 %%%
 
@@ -81,6 +98,16 @@ alice observes pickfromtableplaceonstack_alice_orange;
 
 %%%
 
+%%%Action pickfromtableplaceonstack_alice_yellow
+
+executable pickfromtableplaceonstack_alice_yellow if B(alice,table_yellow), -free_table, -owner_alice_yellow, -free_table, table_yellow;
+pickfromtableplaceonstack_alice_yellow causes owner_alice_yellow;
+pickfromtableplaceonstack_alice_yellow causes -table_yellow;
+pickfromtableplaceonstack_alice_yellow causes free_table;
+alice observes pickfromtableplaceonstack_alice_yellow;
+
+%%%
+
 %%%Action pickfromtableplaceonstack_bob_red
 
 executable pickfromtableplaceonstack_bob_red if B(bob,table_red), -free_table, -owner_bob_red, -free_table, table_red;
@@ -98,6 +125,16 @@ pickfromtableplaceonstack_bob_orange causes owner_bob_orange;
 pickfromtableplaceonstack_bob_orange causes -table_orange;
 pickfromtableplaceonstack_bob_orange causes free_table;
 bob observes pickfromtableplaceonstack_bob_orange;
+
+%%%
+
+%%%Action pickfromtableplaceonstack_bob_yellow
+
+executable pickfromtableplaceonstack_bob_yellow if B(bob,table_yellow), -free_table, -owner_bob_yellow, -free_table, table_yellow;
+pickfromtableplaceonstack_bob_yellow causes owner_bob_yellow;
+pickfromtableplaceonstack_bob_yellow causes -table_yellow;
+pickfromtableplaceonstack_bob_yellow causes free_table;
+bob observes pickfromtableplaceonstack_bob_yellow;
 
 %%%
 
@@ -121,6 +158,16 @@ alice observes pickfromstackplaceontable_alice_orange;
 
 %%%
 
+%%%Action pickfromstackplaceontable_alice_yellow
+
+executable pickfromstackplaceontable_alice_yellow if B(alice,owner_alice_yellow), B(alice,free_table), owner_alice_yellow, free_table;
+pickfromstackplaceontable_alice_yellow causes -owner_alice_yellow;
+pickfromstackplaceontable_alice_yellow causes table_yellow;
+pickfromstackplaceontable_alice_yellow causes -free_table;
+alice observes pickfromstackplaceontable_alice_yellow;
+
+%%%
+
 %%%Action pickfromstackplaceontable_bob_red
 
 executable pickfromstackplaceontable_bob_red if B(bob,owner_bob_red), B(bob,free_table), owner_bob_red, free_table;
@@ -138,6 +185,16 @@ pickfromstackplaceontable_bob_orange causes -owner_bob_orange;
 pickfromstackplaceontable_bob_orange causes table_orange;
 pickfromstackplaceontable_bob_orange causes -free_table;
 bob observes pickfromstackplaceontable_bob_orange;
+
+%%%
+
+%%%Action pickfromstackplaceontable_bob_yellow
+
+executable pickfromstackplaceontable_bob_yellow if B(bob,owner_bob_yellow), B(bob,free_table), owner_bob_yellow, free_table;
+pickfromstackplaceontable_bob_yellow causes -owner_bob_yellow;
+pickfromstackplaceontable_bob_yellow causes table_yellow;
+pickfromstackplaceontable_bob_yellow causes -free_table;
+bob observes pickfromstackplaceontable_bob_yellow;
 
 %%%
 
@@ -163,6 +220,17 @@ bob observes announceontable_alice_orange;
 
 %%%
 
+%%%Action announceontable_alice_yellow
+
+executable announceontable_alice_yellow if B(alice,table_yellow), table_yellow;
+announceontable_alice_yellow announces -owner_alice_yellow;
+announceontable_alice_yellow announces table_yellow;
+announceontable_alice_yellow announces -free_table;
+alice observes announceontable_alice_yellow;
+bob observes announceontable_alice_yellow;
+
+%%%
+
 %%%Action announceontable_bob_red
 
 executable announceontable_bob_red if B(bob,table_red), table_red;
@@ -182,6 +250,17 @@ announceontable_bob_orange announces table_orange;
 announceontable_bob_orange announces -free_table;
 alice observes announceontable_bob_orange;
 bob observes announceontable_bob_orange;
+
+%%%
+
+%%%Action announceontable_bob_yellow
+
+executable announceontable_bob_yellow if B(bob,table_yellow), table_yellow;
+announceontable_bob_yellow announces -owner_bob_yellow;
+announceontable_bob_yellow announces table_yellow;
+announceontable_bob_yellow announces -free_table;
+alice observes announceontable_bob_yellow;
+bob observes announceontable_bob_yellow;
 
 %%%
 
@@ -210,9 +289,9 @@ bob observes announcefreetable_bob;
 %Fluents are considered true when are inserted in :init; otherwise are considered false
 
 %%%True fluents
-initially owner_bob_red, owner_bob_orange, free_table;
+initially owner_bob_red, owner_bob_orange, owner_alice_yellow, free_table;
 %%%False fluents
-initially -table_orange, -table_red, -owner_alice_red, -owner_alice_orange;
+initially -table_yellow, -owner_alice_red, -table_orange, -owner_alice_orange, -owner_bob_yellow, -table_red;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -220,9 +299,10 @@ initially -table_orange, -table_red, -owner_alice_red, -owner_alice_orange;
 %%%%%%%%%%%%%%%%%%    INITIAL BELIEFS TRUTH   %%%%%%%%%%%%%%%%%%
 %Extracted from the :init field
 
+initially C([bob,alice],-table_yellow);
+initially C([bob,alice],-table_orange);
 initially C([bob,alice],free_table);
 initially C([bob,alice],-table_red);
-initially C([bob,alice],-table_orange);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
