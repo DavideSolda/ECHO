@@ -48,7 +48,7 @@ def solve(epicla: EpiCla) -> Iterator[Union[
 
     for epistemic_action, instatiated_variables in epistemic_plan:
 
-        if epistemic_action.type == pd.MEActionType.ontic:
+        if epistemic_action.type is pd.MEActionType.ontic:
 
             var_val = dict(zip(epistemic_action.params, instatiated_variables))
             if isinstance(classical_problem, HierarchicalGoalNetworkProblem):
@@ -62,7 +62,7 @@ def solve(epicla: EpiCla) -> Iterator[Union[
             final_state, plan = asp_engine.solve(classical_problem)
 
             
-            epicla_plan.append((epistemic_action, plan))
+            epicla_plan += plan
 
             if isinstance(classical_problem, HierarchicalGoalNetworkProblem):
                 classical_problem.reset_poset()

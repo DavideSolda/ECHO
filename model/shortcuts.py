@@ -17,9 +17,5 @@ def pretty_print_epica_plan(epicla_plan: List[Union[Instantiated_Action,
                                                     Tuple[Instantiated_Action,
                                                           List[Instantiated_Action]]]]) -> None:
     for action in epicla_plan:
-        if isinstance(action, Instantiated_Action):
             print(action)
-        else:
-            for sub_action in action[1]:
-                print(sub_action)
 
