@@ -61,8 +61,8 @@ def solve(epicla: EpiCla) -> Iterator[Union[
 
             final_state, plan = asp_engine.solve(classical_problem)
 
-            
-            epicla_plan += plan
+            epicla_plan.append(epistemic_action)
+            #epicla_plan += plan
 
             if isinstance(classical_problem, HierarchicalGoalNetworkProblem):
                 classical_problem.reset_poset()

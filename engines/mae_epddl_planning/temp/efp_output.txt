@@ -1,5 +1,4 @@
 EFP version 2.0 - Built date: Thu Dec  1 17:00:44 CET 2022
-We select the state with the highest number of satisfied subgoals.
 
 Building agent list...
 
@@ -17,18 +16,16 @@ Adding to Goal...
 
 Building initial possibility...
 
-Initial Built in 0.000294062 seconds
-
-Heuristic Built in 5.786e-06 seconds
+Initial Built in 0.00108095 seconds
 
 
 
-Well Done, Goal found in 0.0100973 :)
+Well Done, Goal found in 31.3605 :)
 
-Plan Length: 3
+Plan Length: 5
 
-Solution =  lookup_bob_red, pspt_bob_red, ptps_alice_red
-completed the search in: 0.0100973
+Solution =  lookup_bob_orange, pickfromstackplaceontable_bob_orange, announceontable_bob_orange, pickfromtableplaceonstack_alice_orange, announcefreetable_alice
+completed the search in: 31.3605
 
 
 

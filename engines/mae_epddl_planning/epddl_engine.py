@@ -38,7 +38,7 @@ def solve(mepproblem: pd.MEPlanningProblem) -> Iterator[pd.Instantiated_Action]:
 
     print(mAp_f)
 
-    os.system(f'''{EFP} {mAp_f}   -h SUBGOALS > {EFP_OUTPUT}''')
+    os.system(f'''{EFP} {mAp_f} > {EFP_OUTPUT}''')
     #os.system(f'''{EFP} {mAp_f}  -st KRIPKE_OPT -h SUBGOALS > {EFP_OUTPUT}''')
     #  read mAp plan
     mAp_plan = []

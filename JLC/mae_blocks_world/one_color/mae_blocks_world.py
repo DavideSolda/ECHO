@@ -3,9 +3,9 @@ import sys
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(1, os.path.join(current_dir, "..", "..", "..", "model"))
-from shortcuts import *
-
 sys.path.insert(1, os.path.join(current_dir, "..", "..", "..", "engines", 'epicla_planning'))
+
+from shortcuts import *
 import epicla_engine
 
 stack = IntType("stack", 1, 6)
@@ -36,7 +36,7 @@ A2 = Variable("a2", agent)
 R  = Variable("R", agent)
 
 def run(color: EnumType, initially: List[Literal],
-        epistemic_initially: List[Predicate], goals:List[Predicate]) -> None:
+        epistemic_initially: List[Predicate], goals:List[Predicate], macro: bool) -> None:
 
     pick = IAction(name = "pick",
                    params = [R, C1, C2],
@@ -92,47 +92,94 @@ def run(color: EnumType, initially: List[Literal],
 
     p.add_initial_values(*initially)    
 
+
+    #Macro definition:
+    pick_from_stack_place_on_table_ann = MEAction('announcepickfromstackplaceontablemacro',
+                                                  params = [A1, C1],
+                                                  precondition = [owner(A1, C1), free_table(),
+                                                                  B([A1], owner(A1, C1))],
+                                                  effects=[-owner(A1, C1), on_table(C1), -free_table()],
+                                                  full_obs=[Forall(A2, who=A2)])
+
+    pick_from_table_place_on_stack_ann = MEAction('announcepickfromtableplaceonstackmacro',
+                                                  params = [A1, C1],
+                                                  precondition = [-owner(A1, C1), -free_table(),
+                                                                  on_table(C1), B([A1], on_table(C1))],
+                                                  effects=[owner(A1, C1), -on_table(C1), free_table()],
+                                                  full_obs=[Forall(A2, who=A2)])
+
+    #Sensing action to collect info:
     look_up = MEAction('lookup',
                        type = MEActionType.sensing,
                        params = [A1, C1],
                        precondition = [],
                        effects=[When(owner(A1, C1), owner(A1, C1))],
                        full_obs=[A1])
-    
-    pick_from_stack_place_on_table = MEAction('pspt',
-                                              params = [A1, C1],
-                                              precondition = [owner(A1, C1), free_table(), B([A1], owner(A1, C1))],
-                                              effects=[-owner(A1, C1), on_table(C1), -free_table()],
-                                              full_obs=[Forall(A2, who=A2)])
-    
-    pick_from_table_place_on_stack = MEAction('ptps',
-                                              params = [A1, C1],
-                                              precondition = [-owner(A1, C1), -free_table(),# -B([A1], free_table()),
-                                                              on_table(C1)],
-                                              effects=[owner(A1, C1), -on_table(C1), free_table()],
-                                              full_obs=[Forall(A2, who=A2)])
 
+    #ontic actions to move blocks:
+    pick_from_table_place_on_stack = MEAction('pickfromtableplaceonstack',
+                                              params = [A1, C1],
+                                              precondition = [-free_table(), -owner(A1, C1), -free_table(),
+                                                              on_table(C1), B([A1], on_table(C1))],
+                                              effects=[owner(A1, C1), -on_table(C1), free_table()],
+                                              full_obs=[A1])
+
+    pick_from_stack_place_on_table = MEAction('pickfromstackplaceontable',
+                                              params = [A1, C1],
+                                              precondition = [owner(A1, C1), free_table(),
+                                                              B([A1], free_table()),
+                                                              B([A1], owner(A1, C1))],
+                                              effects=[-owner(A1, C1), on_table(C1), -free_table()],
+                                              full_obs=[A1])
+
+    #annoucements:
+    announce_on_table = MEAction('announceontable',
+                                 type = MEActionType.announcement,
+                                 params = [A1, C1],
+                                 precondition = [on_table(C1), B([A1], on_table(C1))],
+                                 effects=[-owner(A1, C1), on_table(C1), -free_table()],
+                                 full_obs=[Forall(A2, who=A2)])
+
+    announce_free_table = MEAction('announcefreetable',
+                                 type = MEActionType.announcement,
+                                 params = [A1],
+                                 precondition = [free_table(), B([A1], free_table())],
+                                 effects=[free_table()],
+                                 full_obs=[Forall(A2, who=A2)])
 
     
     e = MEPlanningProblem()
+
     #add types:
     e.add_type(agent)
     e.add_type(color)
     e.add_type(agent_color)
+
     #add fluents:
     e.add_fluent(owner)
     e.add_fluent(free_table)
     e.add_fluent(on_table)
+
     #add variables:
     e.add_variable(C1)
     e.add_variable(A1)
     e.add_variable(A2)
+
     #add action:
-    e.add_action(pick_from_stack_place_on_table)
-    e.add_action(pick_from_table_place_on_stack)
-    e.add_action(look_up)
+    for act in [look_up,
+                pick_from_table_place_on_stack, pick_from_stack_place_on_table,
+                announce_on_table, announce_free_table]:
+        e.add_action(act)
+
+    #add macro:
+    if macro:
+        for act in [pick_from_stack_place_on_table_ann, pick_from_table_place_on_stack_ann]:
+            e.add_action(act)
+
+    
     #add initial values:
     e.add_initial_values(*epistemic_initially)
+
     #add goals:
     for goal in goals:
         e.add_goals(goal)
