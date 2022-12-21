@@ -45,7 +45,7 @@ if __name__ == '__main__':
     three_color_time = []
     for goal in [alpha, beta, gamma, delta]:
         t = time.time()
-        run(color, initially, epistemic_initially, goal, True)
+        run(color, initially, epistemic_initially, goal, False)
         three_color_time.append(time.time()-t)
 
     print(three_color_time)

@@ -10,7 +10,7 @@ import epicla_engine
 
 stack = IntType("stack", 1, 6)
 agent = AgentType(['alice', 'bob'])
-color = EnumType("color", ["red", "orange"])
+color = EnumType("color", ["red", "orange", "yellow"])
 
 color_pair = StructType("colorxcolor", [color, color])
 color_stack = StructType("colorxstack", [color, stack])
@@ -189,4 +189,5 @@ def run(color: EnumType, initially: List[Literal],
     
     epicla_plan = epicla_engine.solve(epicla)
     print('epicla_plan')
-    pretty_print_epica_plan(epicla_plan)
+    pretty_print_epica_plan(epicla_plan)        
+    

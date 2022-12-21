@@ -291,7 +291,7 @@ bob observes announcefreetable_bob;
 %%%True fluents
 initially owner_bob_red, owner_bob_orange, owner_alice_yellow, free_table;
 %%%False fluents
-initially -table_yellow, -owner_alice_red, -table_orange, -owner_alice_orange, -owner_bob_yellow, -table_red;
+initially -table_yellow, -table_orange, -owner_bob_yellow, -owner_alice_red, -owner_alice_orange, -table_red;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -300,8 +300,8 @@ initially -table_yellow, -owner_alice_red, -table_orange, -owner_alice_orange, -
 %Extracted from the :init field
 
 initially C([bob,alice],-table_yellow);
-initially C([bob,alice],-table_orange);
 initially C([bob,alice],free_table);
+initially C([bob,alice],-table_orange);
 initially C([bob,alice],-table_red);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
