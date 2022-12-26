@@ -16,7 +16,7 @@ EFP = os.path.join(CURRENT_DIR, 'sofai',
 EFP_OUTPUT = os.path.join(CURRENT_DIR, TEMP, 'efp_output.txt')
 
 
-def solve(mepproblem: pd.MEPlanningProblem) -> Iterator[pd.Instantiated_Action]:
+def solve_mae(mepproblem: pd.MEPlanningProblem) -> Iterator[pd.Instantiated_Action]:
 
     domain_s, problem_s = compile_into_epddl(mepproblem)
     

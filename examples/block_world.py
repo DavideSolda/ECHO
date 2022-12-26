@@ -80,7 +80,7 @@ p.add_initial_values(free_stack(3))
 p.add_goals(on_block('black', 'orange'))
 p.add_goals(free_gripper())
 #solve:
-finally_holds, plan = solve(p)
+finally_holds, plan = solve_classical(p)
 print(f"plan of length {len(plan)}")
 print(finally_holds)
 print(plan)

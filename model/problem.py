@@ -269,7 +269,7 @@ class MEPlanningProblem(PlanningProblem):
         self._domain.append(action)
 
 @dataclass(repr=False)
-class EpiCla():
+class ECHOPlanningProblem():
 
     classical_problem: ClassicalPlanningProblem
     meap_problem: MEPlanningProblem

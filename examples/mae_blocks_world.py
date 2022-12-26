@@ -8,8 +8,8 @@ from shortcuts import *
 sys.path.insert(1, os.path.join(current_dir, "..", "engines", 'answer_set_planning'))
 import asp_engine
 
-sys.path.insert(1, os.path.join(current_dir, "..", "engines", 'epicla_planning'))
-import epicla_engine
+sys.path.insert(1, os.path.join(current_dir, "..", "engines", 'echo_planning'))
+import echo_engine
 
 stack = IntType("stack", 1, 3)
 color = EnumType("color", ["red", "orange", "yellow", "black"])
@@ -169,9 +169,9 @@ e.add_goals(free_table(), owner('alice', 'black'))
 epddl_engine.solve(e)
 
 
-epicla = EpiCla(p, e)
+echo_problem = ECHO(p, e)
 
 
-epicla_plan = epicla_engine.solve(epicla)
-print('epicla_plan')
-pretty_print_epica_plan(epicla_plan)        
+echo_plan = echo_problem.solve_echo(echo_problem)
+print('echo_plan')
+#pretty_print_echo_plan(echo_plan)        

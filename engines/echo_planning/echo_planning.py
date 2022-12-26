@@ -35,16 +35,16 @@ def extract_classical_poset(poset: Poset, var_val: Dict[Variable, str]) -> List[
     return poset.instatiate(var_val)
 
 
-def solve(epicla: EpiCla) -> Iterator[Union[
+def solve_echo(echo: ECHO) -> Iterator[Union[
         Instantiated_Action,
         Tuple[Instantiated_Action, List[Instantiated_Action]]
 ]]:
 
-    meap_problem = epicla.meap_problem
-    classical_problem = epicla.classical_problem
+    meap_problem = echo.meap_problem
+    classical_problem = echo.classical_problem
 
-    epicla_plan = []
-    epistemic_plan = epddl_engine.solve(meap_problem)
+    echo_plan = []
+    epistemic_plan = epddl_engine.solve_mae(meap_problem)
 
     for epistemic_action, instatiated_variables in epistemic_plan:
 
@@ -59,9 +59,9 @@ def solve(epicla: EpiCla) -> Iterator[Union[
                 effects = extract_classical_effects(epistemic_action.effects, var_val)
                 classical_problem.add_goals(*effects)
 
-            final_state, plan = asp_engine.solve(classical_problem)
+            final_state, plan = asp_engine.solve_classical(classical_problem)
 
-            epicla_plan.append(epistemic_action)
+            echo_plan.append(epistemic_action)
             #epicla_plan += plan
 
             if isinstance(classical_problem, HierarchicalGoalNetworkProblem):
@@ -74,6 +74,6 @@ def solve(epicla: EpiCla) -> Iterator[Union[
             classical_problem.add_initial_values(*final_state)
 
         else:
-            epicla_plan.append(epistemic_action)
+            echo_plan.append(epistemic_action)
 
-    return epicla_plan
+    return echo_plan

@@ -62,7 +62,7 @@ def to_problem_literal(fluents: List[Fluent], c_symbol: clingo.Symbol) -> Litera
     assert False
 
 
-def solve(problem: Union[ClassicalPlanningProblem, HierarchicalGoalNetworkProblem]) -> Tuple[List[Predicate], List[Instantiated_Action]]:
+def solve_classical(problem: Union[ClassicalPlanningProblem, HierarchicalGoalNetworkProblem]) -> Tuple[List[Predicate], List[Instantiated_Action]]:
 
     if isinstance(problem, HierarchicalGoalNetworkProblem):
         asp_encoding = compile_HGN_into_asp(problem)

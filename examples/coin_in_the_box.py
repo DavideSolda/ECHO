@@ -82,6 +82,6 @@ coininthebox.add_initial_values(tail(),
                                    B(['a', 'b', 'c'], -looking('c')))
 
 coininthebox.add_goals(B(['a'], tail()))
-res = solve(coininthebox)
+res = solve_mae(coininthebox)
 for action, var_inst in res:
     print(action.name, f'{var_inst}')
