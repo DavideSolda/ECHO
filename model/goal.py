@@ -1,10 +1,13 @@
-
+import sys, os
 from dataclasses import dataclass
-
 from typing import Set, List, Iterator, Tuple, Union, Dict
-from predicate import Literal
-from variable import Variable
 from copy import deepcopy
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(1, current_dir)
+
+from .predicate import Literal
+from .variable import Variable
 
 
 def convert_elw(el: Union[Variable, str, int],

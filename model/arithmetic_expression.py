@@ -2,11 +2,14 @@
 module for definition of Variable and ArithmeticExpr
 which are the possible arguments of a predicate
 """
+import os, sys
 from typing import List, Union
 from enum import Enum
 
-from ftype import IntType, EnumType
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(1, current_dir)
 
+from .ftype import IntType, EnumType
 
 class ArithmeticOperator(Enum):
     """Arithmetic operators"""

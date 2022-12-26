@@ -1,11 +1,14 @@
 """This modul contains Methods classes"""
-
+import sys, os
 from dataclasses import dataclass
 from typing import List
 
-from goal import Goal, Poset
-from variable import Variable
-from predicate import Literal
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(1, current_dir)
+
+from .goal import Goal, Poset
+from .variable import Variable
+from .predicate import Literal
 
 @dataclass
 class Method():

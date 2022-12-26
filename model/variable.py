@@ -2,10 +2,14 @@
 module for definition of Variable and ArithmeticExpr
 which are the possible arguments of a predicate
 """
+import sys, os
 from dataclasses import dataclass
 
-from ftype import Type, BoolType, AgentType
-from arithmetic_expression import ArithmeticExpr, is_int_fvalue, \
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(1, current_dir)
+
+from .ftype import Type, BoolType, AgentType
+from .arithmetic_expression import ArithmeticExpr, is_int_fvalue, \
     ArithmeticOperator
 
 

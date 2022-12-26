@@ -1,11 +1,15 @@
-from enum import Enum
+import sys, os
 from dataclasses import field, dataclass
 from typing import List, Union, ClassVar, Optional, Dict
 import copy
+from enum import Enum
 
-from arithmetic_expression import is_int_fvalue, is_enum_fvalue, ArithmeticExpr
-from variable import Variable
-from ftype import Type, AgentType
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(1, current_dir)
+
+from .arithmetic_expression import is_int_fvalue, is_enum_fvalue, ArithmeticExpr
+from .variable import Variable
+from .ftype import Type, AgentType
 
 
 @dataclass

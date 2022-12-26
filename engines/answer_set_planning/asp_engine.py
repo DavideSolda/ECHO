@@ -1,18 +1,18 @@
 from typing import Tuple, List, Dict, Union
 import clingo
 from clingo.application import clingo_main, Application, ApplicationOptions
-
-from classical_asp_encoding import compile_classical_into_asp
-from asp_goal_network_encoding import compile_HGN_into_asp
-from asp_iclingo_like import IncApp
-
 import copy
 import os
-current_dir = os.path.dirname(os.path.abspath(__file__))
 import sys
-sys.path.insert(1, os.path.join(current_dir, '..', '..', 'model'))
-from shortcuts import *
 
+from .classical_asp_encoding import compile_classical_into_asp
+from .asp_goal_network_encoding import compile_HGN_into_asp
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(1, os.path.join(current_dir, '..', '..'))
+
+from model import *
+                                                                                           
 MAX_STEP = 30
 
 class Context:

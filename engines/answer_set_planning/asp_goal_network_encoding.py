@@ -1,16 +1,18 @@
 from typing import List, Union
-
-import os
-current_dir = os.path.dirname(os.path.abspath(__file__))
 import sys
-sys.path.insert(1, os.path.join(current_dir, '..', 'model'))
-import shortcuts as sc
+import os
 
-from classical_asp_encoding import enum_values, int_values, struct_values,\
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+from .classical_asp_encoding import enum_values, int_values, struct_values,\
     title_section, literal, to_asp_lines, action_causes, action_to_asp,\
     fluent_2_asp, param_val_2_asp, vars_to_asp, action_exec, equality_predicate
 
-def operation_exec(action: Union[sc.IAction, sc.Method], exec_lit: sc.Predicate) -> str:
+sys.path.insert(1, os.path.join(current_dir, '..', '..'))
+from model import *
+
+
+def operation_exec(action: Union[IAction, Method], exec_lit: Predicate) -> str:
 
     variables = set(action.params + exec_lit.variables)
     body = "" if len(variables) == 0 else ':-' + vars_to_asp(variables)
@@ -20,12 +22,12 @@ def operation_exec(action: Union[sc.IAction, sc.Method], exec_lit: sc.Predicate)
     else:
         parameters = ','.join(map(param_val_2_asp, action.params))
         s = f'exec({action.name}({parameters}),{literal(exec_lit)})' + body
-    if isinstance(action, sc.IAction):
+    if isinstance(action, IAction):
         return 'action_' + s
     else:
         return 'method_' + s
 
-def method_to_asp(action: sc.Method, cond: str = None) -> str:
+def method_to_asp(action: Method, cond: str = None) -> str:
     name = action.name
     variables = action.params
     s = ''
@@ -42,7 +44,7 @@ def method_to_asp(action: sc.Method, cond: str = None) -> str:
             return s + f':-{vars_to_asp(variables)}, {cond}'
 
 
-def method_req(method: sc.Method, prec: sc.Goal, succ: sc.Goal) -> str:
+def method_req(method: Method, prec: Goal, succ: Goal) -> str:
     name = method.name
     s = 'method_req('
     if len(method.params) == 0:
@@ -59,7 +61,7 @@ def method_req(method: sc.Method, prec: sc.Goal, succ: sc.Goal) -> str:
     return s
 
 
-def goal(g: sc.Goal) -> str:
+def goal(g: Goal) -> str:
     name = g.name
     if len(g.arguments) == 0:
         return f'{name}'
@@ -68,7 +70,7 @@ def goal(g: sc.Goal) -> str:
         return f'{name}({parameters})'
 
 
-def method_req_end(method: sc.Method, maximal_goal: sc.Goal) -> str:
+def method_req_end(method: Method, maximal_goal: Goal) -> str:
     name = method.name
     s = 'method_req_end('
     if len(method.params) == 0:
@@ -85,27 +87,27 @@ def method_req_end(method: sc.Method, maximal_goal: sc.Goal) -> str:
     return s
 
 
-def goal_DNF(g: sc.Goal, l: sc.Literal) -> str:
+def goal_DNF(g: Goal, l: Literal) -> str:
     s = 'goal_DNF(' + goal(g) + ', ' + literal(l) + ')'
-    variables = [v for v in g.arguments if isinstance(v, sc.Variable)]
+    variables = [v for v in g.arguments if isinstance(v, Variable)]
     if len(variables) > 0:
         s += f':-{vars_to_asp(variables)}'
     return s
     
 
-def goal_def(g: sc.Goal) -> str:
-    variables = [v for v in g.arguments if isinstance(v, sc.Variable)]
+def goal_def(g: Goal) -> str:
+    variables = [v for v in g.arguments if isinstance(v, Variable)]
     s = 'goal(' + goal(g) + ')'
     if len(variables) > 0:
         s += f':-{vars_to_asp(variables)}'
     return s
 
 
-def goal_to_sat(g: sc.Goal) -> str:
+def goal_to_sat(g: Goal) -> str:
     return 'goal_to_sat(' + goal(g) + ', 1, 1)'
 
 
-def prec_to_sat(prec: sc.Goal, succ: sc.Goal) -> str:
+def prec_to_sat(prec: Goal, succ: Goal) -> str:
     return 'prec_to_sat(' + goal(prec) + ', 1,' + goal(succ) + ', 1)'
 
 
@@ -182,7 +184,7 @@ def independent_rules() -> List[str]:
     ]
 
 
-def compile_HGN_into_asp(problem: sc.ClassicalPlanningProblem) -> str:
+def compile_HGN_into_asp(problem: ClassicalPlanningProblem) -> str:
 
 
     s =  "%Answer set planning.\n\n"
@@ -225,7 +227,7 @@ def compile_HGN_into_asp(problem: sc.ClassicalPlanningProblem) -> str:
     for action in problem.actions:
         action_equality_conds = []
         for precond in action.precondition:
-            if isinstance(precond, sc.EqualityPredicate):
+            if isinstance(precond, EqualityPredicate):
                 action_equality_conds.append(equality_predicate(precond))
         if len(action_equality_conds) == 0:
             actions.append(action_to_asp(action))
@@ -240,7 +242,7 @@ def compile_HGN_into_asp(problem: sc.ClassicalPlanningProblem) -> str:
 
     for action in problem.actions:
         for precond in action.precondition:
-            if isinstance(precond, sc.Literal):
+            if isinstance(precond, Literal):
                 executabilities.append(action_exec(action, precond))
 
     s += to_asp_lines(executabilities)
@@ -262,7 +264,7 @@ def compile_HGN_into_asp(problem: sc.ClassicalPlanningProblem) -> str:
         method_equality_conds = []
         print(method.name)
         for precond in method.precondition:
-            if isinstance(precond, sc.EqualityPredicate):
+            if isinstance(precond, EqualityPredicate):
                 method_equality_conds.append(equality_predicate(precond))
         if len(method_equality_conds) == 0:
             methods.append(method_to_asp(method))
@@ -278,7 +280,7 @@ def compile_HGN_into_asp(problem: sc.ClassicalPlanningProblem) -> str:
 
     for method in problem.methods:
         for precond in method.precondition:
-            if isinstance(precond, sc.Literal):
+            if isinstance(precond, Literal):
                 executabilities.append(operation_exec(method, precond))
     s += to_asp_lines(executabilities)
 

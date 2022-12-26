@@ -1,13 +1,17 @@
 """This modul contains Action datatypes"""
-
+import os, sys
 from typing import List, Union, TypeVar
 from dataclasses import dataclass
 from enum import Enum
 from collections import namedtuple
-from fluent import Fluent
-from predicate import Literal, Predicate, BeliefPredicate, Forall
-from variable import Variable
-from goal import Poset
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(1, current_dir)
+
+from .fluent import Fluent
+from .predicate import Literal, Predicate, BeliefPredicate, Forall
+from .variable import Variable
+from .goal import Poset
 
 #  TODO: introduction of templates
 #      needs of a fluent definition wich can be or

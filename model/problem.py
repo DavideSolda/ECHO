@@ -1,17 +1,21 @@
 """class for the definition of a planning problem"""
+import sys, os
 from typing import List, Union, Any, Iterator
 from dataclasses import dataclass
-from enum import Enum
 import logging
 from abc import abstractmethod
+from enum import Enum
 
-from action import IAction, MEAction
-from fluent import Fluent
-from predicate import Literal, Predicate, Predicate
-from variable import Variable
-from ftype import Type
-from method import Method
-from goal import Goal, Poset
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(1, current_dir)
+
+from .action import IAction, MEAction
+from .fluent import Fluent
+from .predicate import Literal, Predicate, Predicate
+from .variable import Variable
+from .ftype import Type
+from .method import Method
+from .goal import Goal, Poset
 
 class SolvingClassicalPlanningOption(Enum):  # TODO: to move?
     """Types of classical planning solving problems"""

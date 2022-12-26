@@ -3,11 +3,14 @@ import re
 import os
 import sys
 
-from compiler_to_epddl import compile_into_epddl
+from .compiler_to_epddl import compile_into_epddl
 from sofai.Planners.EPDDL.parser import EPDDL_Parser
+
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(1, os.path.join(CURRENT_DIR, '..', 'model'))
-import shortcuts as pd
+sys.path.insert(1, os.path.join(CURRENT_DIR, '..', '..'))
+from model import *
+
+
 TEMP = 'temp'
 DOMAIN_F = os.path.join(CURRENT_DIR, TEMP, 'domain.epddl')
 PROBLEM_F = os.path.join(CURRENT_DIR, TEMP, 'problem.epddl')
@@ -16,7 +19,7 @@ EFP = os.path.join(CURRENT_DIR, 'sofai',
 EFP_OUTPUT = os.path.join(CURRENT_DIR, TEMP, 'efp_output.txt')
 
 
-def solve_mae(mepproblem: pd.MEPlanningProblem) -> Iterator[pd.Instantiated_Action]:
+def solve_mae(mepproblem: MEPlanningProblem) -> Iterator[Instantiated_Action]:
 
     domain_s, problem_s = compile_into_epddl(mepproblem)
     
@@ -66,7 +69,7 @@ def solve_mae(mepproblem: pd.MEPlanningProblem) -> Iterator[pd.Instantiated_Acti
     print(action_name_plan)
     print(instantiated)
 
-    def find_in_domain(action_name: str) -> pd.MEAction:
+    def find_in_domain(action_name: str) -> MEAction:
         dom = mepproblem.actions
         for act in dom:
             if act.name == action_name:

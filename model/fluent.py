@@ -1,11 +1,15 @@
 """This module contain the definition of Fluent"""
+import sys, os
 from dataclasses import dataclass
 from typing import ClassVar
 
-from predicate import Literal
-from arithmetic_expression import ArithmeticExpr
-from ftype import BoolType, Type
-from variable import Variable
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(1, current_dir)
+
+from .predicate import Literal
+from .arithmetic_expression import ArithmeticExpr
+from .ftype import BoolType, Type
+from .variable import Variable
 
 
 @dataclass(frozen=True)

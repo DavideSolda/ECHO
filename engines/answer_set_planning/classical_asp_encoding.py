@@ -1,27 +1,27 @@
 from typing import List, Union
-
 import os
-current_dir = os.path.dirname(os.path.abspath(__file__))
 import sys
-sys.path.insert(1, os.path.join(current_dir, '..', 'model'))
-import shortcuts as sc
 
+current_dir = os.path.dirname(os.path.abspath(__file__))
 
+sys.path.insert(1, os.path.join(current_dir, '..', '..'))
 
-def enum_values(enum_type: sc.EnumType) -> str:
-    """sc.EnumType to its value separated by ;"""
+from model import *
+
+def enum_values(enum_type: EnumType) -> str:
+    """EnumType to its value separated by ;"""
     assert enum_type.is_enum_type()
     return ';'.join(enum_type)
 
 
-def int_values(int_type: sc.IntType) -> str:
-    """sc.IntType to min..max"""
+def int_values(int_type: IntType) -> str:
+    """IntType to min..max"""
     assert int_type.is_int_type()
     return f"{int_type.min}..{int_type.max}"
 
 
-def struct_values(struct_type: sc.StructType) -> str:
-    """sc.StructType to sub_types separated by ,"""
+def struct_values(struct_type: StructType) -> str:
+    """StructType to sub_types separated by ,"""
     assert struct_type.is_struct_type()
     sub_domains = []
     for sub_t in struct_type:
@@ -41,11 +41,11 @@ def title_section(title: str) -> str:
     return new_lines + comments + ' ' + title + ' ' + comments + new_lines
 
 
-def literal(predicate: sc.Literal) -> str:
-    """sc.Literal to asp representation"""
+def literal(predicate: Literal) -> str:
+    """Literal to asp representation"""
     neg = predicate.negated
     lit_str = ""
-    if isinstance(predicate, sc.Literal):
+    if isinstance(predicate, Literal):
         f_name = f"{predicate.fluent.name}"
         lit_str = f_name
         if len(predicate.args) > 0:
@@ -57,9 +57,9 @@ def literal(predicate: sc.Literal) -> str:
         return lit_str
     assert False
 
-def equality_predicate(predicate: sc.EqualityPredicate) -> str:
-    """sc.EqualityPredicate to asp representation"""
-    if isinstance(predicate, sc.EqualityPredicate):
+def equality_predicate(predicate: EqualityPredicate) -> str:
+    """EqualityPredicate to asp representation"""
+    if isinstance(predicate, EqualityPredicate):
         operator = predicate.operator.value
         left_val = param_val_2_asp(predicate.left_operand)
         right_val = param_val_2_asp(predicate.right_operand)
@@ -67,12 +67,12 @@ def equality_predicate(predicate: sc.EqualityPredicate) -> str:
     assert False
     return ''
 
-def param_val_2_asp(param_val: Union[sc.ArithmeticExpr, int, sc.Variable, str]):
+def param_val_2_asp(param_val: Union[ArithmeticExpr, int, Variable, str]):
 
     if isinstance(param_val, str): return param_val
     elif isinstance(param_val, int): return str(param_val)
-    elif isinstance(param_val, sc.Variable): return param_val.name.upper()
-    elif isinstance(param_val, sc.ArithmeticExpr):
+    elif isinstance(param_val, Variable): return param_val.name.upper()
+    elif isinstance(param_val, ArithmeticExpr):
         left_val  = param_val_2_asp(param_val.values[0])
         right_val = param_val_2_asp(param_val.values[1])
 
@@ -90,7 +90,7 @@ def to_asp_lines(lines: List[str]) -> str:
 def next_alpha(s):
     return chr((ord(s.upper())+1 - 65) % 26 + 65)
 
-def fluent_2_asp(f: sc.Fluent) -> str:
+def fluent_2_asp(f: Fluent) -> str:
 
     fluent_name = f.name
     if f.type.is_bool_type():
@@ -110,7 +110,7 @@ def fluent_2_asp(f: sc.Fluent) -> str:
         s += ",".join([f"{var_type.name}({var})" for var, var_type in l])
         return s
 
-def action_to_asp(action: sc.IAction, pre: str = None) -> str:
+def action_to_asp(action: IAction, pre: str = None) -> str:
     name = action.name
     variables = action.params
     s = ''
@@ -126,7 +126,7 @@ def action_to_asp(action: sc.IAction, pre: str = None) -> str:
         else:
             return s + f':-{vars_to_asp(variables)}, {pre}'
 
-def action_exec(action: sc.IAction, exec_lit: sc.Predicate) -> str:
+def action_exec(action: IAction, exec_lit: Predicate) -> str:
 
     variables = set(action.params + exec_lit.variables)
     body = "" if len(variables) == 0 else ':-' + vars_to_asp(variables)
@@ -136,7 +136,7 @@ def action_exec(action: sc.IAction, exec_lit: sc.Predicate) -> str:
         parameters = ','.join(map(param_val_2_asp, action.params))
         return f'exec({action.name}({parameters}),{literal(exec_lit)})' + body
 
-def action_causes(action: sc.IAction, cause_lit: sc.Literal) -> str:
+def action_causes(action: IAction, cause_lit: Literal) -> str:
 
     variables = set(action.params + cause_lit.variables)
     body = "" if len(variables) == 0 else ':-' + vars_to_asp(variables)
@@ -146,7 +146,7 @@ def action_causes(action: sc.IAction, cause_lit: sc.Literal) -> str:
         parameters = ','.join(map(param_val_2_asp, action.params))
         return f'causes({action.name}({parameters}),{literal(cause_lit)})' + body
 
-def vars_to_asp(variables: List[sc.Variable]) -> str:
+def vars_to_asp(variables: List[Variable]) -> str:
 
     print(variables)
     return ",".join([f"{var.type.name}({var.name.upper()})" for var in variables])
@@ -176,7 +176,7 @@ def independent_rules() -> List[str]:
         "#program base"
     ]
 
-def compile_classical_into_asp(problem: sc.HierarchicalGoalNetworkProblem) -> str:
+def compile_classical_into_asp(problem: HierarchicalGoalNetworkProblem) -> str:
 
 
     s =  "%Answer set planning.\n\n"
@@ -221,7 +221,7 @@ def compile_classical_into_asp(problem: sc.HierarchicalGoalNetworkProblem) -> st
     for action in problem.actions:
         action_equality_conds = []
         for precond in action.precondition:
-            if isinstance(precond, sc.EqualityPredicate):
+            if isinstance(precond, EqualityPredicate):
                 action_equality_conds.append(equality_predicate(precond))
         if len(action_equality_conds) == 0:
             actions.append(action_to_asp(action))
@@ -236,7 +236,7 @@ def compile_classical_into_asp(problem: sc.HierarchicalGoalNetworkProblem) -> st
 
     for action in problem.actions:
         for precond in action.precondition:
-            if isinstance(precond, sc.Literal):
+            if isinstance(precond, Literal):
                 executabilities.append(action_exec(action, precond))
 
     s += to_asp_lines(executabilities)

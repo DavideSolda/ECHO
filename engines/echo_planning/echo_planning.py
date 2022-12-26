@@ -4,21 +4,22 @@ import sys
 import os
 import string
 import random
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(1, os.path.join(CURRENT_DIR, '..', '..', 'model'))
-import shortcuts as pd
-sys.path.insert(1, os.path.join(CURRENT_DIR, '..', 'mae_epddl_planning'))
-import epddl_engine
-sys.path.insert(1, os.path.join(CURRENT_DIR, '..', 'answer_set_planning'))
-import asp_engine
 import copy
 
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-from predicate import Literal
-from variable import Variable
-from goal import Poset
-from action import Instantiated_Action
-from problem import EpiCla, HierarchicalGoalNetworkProblem
+print(CURRENT_DIR)
+
+#import solvers:
+sys.path.insert(1, os.path.join(CURRENT_DIR, '..', 'mae_epddl_planning'))
+from .epddl_engine import solve_mae
+sys.path.insert(1, os.path.join(CURRENT_DIR, '..', 'answer_set_planning'))
+from .asp_engine import solve_classical
+
+#import modeling objects:
+sys.path.insert(1, os.path.join(CURRENT_DIR, '..', '..'))
+from model import *
+
 
 def extract_classical_effects(effects: List[Literal], var_val: Dict[Variable, str]) -> List[Literal]:
 
@@ -44,11 +45,11 @@ def solve_echo(echo: ECHO) -> Iterator[Union[
     classical_problem = echo.classical_problem
 
     echo_plan = []
-    epistemic_plan = epddl_engine.solve_mae(meap_problem)
+    epistemic_plan = solve_mae(meap_problem)
 
     for epistemic_action, instatiated_variables in epistemic_plan:
 
-        if epistemic_action.type is pd.MEActionType.ontic:
+        if epistemic_action.type is MEActionType.ontic:
 
             var_val = dict(zip(epistemic_action.params, instatiated_variables))
             if isinstance(classical_problem, HierarchicalGoalNetworkProblem):
@@ -59,7 +60,7 @@ def solve_echo(echo: ECHO) -> Iterator[Union[
                 effects = extract_classical_effects(epistemic_action.effects, var_val)
                 classical_problem.add_goals(*effects)
 
-            final_state, plan = asp_engine.solve_classical(classical_problem)
+            final_state, plan = solve_classical(classical_problem)
 
             echo_plan.append(epistemic_action)
             #epicla_plan += plan
