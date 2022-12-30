@@ -4,29 +4,8 @@ Python library to encode in a declarative way the epistemic multi-agent planning
 
 * How to install:
 
-First, you need to clone the following github repository:
+You can simply use pip install bash command:
 
 #+BEGIN_SRC bash
-git clone recurse-submodules https://github.com/DavideSolda/echosys.git
-#+END_SRC
-
-Then, you need to install EFP, the multi-agent epistemic planner:
-
-#+BEGIN_SRC bash
-cd echosys/ECHO/engines/mae_epddl_planning/sofai/Planners/EFP
-make
-cd -
-#+END_SRC
-
-Install setuptools if not yet installed:
-
-#+BEGIN_SRC
-pip install setuptools
-#+END_SRC
-
-Install the library:
-
-#+BEGIN_SRC
-cd echosys
-pip install .
+pip install echosys
 #+END_SRC
