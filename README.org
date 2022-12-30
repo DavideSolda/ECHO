@@ -18,3 +18,15 @@ make
 cd -
 #+END_SRC
 
+Install setuptools if not yet installed:
+
+#+BEGIN_SRC
+pip install setuptools
+#+END_SRC
+
+Install the library:
+
+#+BEGIN_SRC
+cd echosys
+pip install .
+#+END_SRC

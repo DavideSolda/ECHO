@@ -11,10 +11,10 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 print(CURRENT_DIR)
 
 #import solvers:
-sys.path.insert(1, os.path.join(CURRENT_DIR, '..', 'mae_epddl_planning'))
-from .epddl_engine import solve_mae
-sys.path.insert(1, os.path.join(CURRENT_DIR, '..', 'answer_set_planning'))
-from .asp_engine import solve_classical
+sys.path.insert(1, os.path.join(CURRENT_DIR, '..'))
+from mae_epddl_planning import solve_mae
+sys.path.insert(1, os.path.join(CURRENT_DIR, '..'))
+from answer_set_planning import solve_classical
 
 #import modeling objects:
 sys.path.insert(1, os.path.join(CURRENT_DIR, '..', '..'))
@@ -36,7 +36,7 @@ def extract_classical_poset(poset: Poset, var_val: Dict[Variable, str]) -> List[
     return poset.instatiate(var_val)
 
 
-def solve_echo(echo: ECHO) -> Iterator[Union[
+def solve_echo(echo: ECHOPlanningProblem) -> Iterator[Union[
         Instantiated_Action,
         Tuple[Instantiated_Action, List[Instantiated_Action]]
 ]]:

@@ -4,7 +4,7 @@ import os
 import sys
 
 from .compiler_to_epddl import compile_into_epddl
-from sofai.Planners.EPDDL.parser import EPDDL_Parser
+from .sofai.Planners.EPDDL.parser import EPDDL_Parser
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(1, os.path.join(CURRENT_DIR, '..', '..'))
