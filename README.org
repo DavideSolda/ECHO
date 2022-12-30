@@ -1,3 +1,13 @@
 #+Title: Hierarchical Epistemic Multi-Agent Planner
 
 Python library to encode in a declarative way the epistemic multi-agent planning problem.
+
+* How to install:
+
+First, you need to clone the following github repository:
+
+
+#+BEGIN_SRC bash
+git clone recurse-submodules https://github.com/DavideSolda/echosys.git
+#+END_SRC
+
