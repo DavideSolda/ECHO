@@ -53,3 +53,8 @@ pick = IAction(name = "pick",
                precondition = [top(C1), on_block(C1, C2), free_gripper()],
                effects = [-top(C1), -on_block(C1, C2), top(C2), -free_gripper(), gripped(C1)])
 #+END_SRC
+
+Note that src_lang[:exports code]{free_gripper} is a flunet, 
+while src_lang[:exports code]{free_gripper()} is a literal. To negate a literal
+add src_lang[:exports code]{-} before the predicate.
+
