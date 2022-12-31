@@ -1,18 +1,6 @@
 import os
 import sys
 
-"""
-current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(1, os.path.join(current_dir, "..", "model"))
-from shortcuts import *
-
-sys.path.insert(1, os.path.join(current_dir, "..", "engines", 'answer_set_planning'))
-import asp_engine
-
-sys.path.insert(1, os.path.join(current_dir, "..", "engines", 'echo_planning'))
-import echo_engine
-"""
-
 from ECHO import *
 
 stack = IntType("stack", 1, 3)
@@ -139,9 +127,6 @@ pick_from_table_place_on_stack = MEAction('ptps',
                                           effects=[owner(A1, C1), -on_table(C1), free_table()],
                                           full_obs=[A1])
 
-
-#sys.path.insert(1, os.path.join(current_dir, "..", "engines", 'mae_epddl_planning'))
-
 e = MEPlanningProblem()
 #add types:
 e.add_type(agent)
@@ -175,5 +160,7 @@ echo_problem = ECHOPlanningProblem(p, e)
 
 
 echo_plan = solve_echo(echo_problem)
-#print('echo_plan')
-#pretty_print_echo_plan(echo_plan)        
+for action in echo_plan:
+    print(action)
+    for sub_action in action[1]:
+        print("\t\t" + str(sub_action))

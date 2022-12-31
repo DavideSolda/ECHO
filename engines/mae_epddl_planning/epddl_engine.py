@@ -7,8 +7,8 @@ from .compiler_to_epddl import compile_into_epddl
 from .sofai.Planners.EPDDL.parser import EPDDL_Parser
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(1, os.path.join(CURRENT_DIR, '..', '..'))
-from model import *
+sys.path.insert(1, os.path.join(CURRENT_DIR, '..', '..', '..'))
+from ECHO.model import *
 
 
 TEMP = 'temp'

@@ -1,15 +1,7 @@
 import os
 import sys
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(1, os.path.join(current_dir, "..", "model"))
-from shortcuts import *
-
-sys.path.insert(1, os.path.join(current_dir, "..", "engines", 'answer_set_planning'))
-import asp_engine
-
-sys.path.insert(1, os.path.join(current_dir, "..", "engines", 'echo_planning'))
-import echo_engine
+from ECHO import *
 
 stack = IntType("stack", 1, 3)
 color = EnumType("color", ["red", "orange", "yellow", "black"])
@@ -188,9 +180,6 @@ pick_from_table_place_on_stack = MEAction('ptps',
 tp = Poset([picked_g([A1, C1]), top_g([C1])])
 pick_from_table_place_on_stack.classical_sub_goals(tp)
 
-sys.path.insert(1, os.path.join(current_dir, "..", "engines", 'mae_epddl_planning'))
-import epddl_engine
-
 e = MEPlanningProblem()
 #add types:
 e.add_type(agent)
@@ -218,13 +207,11 @@ e.add_initial_values(B(['bob', 'alice'], owner('bob', 'black')))
 e.add_initial_values(B(['bob', 'alice'], free_table()))
 #add goals:
 e.add_goals(free_table(), owner('alice', 'black'))
-epddl_engine.solve(e)
+
+echo_problem = ECHOPlanningProblem(p, e)
 
 
-echo_problem = ECHO(p, e)
-
-
-echo_plan = echo_engine.solve(echo_problem)
+echo_plan = solve_echo(echo_problem)
 print('echo_plan')
 print(echo_plan)
 #pretty_print_epica_plan(epicla_plan)        

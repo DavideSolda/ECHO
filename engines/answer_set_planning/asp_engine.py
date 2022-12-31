@@ -9,9 +9,9 @@ from .classical_asp_encoding import compile_classical_into_asp
 from .asp_goal_network_encoding import compile_HGN_into_asp
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(1, os.path.join(current_dir, '..', '..'))
+sys.path.insert(1, os.path.join(current_dir, '..', '..', '..'))
 
-from model import *
+from ECHO.model import *
                                                                                            
 MAX_STEP = 30
 

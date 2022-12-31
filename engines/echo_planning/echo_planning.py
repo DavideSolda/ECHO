@@ -1,5 +1,5 @@
 """Module to solve an EpiCla problem"""
-from typing import Tuple, Union, List, Iterator, Dict
+from typing import Tuple, Union, List, Dict
 import sys
 import os
 import string
@@ -17,8 +17,8 @@ sys.path.insert(1, os.path.join(CURRENT_DIR, '..'))
 from answer_set_planning import solve_classical
 
 #import modeling objects:
-sys.path.insert(1, os.path.join(CURRENT_DIR, '..', '..'))
-from model import *
+sys.path.insert(1, os.path.join(CURRENT_DIR, '..', '..', '..'))
+from ECHO.model import *
 
 
 def extract_classical_effects(effects: List[Literal], var_val: Dict[Variable, str]) -> List[Literal]:
@@ -36,9 +36,9 @@ def extract_classical_poset(poset: Poset, var_val: Dict[Variable, str]) -> List[
     return poset.instatiate(var_val)
 
 
-def solve_echo(echo: ECHOPlanningProblem) -> Iterator[Union[
+def solve_echo(echo: ECHOPlanningProblem) -> List[Tuple[
         Instantiated_Action,
-        Tuple[Instantiated_Action, List[Instantiated_Action]]
+        List[Instantiated_Action]
 ]]:
 
     meap_problem = echo.meap_problem
@@ -62,19 +62,17 @@ def solve_echo(echo: ECHOPlanningProblem) -> Iterator[Union[
 
             final_state, plan = solve_classical(classical_problem)
 
-            echo_plan.append(epistemic_action)
-            #epicla_plan += plan
+            echo_plan.append((epistemic_action, plan))
 
             if isinstance(classical_problem, HierarchicalGoalNetworkProblem):
                 classical_problem.reset_poset()
             else:
                 classical_problem.reset_goals()
 
-            classical_problem.reset_initial_values()    
-
+            classical_problem.reset_initial_values()
             classical_problem.add_initial_values(*final_state)
 
         else:
-            echo_plan.append(epistemic_action)
+            echo_plan.append((epistemic_action, []))
 
     return echo_plan

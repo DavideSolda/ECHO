@@ -4,9 +4,9 @@ import sys
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
-sys.path.insert(1, os.path.join(current_dir, '..', '..'))
+sys.path.insert(1, os.path.join(current_dir, '..', '..', '..'))
 
-from model import *
+from ECHO.model import *
 
 def enum_values(enum_type: EnumType) -> str:
     """EnumType to its value separated by ;"""

@@ -8,8 +8,8 @@ from .classical_asp_encoding import enum_values, int_values, struct_values,\
     title_section, literal, to_asp_lines, action_causes, action_to_asp,\
     fluent_2_asp, param_val_2_asp, vars_to_asp, action_exec, equality_predicate
 
-sys.path.insert(1, os.path.join(current_dir, '..', '..'))
-from model import *
+sys.path.insert(1, os.path.join(current_dir, '..', '..', '..'))
+from ECHO.model import *
 
 
 def operation_exec(action: Union[IAction, Method], exec_lit: Predicate) -> str:

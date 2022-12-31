@@ -1,4 +1,4 @@
-EFP version 2.0 - Built date: Thu Dec  1 17:00:44 CET 2022
+EFP version 2.0 - Built date: Fri Dec 30 15:28:45 CET 2022
 
 Building agent list...
 
@@ -13,3 +13,20 @@ Adding to pointed world and initial conditions...
 Building attitudes table...
 
 Adding to Goal...
+
+Building initial possibility...
+
+Initial Built in 1.16982 seconds
+
+
+
+Well Done, Goal found in 9.90907 :)
+
+Plan Length: 2
+
+Solution =  pspt_bob_black, ptps_alice_black
+completed the search in: 9.90907
+
+
+
+*****THE END*****

@@ -1,13 +1,7 @@
 import os
 import sys
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(1, os.path.join(current_dir, "..", "model"))
-from shortcuts import *
-
-sys.path.insert(1, os.path.join(current_dir, "..", "engines", 'mae_epddl_planning'))
-from epddl_engine import *
-
+from ECHO import *
 
 coininthebox = MEPlanningProblem()
 #  types:

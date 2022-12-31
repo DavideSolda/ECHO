@@ -4,10 +4,10 @@ import sys
 import os
 import string
 import random
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(1, os.path.join(CURRENT_DIR, '..', '..'))
 
-from model import *
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(1, os.path.join(CURRENT_DIR, '..', '..', '..'))
+from ECHO.model import *
 
 def get_random_string(length: int) -> str:
     """choose from all lowercase letter"""
@@ -20,14 +20,13 @@ def predicate_argument(fluent_type: Union[IntType,
                                           EnumType,
                                           StructType]) -> str:
     """from FType to epddl argument of predicates"""
-    if isinstance(fluent_type, AgentType):
+    if fluent_type.is_agent_type():
         return f'?ag_{get_random_string(5)} - ' + 'agent'
     type_name = fluent_type.name
-    if isinstance(fluent_type, (IntType, EnumType)):
+    if fluent_type.is_int_type() or fluent_type.is_enum_type():
         return f'?{type_name}_{get_random_string(5)} - ' + type_name
-    if isinstance(fluent_type, StructType):
+    if fluent_type.is_struct_type():
         return ' '.join(map(predicate_argument, fluent_type))
-    assert False
     return ''
 
 
@@ -69,7 +68,6 @@ def param_val_to_epddl(param_val: Union[ArithmeticExpr,
         right_val = param_val_to_epddl(param_val.values[1], prob)
         op = param_val.operator.value
         return '(' + left_val + op + right_val + ')'
-    assert False
 
 
 def literal(lit: Literal, prob: bool) -> str:
@@ -89,7 +87,6 @@ def agent(ag: Union[str, Variable], prob=False) -> str:
         if prob:
             return ag.name.lower()
         return '?'+ag.name.lower()
-    assert False
 
 
 def negate(p: str, prob: bool) -> str:
@@ -103,8 +100,10 @@ def pred(_predicate: Predicate, prob=False) -> str:
     """from Predicate to epddl's action predicate"""
     neg = _predicate.negated
     epddl_pred = ''
+
     if isinstance(_predicate, Literal):
         epddl_pred = f'{literal(_predicate, prob)}'
+
     elif isinstance(_predicate, BeliefPredicate):
         def to_agent(ag: Union[str, Variable]):
             return agent(ag, prob)
@@ -112,23 +111,29 @@ def pred(_predicate: Predicate, prob=False) -> str:
         agents = '[' + ' '.join(map(to_agent, _predicate.agents)) + ']'
         prop = pred(_predicate.belief_proposition, prob)
         epddl_pred = f'{agents}({prop})'
+
     elif isinstance(_predicate, BooleanPredicate):
         op = _predicate.op.value
         l_pred = pred(_predicate.left_predicate, prob)
         r_pred = pred(_predicate.right_predicate, prob)
-        return op + ' (' + l_pred + ') (' + r_pred + ')'
+        epddl_pred = op + ' (' + l_pred + ') (' + r_pred + ')'
+
     elif isinstance(_predicate, When):
-        epddl_pred = f'when ({pred(_predicate.body, prob)}) ({pred(_predicate.head, prob)})'
-    else:
-        assert False
-    if neg:
-        epddl_pred = negate(epddl_pred, prob=prob)
+        return f'when ({pred(_predicate.body, prob)}) ({pred(_predicate.head, prob)})'
+
+    elif isinstance(_predicate, EqualityPredicate):
+        op = _predicate.operator.value
+        l_pred = predicate_argument(_predicate.left_operand, prob)
+        r_pred = predicate_argument(_predicate.right_operand, prob)
+        return op + ' (' + l_pred + ') (' + r_pred + ')'
+
+    if neg: epddl_pred = negate(epddl_pred, prob=prob)
+
     return epddl_pred
 
 
 def preds(predicates: List[Predicate]) -> str:
     """from list of Predicate to epddl's action predicates"""
-    assert len(predicates) > 0
     if len(predicates) == 1:
         return f'{pred(predicates[0])}'
     return 'and ' + ' '.join(map(lambda x: '(' + x + ')',
@@ -142,11 +147,14 @@ def obss(observers: List[Union[Forall, str, Variable]]) -> str:
 
 def obs(observer: Union[Forall, str, Variable]) -> str:
 
-    print(observer)
+    print(type(observer))
+    print(type(Variable('a', IntType('a_int', 1, 3))))
+
     if isinstance(observer, str):
         return f'({agent(observer)})'
 
     if isinstance(observer, Variable):
+        print(f'({agent(observer.name.lower())})')
         return f'({agent(observer.name.lower())})'
 
     if isinstance(observer, Forall):
@@ -167,8 +175,6 @@ def obs(observer: Union[Forall, str, Variable]) -> str:
         return f'(forall ({forall}) ({who}))'
 
 
-
-
 def action(mep_action: MEAction) -> str:
     """from MEAction to epddl action"""
     action_enc = f'\t(:action {mep_action.name}\n'
@@ -180,6 +186,7 @@ def action(mep_action: MEAction) -> str:
     if len(mep_action.effects) > 0:
         action_enc += f'\t\t:effect ({preds(mep_action.effects)})\n'
     if len(mep_action.full_obs) > 0:
+        print(mep_action.full_obs)
         action_enc += f'\t\t:observers (and {obss(mep_action.full_obs)})\n'
     if len(mep_action.partial_obs) > 0:
         action_enc += f'\t\t:p_observers (and {obss(mep_action.partial_obs)})'
