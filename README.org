@@ -9,3 +9,47 @@ You can simply use pip install bash command:
 #+BEGIN_SRC bash
 pip install echosys
 #+END_SRC
+
+* How to define planning objects:
+
+After importing the library with:
+
+#+BEGIN_SRC python
+from ECHO import *
+#+END_SRC
+
+you can define new types:
+
+#+BEGIN_SRC python
+stack = IntType("stak", 1, 3)
+color = EnumType("color", ["red", "orange", "yellow", "black"])
+color_pair = StructType("colorxcolor", [color, color])
+#+END_SRC
+
+once the types are defined, you can define fluents:
+
+#+BEGIN_SRC python
+on_block     = Fluent("on_block", color_pair)
+top          = Fluent("top", color)
+gripped      = Fluent("gripped", color)
+free_gripper = Fluent("free_gripper")
+#+END_SRC
+
+note that free_gripper is to be considered as a boolean fluent.
+
+Often it happens that you want to define ''schemata'' actions, therefore, our library provides 
+the means to define variables as well:
+
+#+BEGIN_SRC python
+C1 = Variable("C1", color)
+C2 = Vaeriable("C2", color)
+#+END_SRC
+
+Classical actions are defined in the following way:
+
+#+BEGIN_SRC python
+pick = IAction(name = "pick",
+               params = [C1, C2],
+               precondition = [top(C1), on_block(C1, C2), free_gripper()],
+               effects = [-top(C1), -on_block(C1, C2), top(C2), -free_gripper(), gripped(C1)])
+#+END_SRC
