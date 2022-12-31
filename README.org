@@ -42,7 +42,8 @@ the means to define variables as well:
 
 #+BEGIN_SRC python
 C1 = Variable("C1", color)
-C2 = Vaeriable("C2", color)
+C2 = Variable("C2", color)
+A1  = Variable("i", agent)
 #+END_SRC
 
 Classical actions are defined in the following way:
@@ -54,7 +55,50 @@ pick = IAction(name = "pick",
                effects = [-top(C1), -on_block(C1, C2), top(C2), -free_gripper(), gripped(C1)])
 #+END_SRC
 
-Note that ~free_gripper~ is a flunet, 
-while src_python[:exports code]{free_gripper()} is a literal. To negate a literal
-add src_python[:exports code]{-} before the predicate.
+Note that ~free_gripper~ is a flunet, while ~free_gripper()~ is a literal. To negate a literal
+add ~-~ before the predicate.
+
+Epistemic actions are defined in the following way:
+
+#+BEGIN_SRC python
+pick_from_stack_place_on_table = MEAction('pspt',
+  params = [A1, C1],
+  precondition = [owner(A1, C1), free_table(), B([A1], free_table())],
+  effects=[-owner(A1, C1), on_table(C1), -free_table()],
+  full_obs=[A1])
+#+END_SRC
+
+The code is complient with the EPDDL syntax.
+
+Basic types, fluents, variables and actions are then added to the planning problems, for instance:
+
+#+BEGIN_SRC python
+p  = ClassicalPlanningProblem()
+ep = MEPlanningProblem()
+
+p.add_type(color)
+p.add_fluent(free_table)
+p.add_action(pick)
+
+#and similar for ep
+#+END_SRC
+
+At the end you can combine the two planning problems with:
+
+#+BEGIN_SRC python
+echo_problem = ECHOPlanningProblem(p, e)
+#+END_SRC
+
+* How to solve the planning problem:
+
+You can solve the following planning problems:
+
+#+BEGIN_SRC python
+classical_plan = solve_classical(p)
+epistemic_plan = solve_epddl(ep)
+echo_plan = solve_echo(echo_problem)
+#+END_SRC
+
+To see a set of complete and working examples of planning problems defined and solved using 
+ECHO python library we remind you to the examples folder.
 
