@@ -37,12 +37,10 @@ def solve_mae(mepproblem: MEPlanningProblem) -> Iterator[Instantiated_Action]:
     parser.parse_problem(PROBLEM_F)  # EX_PROBLEM_F)
     mAp_f = os.path.join(CURRENT_DIR, TEMP,
                          parser.domain_name + "_" + parser.problem_name + '.tmp')
-    file_name = parser.print_EFP(os.path.join(CURRENT_DIR, TEMP), mAp_f)
-
-    print(mAp_f)
+    parser.print_EFP(os.path.join(CURRENT_DIR, TEMP), mAp_f)
 
     os.system(f'''{EFP} {mAp_f} > {EFP_OUTPUT}''')
-    #os.system(f'''{EFP} {mAp_f}  -st KRIPKE_OPT -h SUBGOALS > {EFP_OUTPUT}''')
+
     #  read mAp plan
     mAp_plan = []
     with open(EFP_OUTPUT) as mAp_solution:

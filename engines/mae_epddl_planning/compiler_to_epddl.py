@@ -147,11 +147,8 @@ def obss(observers: List[Union[Forall, str, Variable]]) -> str:
 
 def obs(observer: Union[Forall, str, Variable]) -> str:
 
-    print(type(observer))
-    print(type(Variable('a', IntType('a_int', 1, 3))))
-
     if isinstance(observer, str):
-        return f'({agent(observer)})'
+        return f'({observer})'
 
     if isinstance(observer, Variable):
         print(f'({agent(observer.name.lower())})')

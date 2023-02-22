@@ -213,5 +213,10 @@ echo_problem = ECHOPlanningProblem(p, e)
 
 echo_plan = solve_echo(echo_problem)
 print('echo_plan')
-print(echo_plan)
+#print(echo_plan)
 #pretty_print_epica_plan(epicla_plan)        
+for epistemic_act in echo_plan:
+    classic_act_list = epistemic_act[1]
+    for inst_classic_act in classic_act_list:
+        print(inst_classic_act[0])
+        print(inst_classic_act[1])
