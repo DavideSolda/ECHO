@@ -46,11 +46,9 @@ def solve_mae(mepproblem: MEPlanningProblem) -> Iterator[Instantiated_Action]:
     with open(EFP_OUTPUT) as mAp_solution:
         for line in mAp_solution:
             if 'Solution =' in line:
-                print(line)
                 s = line[len('Solution =  '):-1]
                 mAp_plan = s.split(', ')
 
-    print(mAp_plan)
     if mAp_plan == ['']:
         return zip([],[])
 
@@ -64,9 +62,6 @@ def solve_mae(mepproblem: MEPlanningProblem) -> Iterator[Instantiated_Action]:
     for action in mAp_plan:
         instantiated.append(action.split('_')[1:])
 
-    print(action_name_plan)
-    print(instantiated)
-
     def find_in_domain(action_name: str) -> MEAction:
         dom = mepproblem.actions
         for act in dom:
@@ -75,5 +70,4 @@ def solve_mae(mepproblem: MEPlanningProblem) -> Iterator[Instantiated_Action]:
     maection_plan = [find_in_domain(action_name)
                      for action_name in action_name_plan]
 
-    print(maection_plan)
     return zip(maection_plan, instantiated)

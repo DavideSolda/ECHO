@@ -151,7 +151,6 @@ def obs(observer: Union[Forall, str, Variable]) -> str:
         return f'({observer})'
 
     if isinstance(observer, Variable):
-        print(f'({agent(observer.name.lower())})')
         return f'({agent(observer.name.lower())})'
 
     if isinstance(observer, Forall):
@@ -183,7 +182,6 @@ def action(mep_action: MEAction) -> str:
     if len(mep_action.effects) > 0:
         action_enc += f'\t\t:effect ({preds(mep_action.effects)})\n'
     if len(mep_action.full_obs) > 0:
-        print(mep_action.full_obs)
         action_enc += f'\t\t:observers (and {obss(mep_action.full_obs)})\n'
     if len(mep_action.partial_obs) > 0:
         action_enc += f'\t\t:p_observers (and {obss(mep_action.partial_obs)})'

@@ -16,16 +16,16 @@ Adding to Goal...
 
 Building initial possibility...
 
-Initial Built in 0.119934 seconds
+Initial Built in 1.0874 seconds
 
 
 
-Well Done, Goal found in 1.65629 :)
+Well Done, Goal found in 9.31372 :)
 
-Plan Length: 3
+Plan Length: 2
 
-Solution =  peek, share_secret_giangiovanni_alice_uno, share_secret_alice_bob_uno
-completed the search in: 1.65629
+Solution =  pspt_bob_black, ptps_alice_black
+completed the search in: 9.31372
 
 
 

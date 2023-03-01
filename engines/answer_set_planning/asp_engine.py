@@ -22,7 +22,7 @@ class Context:
         return [x, y]
 
 def on_model(m):
-    print(m)
+    #print(m)
     pass
 
 
@@ -73,8 +73,6 @@ def solve_classical(problem: Union[ClassicalPlanningProblem, HierarchicalGoalNet
         raise Exception(f'{type(problem)} is not handled in asp')
 
     encoding_file_path = os.path.join(current_dir, 'asp_encoding.lp')
-    print(asp_encoding)
-    print(encoding_file_path)
 
     with open(encoding_file_path, 'w') as encoding_file:
         encoding_file.write(asp_encoding)
@@ -115,18 +113,24 @@ def solve_classical(problem: Union[ClassicalPlanningProblem, HierarchicalGoalNet
     print(f'maximum timestamp {max_timestamp}')
     for fluent in model:
         if fluent.name == 'holds' and fluent.arguments[1].number == max_timestamp:
+            print(fluent)
             if fluent.arguments[0].name != 'neg' and fluent.positive:
 
                 #here!
                 final_holds.append(to_problem_literal(problem.fluents, fluent.arguments[0]))
                 #final_holds.append(str(fluent.arguments[0]))
         elif fluent.name == 'occurs' and fluent.positive:
+            print(fluent)
             operation_name = fluent.arguments[0].name
             if operation_name in [act.name for act in problem.actions]:
                 action = action_2_instantiated_action(problem, fluent.arguments[0])
                 index = int(str(fluent.arguments[1]))
                 plan.append((action, index))
-    
+        elif fluent.name == 'goal_to_sat':
+            print(fluent)
+        elif fluent.name == "not_sat":
+            print(fluent)
+
     plan = [x[0] for x in sorted(plan, key=lambda x : x[1])]
     #print(final_holds, plan)
     return final_holds, plan

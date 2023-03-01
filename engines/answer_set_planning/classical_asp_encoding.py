@@ -148,7 +148,6 @@ def action_causes(action: IAction, cause_lit: Literal) -> str:
 
 def vars_to_asp(variables: List[Variable]) -> str:
 
-    print(variables)
     return ",".join([f"{var.type.name}({var.name.upper()})" for var in variables])
 
 def independent_rules() -> List[str]:

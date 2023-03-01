@@ -19,7 +19,7 @@ V  = Variable("v", integer)
 
 peek_secret = MEAction('peek',
                        effects=[p('uno')],
-                       full_obs=['alice'],
+                       full_obs=['giangiovanni'],
                        type = MEActionType.sensing)
 
 share_secret = MEAction('share_secret',

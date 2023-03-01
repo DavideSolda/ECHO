@@ -114,71 +114,75 @@ def prec_to_sat(prec: Goal, succ: Goal) -> str:
 def independent_rules() -> List[str]:
 
     return [
+        "not_sat(G, 1) :- goal_DNF(G, F), holds(NOTF, 1), opposite(NOTF ,F), goal_to_sat(G, T1, 1)",
+        "not_sat(G, 1) :- goal_DNF(G, F), fluent(F), not holds(F, 1), goal_to_sat(G, T1, 1)",
+
+
         "#program step(t)",
         "%creation of new subgoals",
-        "goal_to_sat(G, t+1, t+1):-occurs(M, t), method_req(M, G, G2), goal(G)",
-        "goal_to_sat(G, t+1, t+1):-occurs(M, t), method_req_end(M, G), goal(G)",
+        "goal_to_sat(G, t+1, t+1):-occurs(M, t), method_req(M, G, G2)",
+        "goal_to_sat(G, t+1, t+1):-occurs(M, t), method_req_end(M, G)",
         "prec_to_sat(G1, t+1, G2, t+1):-occurs(M, t), method_req(M, G1, G2)",
+
 
         "%definition of minimal goal",
         "not_minimal(G2, T2, t):-prec_to_sat(G1, T1, G2, T2), goal_to_sat(G1,T1,t), goal_to_sat(G2, T2, t)",
         "not_minimal(G2, T2, t):-goal_to_sat(G1,T1,t), goal_to_sat(G2, T2, t), T2<T1",
-
-        "minimal(G, T1, t):-goal_to_sat(G, T1, t), not not_minimal(G, T1, t)",
-
+        "minimal(G, T1, t)     :-goal_to_sat(G, T1, t), not not_minimal(G, T1, t)",
         "0{selected_sub_goal(G, T1, t):minimal(G, T1, t)}1",
 
+        
         "%executability for methods:",
         "not_executable(M, t):-method_exec(M,F), fluent(F), not holds(F,t)",
+        "not_executable(M, t):-method_exec(M,neg(F)), fluent(F), holds(F,t)",
         "not_executable(M, t):-method_exec(M,F), opposite(F, NOTF), holds(NOTF,t)",
 
-        "not_relevant(M,t):-method(M), goal_DNF(MG,F), method_req_end(M, MG), selected_sub_goal(SG, ST, t), goal_DNF(SG, NOTF), opposite(F,NOTF)",
-        "relevant(M,t):-method(M), selected_sub_goal(SG, ST, t), goal_DNF(SG, F), method_req_end(M, MG), goal_DNF(MG, F), not not_relevant(M,t)",
-        "executable(M,t):-method(M), not not_executable(M,t), relevant(M,t)",
-        ":- not executable(M,t), occurs(M,t), method(M)",
+
+        "not_relevant(M,t):-method(M), goal_DNF(MG,F), method_req_end(M, MG), selected_sub_goal(SG, ST, t) , goal_DNF(SG, NOTF), opposite(F,NOTF)",
+        "relevant(M,t)    :-method(M), selected_sub_goal(SG, ST, t), goal_DNF(SG, F), method_req_end(M, MG), goal_DNF(MG, F), not not_relevant(M,t)",
+        "executable(M,t)  :-method(M), not not_executable(M,t), relevant(M,t)",
+
 
         "%executability for actions:",
-        "not_executable(A,t):-exec(A,F), fluent(F), not holds(F,t)",
-        "not_executable(A,t):-exec(A,NOTF), opposite(F, NOTF), holds(F,t)",
-
+        "not_executable(A,t):-exec(A,F), fluent(F), not holds(F, t)",
+        "not_executable(A,t):-exec(A,neg(F)), fluent(F), holds(F, t)",
+        "not_executable(A,t):-exec(A,NOTF), opposite(F, NOTF), holds(F, t)",
         "not_relevant(A,t):-action(A), selected_sub_goal(SG, ST, t), goal_DNF(SG, NOTF), causes(A,F), opposite(F, NOTF)",
         "relevant(A,t):-action(A), selected_sub_goal(SG, ST, t), goal_DNF(SG, F), causes(A,F), not not_relevant(A,t)",
-        "executable(A, t):-action(A), not not_executable(A, t), relevant(A, t)",
-        ":- not executable(A, t), occurs(A, t), action(A)",
+        "executable(A, t) :-action(A), not not_executable(A, t), relevant(A, t)",
+
 
         "%inertia for fluents:",
         "holds(F, t+1):-holds(F, t), opposite(F, G), not holds(G, t+1)",
+
 
         "%opposite definition",
         "opposite(F, neg(F)):-fluent(F)",
         "opposite(neg(F), F):-fluent(F)",
 
-        "%at most one action/method at a time:",
-        "{occurs(A,t):action(A)}",
-        "{occurs(M,t):method(M)}",
-        ":-occurs(A,t), occurs(M,t), A!=M",
 
-        #no action nor method if selected goal is alredy satisfied:
-        ":-occurs(O,t), now_already_sat(G, t), selected_sub_goal(G, T1, t)",
+        "%at most one action/method at a time if goal not yet satisfied:",
+        "0 {occurs(O, t):executable(O, t)} 1",
+
+
+        "%new entries:",
+        "occurs(dummy, t) :- not method_occured(t), not act_occured(t)",
+        "act_occured(t)    :- occurs(A,t), action(A)",
+        "method_occured(t) :- occurs(M,t), method(M)",
 
         "%action effects:",
-        "holds(F, t+1):-action(A), occurs(A,t), causes(A,F)",
+        "holds(F, t+1) :- action(A), occurs(A,t), causes(A,F)",
 
-        "%inertia for subgoals",
-        "action_occurs(t):-occurs(A,t), action(A)",
 
-        "not_sat(G, t+1):-goal_DNF(G, F), holds(NOTF, t+1), opposite(NOTF ,F), goal(G)",
-        "not_sat(G, t+1):-goal_DNF(G, F), fluent(F), not holds(F, t+1), goal(G)",
+        "not_sat(G, t+1) :- goal_DNF(G, F), holds(NOTF, t+1), opposite(NOTF ,F), goal_to_sat(G, T1, t+1)",
+        "not_sat(G, t+1) :- goal_DNF(G, F), fluent(F), not holds(F, t+1), goal_to_sat(G, T1, t+1)",
 
-        "now_not_sat(G, t):-goal_DNF(G, F), holds(NOTF, t), opposite(NOTF ,F), goal(G)",
-        "now_not_sat(G, t):-goal_DNF(G, F), fluent(F), not holds(F, t), goal(G)",
 
-        "now_already_sat(G, t):- goal_to_sat(G, T1, t), not now_not_sat(G, t)",
+        "not_to_propagate(G, T1, t) :- goal_to_sat(G, T1, t), minimal(G, T1, t), not not_sat(G, t+1), act_occured(t)",
+        "not_to_propagate(G, T1, t) :- goal_to_sat(G, T1, t), minimal(G, T1, t), not not_sat(G, t), occurs(dummy, t)",
+        "goal_to_sat(G, T1, t+1):- goal_to_sat(G, T1, t), not not_to_propagate(G, T1, t)",
 
-        "not_to_propagate(G, T1, t):- now_already_sat(G, t), selected_sub_goal(G, T1, t)",
 
-        "goal_to_sat(G, T1, t+1):- goal_to_sat(G, T1, t), not action_occurs(t), not not_to_propagate(G, T1, t)",
-        "goal_to_sat(G, T1, t+1):- not_sat(G, t+1), goal_to_sat(G, T1, t), action_occurs(t)",
         "#program check(t)",
         ":- goal_to_sat(G, T, t), query(t)"
     ]
@@ -262,7 +266,6 @@ def compile_HGN_into_asp(problem: ClassicalPlanningProblem) -> str:
 
     for method in problem.methods:
         method_equality_conds = []
-        print(method.name)
         for precond in method.precondition:
             if isinstance(precond, EqualityPredicate):
                 method_equality_conds.append(equality_predicate(precond))
